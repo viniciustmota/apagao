@@ -57,7 +57,7 @@ public interface IInteractable { string Prompt { get; } bool CanInteract(GameObj
 
 Todo inimigo segue o mesmo formato da Sentinela:
 
-1. **Controlador** (`<Inimigo>AI : MonoBehaviour`) guarda parâmetros, sentidos e ações reutilizáveis (`MoveTo`, `FaceTowards`, `FillSuspicion`).
+1. **Controlador** (`<Inimigo>AI : MachineAI`). A base `MachineAI` (`AI/Core/`) já traz sentidos, suspeita, rede, vida com recuo, takedown, carcaça, indicador e as ações comuns (`MoveTo`, `FaceTowards`, `FillSuspicion`). A subclasse define os estados e as reações (`HandleNoise`, `HandleHiveSighting`, `EnterCombat`).
 2. **Estados** (`<Nome>State : State<<Inimigo>AI>`), um por arquivo, decidem as transições.
 3. **Componentes compartilhados:** `VisionSensor`, `HearingSensor`, `Health`, `HiveMember`.
 4. **Feedback:** indicador de alerta acima da cabeça e label de debug com o estado.
@@ -93,3 +93,4 @@ As layers ainda não existem no projeto; são criadas junto com a spec 06 (ruíd
 | 2026-10-12 | NavMesh gerado em runtime sem o pacote AI Navigation | Evita dependência de versão; o mapa é pequeno |
 | 2026-10-12 | Cena de teste gerada por código | Recriável a qualquer momento, sem trabalho manual no Editor |
 | 2026-10-12 | FSM com uma classe por estado | Escala melhor que `switch` quando os estados passam de 5 |
+| 2026-10-12 | Base `MachineAI` para máquinas terrestres | Sentinela e Matilha compartilhavam 70% do código; drones terão base própria (voo) |

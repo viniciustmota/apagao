@@ -1,6 +1,6 @@
 # 14 — Matilha (cães robô)
 
-**Status:** Aprovada · **Marco:** 6
+**Status:** Implementada (rastro na água pendente) · **Marco:** 6 · **Código:** `AI/Matilha/`, `Player/PlayerScent.cs`
 
 ## Objetivo
 O inimigo mais assustador do jogo. Caçam em grupo, seguem som e rastro, e impedem o jogador de ficar parado escondido.
@@ -24,6 +24,8 @@ O inimigo mais assustador do jogo. Caçam em grupo, seguem som e rastro, e imped
 - [ ] PEM + 2 golpes de facão por cão é suficiente para sobreviver a um grupo de 3.
 
 ## Design técnico
-- `MatilhaAI` segue o padrão da Sentinela (spec 03), com os mesmos sentidos e um `ScentTracker`.
-- `MatilhaGroup` decide os papéis (`Segurar`, `Flanquear`) e as posições de flanco no NavMesh.
-- `PlayerScent` no Caio: buffer circular de 20 posições.
+- `MatilhaAI : MachineAI` (mesma base da Sentinela) com estados `PatrulhaCaoState`, `SuspeitoCaoState`, `RastreandoState`, `CombateCaoState`, `ProcurandoCaoState`.
+- `MatilhaGroup` no objeto pai: o primeiro cão vivo lidera a patrulha e **segura**; os outros andam em formação e **flanqueiam** a ±110° da direção do líder. Um cão em combate ou rastreando puxa o grupo inteiro (`Rally`).
+- `PlayerScent` no Caio: buffer circular, um ponto por segundo, 20 s de vida; agachado não deixa rastro. O cão segue sempre o ponto mais novo num raio de 6 m; rastro com menos de 2,5 s e o Caio a menos de 5 m = achou (combate, mesmo sem ver).
+- Sons fracos (< 0,25) deixam o cão em Suspeito com a cabeça inclinada; sons mais fortes levam direto a Rastreando.
+- Visão 10 m / 140°, audição ×2, vida 60, juntas (golpe por trás) ×2.

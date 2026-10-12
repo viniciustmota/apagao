@@ -278,6 +278,7 @@ namespace Apagao.EditorTools
 
             var controller = caio.AddComponent<PlayerController>();
             caio.AddComponent<PlayerFootsteps>();
+            caio.AddComponent<PlayerScent>();
             caio.AddComponent<Health>();
             caio.AddComponent<PlayerDeath>();
 

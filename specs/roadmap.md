@@ -45,10 +45,13 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [ ] Cura com kit (depende do crafting, marco 8) — spec 08
 - [ ] Afiar facão (depende do crafting, marco 8) — spec 09
 
-## Marco 6 — Matilha
-- [ ] Controlador da Matilha reaproveitando a FSM — spec 14
-- [ ] Rastro do Caio e estado Rastreando — spec 14
-- [ ] Coordenação de grupo: segurar e flanquear — spec 14
+## Marco 6 — Matilha (implementado, falta testar)
+- [~] Base `MachineAI` extraída da Sentinela (sentidos, rede, vida, takedown, carcaça, indicador) — arquitetura
+- [~] Controlador da Matilha reaproveitando a FSM — spec 14
+- [~] Rastro do Caio (`PlayerScent`) e estado Rastreando — spec 14
+- [~] Coordenação de grupo (`MatilhaGroup`): formação, alerta conjunto, segurar e flanquear — spec 14
+- [~] Bote com aviso de 0,4 s e mordida de 20 — spec 14
+- [ ] Água apaga o rastro (depende da água caminhável, spec 22) — spec 14
 
 ## Marco 7 — Armas e PEM
 - [ ] `WeaponData` (ScriptableObject) + mira — spec 10

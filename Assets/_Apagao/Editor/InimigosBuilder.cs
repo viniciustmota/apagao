@@ -1,6 +1,7 @@
 using Apagao.AI;
 using Apagao.AI.Hive;
 using Apagao.DebugTools;
+using Apagao.AI.Matilha;
 using Apagao.AI.Sentinela;
 using Apagao.Combat;
 using Apagao.Systems;
@@ -71,6 +72,12 @@ namespace Apagao.EditorTools
             });
             CreateSentinela("Sentinela_2", inimigos, IlhaTesteBuilder.Ground(t, 24f, 9f), 90f, rota2,
                 matRobo, matVisor, matIndicador, matLaser, matTracer);
+
+            // Matilha: 3 cães rondando por trás da fileira norte de casas (spec 14).
+            CreateMatilha(t, inimigos, "Matilha_1", new[]
+            {
+                new Vector2(-18f, 17f), new Vector2(14f, 17f), new Vector2(14f, 25f), new Vector2(-18f, 25f)
+            }, 3, matRobo, matVisor, matIndicador);
         }
 
         private static void CreateSentinela(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
@@ -156,6 +163,7 @@ namespace Apagao.EditorTools
             for (int i = 0; i < route.Length; i++) wp.GetArrayElementAtIndex(i).objectReferenceValue = route[i];
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
             so.FindProperty("laser").objectReferenceValue = laser;
+            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -190,6 +198,107 @@ namespace Apagao.EditorTools
             so.FindProperty("beacon").objectReferenceValue = beacon.GetComponent<Renderer>();
             so.FindProperty("beaconLight").objectReferenceValue = light;
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateMatilha(Terrain t, Transform parent, string name, Vector2[] route, int count,
+            Material robo, Material visor, Material indicador)
+        {
+            var groupGo = new GameObject(name);
+            groupGo.transform.SetParent(parent);
+            groupGo.transform.position = IlhaTesteBuilder.Ground(t, route[0].x, route[0].y);
+            var group = groupGo.AddComponent<MatilhaGroup>();
+
+            var waypoints = Route(t, parent, "Rota_" + name, route);
+            var gso = new SerializedObject(group);
+            SetArray(gso.FindProperty("waypoints"), waypoints);
+            gso.ApplyModifiedPropertiesWithoutUndo();
+
+            Vector3 start = groupGo.transform.position;
+            Vector3 dir = (waypoints[1].position - waypoints[0].position).normalized;
+            float yaw = Quaternion.LookRotation(dir).eulerAngles.y;
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 offset = Quaternion.Euler(0f, yaw, 0f) * new Vector3((i % 2 == 1 ? -1.6f : 1.6f) * (i > 0 ? 1 : 0), 0f, -1.6f * ((i + 1) / 2));
+                Vector3 pos = IlhaTesteBuilder.Ground(t, start.x + offset.x, start.z + offset.z);
+                CreateCao($"Cao_{i + 1}", groupGo.transform, pos, yaw, robo, visor, indicador);
+            }
+        }
+
+        private static void CreateCao(string name, Transform parent, Vector3 position, float yaw,
+            Material robo, Material visor, Material indicador)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            root.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+
+            var col = root.AddComponent<CapsuleCollider>();
+            col.direction = 2; // deitada no eixo Z, como o corpo do cão
+            col.height = 1.2f;
+            col.radius = 0.32f;
+            col.center = new Vector3(0f, 0.6f, 0f);
+
+            var agent = root.AddComponent<NavMeshAgent>();
+            agent.radius = 0.35f;
+            agent.height = 1f;
+            agent.angularSpeed = 540f;
+            agent.acceleration = 20f;
+            agent.stoppingDistance = 0.3f;
+            agent.enabled = false;
+
+            var vision = root.AddComponent<VisionSensor>();
+            var vso = new SerializedObject(vision);
+            vso.FindProperty("viewDistance").floatValue = 10f;
+            vso.FindProperty("viewAngle").floatValue = 140f;
+            vso.FindProperty("eyeHeight").floatValue = 0.8f;
+            vso.ApplyModifiedPropertiesWithoutUndo();
+
+            var hearing = root.AddComponent<HearingSensor>();
+            var hso2 = new SerializedObject(hearing);
+            hso2.FindProperty("hearingMultiplier").floatValue = 2f;
+            hso2.FindProperty("earHeight").floatValue = 0.8f;
+            hso2.ApplyModifiedPropertiesWithoutUndo();
+
+            root.AddComponent<HiveMember>();
+
+            // Vida (spec 08): 60, bala ×0,8, fogo ×1,5, explosão ×1,5, elétrico paralisa; juntas (por trás) ×2.
+            var health = root.AddComponent<Health>();
+            var hso = new SerializedObject(health);
+            hso.FindProperty("maxHealth").floatValue = 60f;
+            hso.FindProperty("multipliers.bala").floatValue = 0.8f;
+            hso.FindProperty("multipliers.fogo").floatValue = 1.5f;
+            hso.FindProperty("multipliers.explosao").floatValue = 1.5f;
+            hso.FindProperty("multipliers.eletrico").floatValue = 0f;
+            hso.FindProperty("backMultiplier").floatValue = 2f;
+            hso.ApplyModifiedPropertiesWithoutUndo();
+
+            var ai = root.AddComponent<MatilhaAI>();
+
+            var corpo = Part(PrimitiveType.Cube, "Corpo", root.transform, new Vector3(0f, 0.62f, 0f), new Vector3(0.45f, 0.4f, 1.0f), robo);
+            var cabeca = Part(PrimitiveType.Cube, "Cabeca", root.transform, new Vector3(0f, 0.85f, 0.6f), new Vector3(0.3f, 0.28f, 0.38f), robo);
+            Part(PrimitiveType.Cube, "Visor", cabeca.transform, new Vector3(0f, 0.1f, 0.51f), new Vector3(0.85f, 0.18f, 0.06f), visor);
+            foreach (var leg in new[] { new Vector3(0.17f, 0.22f, 0.36f), new Vector3(-0.17f, 0.22f, 0.36f), new Vector3(0.17f, 0.22f, -0.36f), new Vector3(-0.17f, 0.22f, -0.36f) })
+                Part(PrimitiveType.Cube, "Pata", root.transform, leg, new Vector3(0.09f, 0.44f, 0.09f), robo);
+            var indicator = Part(PrimitiveType.Sphere, "Indicador", root.transform, new Vector3(0f, 1.45f, 0f), Vector3.one * 0.18f, indicador);
+            indicator.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+
+            var flash = root.AddComponent<HitFlash>();
+            var fso = new SerializedObject(flash);
+            SetArray(fso.FindProperty("renderers"), corpo.GetComponent<Renderer>(), cabeca.GetComponent<Renderer>());
+            fso.ApplyModifiedPropertiesWithoutUndo();
+
+            var so = new SerializedObject(ai);
+            so.FindProperty("head").objectReferenceValue = cabeca.transform;
+            so.FindProperty("body").objectReferenceValue = corpo.transform;
+            so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
+            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetArray(SerializedProperty array, params Object[] values)
+        {
+            array.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++)
+                array.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         }
 
         private static Transform[] Route(Terrain t, Transform parent, string name, Vector2[] points)
