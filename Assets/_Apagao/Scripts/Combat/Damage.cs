@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Apagao.Combat
 {
-    public enum DamageType { Corte, Bala, Fogo, Explosao, Eletrico }
+    public enum DamageType { Corte, Bala, Fogo, Explosao, Eletrico, Queda }
 
     /// <summary>Um golpe ou disparo. Direction aponta do atacante para o alvo.</summary>
     public readonly struct DamageInfo

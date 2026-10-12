@@ -4,7 +4,7 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 
 **Referências:** The Last of Us (escassez e tensão) + Ghost of Tsushima (telhados e takedowns) + Exterminador do Futuro (ambientação).
 
-> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 8 de 12.
+> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 9 de 12.
 
 ## O que já existe
 
@@ -18,7 +18,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Matilha: cães robô que farejam o rastro e caçam em grupo | Implementado |
 | Revólver, espingarda de pesca, PEM (paralisa robôs) e esquiva | Implementado |
 | Recursos, saque, crafting, bancada, bomba de ruído, molotov, isca elétrica e kit de cura | Implementado |
-| Escalada, drones, campanha | Planejado |
+| Escalada de bordas, telhados, borda segura agachado e dano de queda | Implementado |
+| Drones, Brutamontes, campanha | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -50,7 +51,7 @@ A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perd
 | WASD | Andar |
 | Shift | Correr |
 | C ou Ctrl | Agachar |
-| Espaço | Pular |
+| Espaço | Pular · de frente para uma borda: escalar |
 | Mouse | Câmera |
 | Alt | Esquivar |
 | 1 / 2 / 3 / 4 | Facão / Revólver / Espingarda / PEM |

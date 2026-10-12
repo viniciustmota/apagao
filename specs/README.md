@@ -37,7 +37,7 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 10 | [Armas de fogo](sistemas/10-armas-fogo.md) | 7 | Implementada |
 | 11 | [PEM](sistemas/11-pem.md) | 7 | Implementada (drones no marco 10) |
 | 12 | [Recursos, inventário e crafting](sistemas/12-crafting.md) | 8 | Implementada (menu em lista) |
-| 13 | [Escalada e telhados](sistemas/13-escalada.md) | 9 | Aprovada |
+| 13 | [Escalada e telhados](sistemas/13-escalada.md) | 9 | Implementada |
 | 14 | [Matilha](sistemas/14-matilha.md) | 6 | Implementada (rastro na água pendente) |
 | 15 | [Drones: Olho, Vespa e Brasa](sistemas/15-drones.md) | 10 | Rascunho |
 | 16 | [Brutamontes](sistemas/16-brutamontes.md) | 11 | Rascunho |

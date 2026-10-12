@@ -57,6 +57,14 @@ namespace Apagao.Player
         /// <summary>Mirando uma arma: anda devagar e não corre.</summary>
         public bool Aiming { get; set; }
         public bool IsDodging { get; private set; }
+        /// <summary>O LedgeClimber usou o Espaço para escalar: não pular neste frame.</summary>
+        public bool JumpSuppressed { get; set; }
+        /// <summary>Direção desejada no mundo (input relativo à câmera), normalizada ou zero.</summary>
+        public Vector3 WishDirection { get; private set; }
+
+        [Header("Borda (spec 13 R6)")]
+        [Tooltip("Agachado, o Caio não anda para fora de bordas mais altas que isto.")]
+        [SerializeField] private float edgeDropLimit = 0.6f;
 
         public MoveMode Mode { get; private set; }
         public bool IsCrouching { get; private set; }
@@ -121,6 +129,7 @@ namespace Apagao.Player
             float targetSpeed = IsCrouching ? crouchSpeed : running ? runSpeed : walkSpeed;
             if (Aiming) targetSpeed = Mathf.Min(targetSpeed, aimSpeed);
 
+            WishDirection = moving ? (forward * input.y + right * input.x).normalized : Vector3.zero;
             Vector3 desired = (forward * input.y + right * input.x) * targetSpeed;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desired, acceleration * Time.deltaTime);
 
@@ -133,19 +142,33 @@ namespace Apagao.Player
             if (controller.isGrounded && verticalVelocity < 0f)
                 verticalVelocity = -2f; // mantém o Caio colado no chão em descidas
 
-            if (!locked && kb.spaceKey.wasPressedThisFrame && controller.isGrounded)
+            if (!locked && !JumpSuppressed && kb.spaceKey.wasPressedThisFrame && controller.isGrounded)
             {
                 if (IsCrouching) TryStand();
                 else verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             }
 
             verticalVelocity += gravity * Time.deltaTime;
+            if (IsCrouching && controller.isGrounded) KeepOffEdges();
             controller.Move((horizontalVelocity + Vector3.up * verticalVelocity) * Time.deltaTime);
+            JumpSuppressed = false;
 
             Mode = IsCrouching ? MoveMode.Agachado
                  : !moving ? MoveMode.Parado
                  : running ? MoveMode.Correndo
                  : MoveMode.Andando;
+        }
+
+        /// <summary>Agachado na beira de um telhado, o Caio para em vez de cair.</summary>
+        private void KeepOffEdges()
+        {
+            Vector3 flat = horizontalVelocity;
+            flat.y = 0f;
+            if (flat.sqrMagnitude < 0.01f) return;
+
+            Vector3 probe = transform.position + flat.normalized * (controller.radius + 0.15f) + Vector3.up * 0.3f;
+            if (!Physics.Raycast(probe, Vector3.down, 0.3f + edgeDropLimit, ~0, QueryTriggerInteraction.Ignore))
+                horizontalVelocity = Vector3.zero;
         }
 
         // ---------- Esquiva ----------

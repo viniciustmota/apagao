@@ -68,6 +68,14 @@ namespace Apagao.EditorTools
             Box("Caixote_1m", vila, Ground(terrain, -16f, 5f), new Vector3(1f, 1f, 1f), matCaixote);
             Box("Caixote_2m", vila, Ground(terrain, -15.5f, 6.2f), new Vector3(1f, 2f, 1.2f), matCaixote);
 
+            // Rotas pelo alto (spec 13): galpões de 2,2 m colados aos fundos das casas (chão → galpão → telhado).
+            Box("Galpao_Norte", vila, Ground(terrain, 0f, 12.25f), new Vector3(3f, 2.2f, 2.5f), matCaixote);
+            Box("Galpao_Sul", vila, Ground(terrain, -5f, -12.25f), new Vector3(3f, 2.2f, 2.5f), matCaixote);
+
+            // Muretas de 1,1 m na rua: cobertura para quem anda agachado.
+            Box("Mureta_1", vila, Ground(terrain, -2f, 2.2f), new Vector3(2.5f, 1.1f, 0.3f), matParede);
+            Box("Mureta_2", vila, Ground(terrain, 9f, -2.2f), new Vector3(2.5f, 1.1f, 0.3f), matParede);
+
             // Igreja no fim da rua, com torre.
             var igreja = new GameObject("Igreja").transform;
             igreja.SetParent(vila);
@@ -281,6 +289,7 @@ namespace Apagao.EditorTools
             var controller = caio.AddComponent<PlayerController>();
             caio.AddComponent<PlayerFootsteps>();
             caio.AddComponent<PlayerScent>();
+            caio.AddComponent<LedgeClimber>();
             caio.AddComponent<Health>();
             caio.AddComponent<PlayerDeath>();
 

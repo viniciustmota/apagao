@@ -1,12 +1,12 @@
 # 13 — Escalada e telhados
 
-**Status:** Aprovada · **Marco:** 9
+**Status:** Implementada · **Marco:** 9 · **Código:** `Player/LedgeClimber.cs`, `Player/PlayerController.cs`, `Player/PlayerFootsteps.cs`
 
 ## Objetivo
 Os telhados são a rota alternativa da vila: seguros contra cães, expostos a drones.
 
 ## Requisitos
-- **R1** Ledge climb: correndo ou pulando em direção a uma borda entre 1,2 m e 2,4 m acima dos pés, o Caio sobe automaticamente.
+- **R1** Ledge climb: de frente para uma borda entre 1,2 m e 2,6 m acima dos pés, **Espaço sobe** em vez de pular; no ar, empurrar contra a borda também agarra. *(Altura máxima ajustada de 2,4 para 2,6 m para o caixote de 1 m alcançar o telhado de 3 m.)*
 - **R2** Só sobe se o topo tiver espaço livre para a cápsula em pé (`CheckCapsule`).
 - **R3** Subida em 0,6 s por curva (sobe, depois avança), controle travado durante.
 - **R4** Pular entre telhados com vão de até 2 m usa o pulo normal.
@@ -20,6 +20,7 @@ Os telhados são a rota alternativa da vila: seguros contra cães, expostos a dr
 - [ ] Um cão perseguindo fica embaixo, rodeando a casa.
 
 ## Design técnico
-- `LedgeClimber : MonoBehaviour` no Caio: raycast frontal no peito, raycast para baixo a partir de cima da borda para achar o topo.
-- `PlayerController` ganha estado `Escalando` (desliga gravidade e input).
-- O `NavMeshBaker` marca superfícies acima de 2,5 m do terreno como área não caminhável para o agente "Cão".
+- `LedgeClimber` no Caio (roda antes do `PlayerController` e marca `JumpSuppressed` quando usa o Espaço): raycast frontal no peito, raycast para baixo depois da face da parede para achar o topo, `OverlapCapsule` para conferir espaço.
+- Durante a subida: `InputLocked` e `CharacterController` desligado; movimento em duas fases (sobe, avança).
+- ~~Área de NavMesh para telhados~~ Decidido: não é preciso. Os telhados não têm rampa até o chão, então ficam desconectados no NavMesh e nenhum agente chega lá. O `MoveTo` manda o robô para o ponto mais próximo alcançável, embaixo da casa.
+- HUD mostra "Espaço — Escalar" quando há borda à frente.

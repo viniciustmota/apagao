@@ -72,10 +72,12 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [ ] Menu radial com o mouse (hoje é lista com números) — spec 12
 - [ ] Receitas em ScriptableObject (hoje em `RecipeBook`) — spec 12
 
-## Marco 9 — Telhados
-- [ ] Detecção de borda e ledge climb — spec 13
-- [ ] Ruído de queda e regras de altura — spec 13
-- [ ] NavMesh: Matilha não sobe em telhado — spec 13 + 14
+## Marco 9 — Telhados (implementado, falta testar)
+- [~] Detecção de borda e ledge climb (`LedgeClimber`, Espaço de frente para a borda) — spec 13
+- [~] Agachado não cai da beira — spec 13 R6
+- [~] Dano de queda acima de 6 m (10 por metro) — spec 13 R5
+- [~] Galpões e muretas na vila de teste: rotas pelo alto e cobertura
+- [~] Matilha não sobe em telhado: telhados não se ligam ao chão no NavMesh — spec 13 + 14
 
 ## Marco 10 — Drones
 - [ ] Olho: patrulha aérea, térmica, holofote — spec 15

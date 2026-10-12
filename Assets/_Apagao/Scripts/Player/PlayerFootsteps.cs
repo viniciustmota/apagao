@@ -1,3 +1,4 @@
+using Apagao.Combat;
 using Apagao.Systems;
 using UnityEngine;
 
@@ -30,6 +31,9 @@ namespace Apagao.Player
         [SerializeField] private float minFallHeight = 2f;
         [SerializeField] private float fallRadius = 6f;
         [SerializeField] private float fallIntensity = 0.5f;
+        [Tooltip("Quedas acima desta altura machucam (spec 13 R5).")]
+        [SerializeField] private float safeFallHeight = 6f;
+        [SerializeField] private float damagePerMeter = 10f;
 
         private PlayerController player;
         private Vector3 lastPosition;
@@ -61,8 +65,14 @@ namespace Apagao.Player
             {
                 if (!wasGrounded)
                 {
-                    if (peakY - pos.y >= minFallHeight)
+                    float fall = peakY - pos.y;
+                    if (fall >= minFallHeight)
                         NoiseSystem.Emit(pos, fallRadius, fallIntensity, NoiseType.Queda, gameObject);
+                    if (fall > safeFallHeight)
+                    {
+                        var health = GetComponent<IDamageable>();
+                        health?.TakeDamage(new DamageInfo((fall - safeFallHeight) * damagePerMeter, DamageType.Queda, pos, Vector3.down, gameObject));
+                    }
                     distanceSinceStep = 0f;
                 }
 

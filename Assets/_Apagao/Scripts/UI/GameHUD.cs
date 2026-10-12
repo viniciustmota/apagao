@@ -23,6 +23,7 @@ namespace Apagao.UI
         private PlayerInteractor interactor;
         private Thrower thrower;
         private PlayerHealing healing;
+        private LedgeClimber climber;
         private string toast = "";
         private float toastTime = float.NegativeInfinity;
         private PlayerDeath death;
@@ -47,6 +48,7 @@ namespace Apagao.UI
                 interactor = player.GetComponent<PlayerInteractor>();
                 thrower = player.GetComponent<Thrower>();
                 healing = player.GetComponent<PlayerHealing>();
+                climber = player.GetComponent<LedgeClimber>();
                 death = player.GetComponent<PlayerDeath>();
             }
             if (health != null) health.Damaged += (_, _) => damageFlash = 1f;
@@ -73,6 +75,7 @@ namespace Apagao.UI
             DrawWeaponMessage();
             DrawItems();
             DrawInteraction();
+            DrawClimbHint();
             DrawCraftingPanel();
             DrawProgress();
             DrawToasts();
@@ -197,6 +200,12 @@ namespace Apagao.UI
             string progress = interactor.HoldProgress > 0f ? $"  {interactor.HoldProgress:P0}" : "";
             GUI.Label(new Rect(screen.x - 120, Screen.height - screen.y - 14, 240, 28),
                 $"<b>E</b> — {interactor.Current.Prompt}{progress}", promptStyle);
+        }
+
+        private void DrawClimbHint()
+        {
+            if (climber == null || !climber.LedgeAvailable || health.IsDead) return;
+            GUI.Label(new Rect(Screen.width * 0.5f - 90, Screen.height * 0.5f + 100, 180, 26), "<b>Espaço</b> — Escalar", promptStyle);
         }
 
         /// <summary>Menu de crafting enquanto Tab está pressionado.</summary>
