@@ -35,11 +35,11 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 08 | [Vida e dano](sistemas/08-vida-dano.md) | 5, 8 | Implementada (sem checkpoint) |
 | 09 | [Facão e takedowns](sistemas/09-facao-takedown.md) | 5, 8 | Implementada |
 | 10 | [Armas de fogo](sistemas/10-armas-fogo.md) | 7 | Implementada |
-| 11 | [PEM](sistemas/11-pem.md) | 7 | Implementada (drones no marco 10) |
+| 11 | [PEM](sistemas/11-pem.md) | 7, 10 | Implementada |
 | 12 | [Recursos, inventário e crafting](sistemas/12-crafting.md) | 8 | Implementada (menu em lista) |
 | 13 | [Escalada e telhados](sistemas/13-escalada.md) | 9 | Implementada |
 | 14 | [Matilha](sistemas/14-matilha.md) | 6 | Implementada (rastro na água pendente) |
-| 15 | [Drones: Olho, Vespa e Brasa](sistemas/15-drones.md) | 10 | Rascunho |
+| 15 | [Drones: Olho, Vespa e Brasa](sistemas/15-drones.md) | 10 | Implementada (queima de mato no marco 11) |
 | 16 | [Brutamontes](sistemas/16-brutamontes.md) | 11 | Rascunho |
 | 17 | [Capataz (chefe final)](sistemas/17-capataz.md) | 12 | Rascunho |
 | 18 | [Campanha, objetivos e checkpoints](sistemas/18-campanha.md) | 11 | Rascunho |

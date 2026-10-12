@@ -30,6 +30,7 @@ namespace Apagao.EditorTools
                 return;
             }
             Populate(terrain);
+            DronesBuilder.Populate(terrain);
             var scene = EditorSceneManager.GetActiveScene();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -298,7 +299,7 @@ namespace Apagao.EditorTools
         }
 
         /// <summary>Saque da máquina destruída (spec 12 R3).</summary>
-        private static void SetLoot(SerializedProperty array, params (ResourceType type, int amount, float chance)[] entries)
+        internal static void SetLoot(SerializedProperty array, params (ResourceType type, int amount, float chance)[] entries)
         {
             array.arraySize = entries.Length;
             for (int i = 0; i < entries.Length; i++)
@@ -310,14 +311,14 @@ namespace Apagao.EditorTools
             }
         }
 
-        private static void SetArray(SerializedProperty array, params Object[] values)
+        internal static void SetArray(SerializedProperty array, params Object[] values)
         {
             array.arraySize = values.Length;
             for (int i = 0; i < values.Length; i++)
                 array.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         }
 
-        private static Transform[] Route(Terrain t, Transform parent, string name, Vector2[] points)
+        internal static Transform[] Route(Terrain t, Transform parent, string name, Vector2[] points)
         {
             var rota = new GameObject(name).transform;
             rota.SetParent(parent);
@@ -332,7 +333,7 @@ namespace Apagao.EditorTools
             return result;
         }
 
-        private static GameObject Part(PrimitiveType type, string name, Transform parent, Vector3 localPos, Vector3 scale, Material mat)
+        internal static GameObject Part(PrimitiveType type, string name, Transform parent, Vector3 localPos, Vector3 scale, Material mat)
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
@@ -344,7 +345,7 @@ namespace Apagao.EditorTools
             return go;
         }
 
-        private static Material Unlit(string name, Color color)
+        internal static Material Unlit(string name, Color color)
         {
             string path = $"{IlhaTesteBuilder.Root}/Materials/{name}.mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -360,7 +361,7 @@ namespace Apagao.EditorTools
             return m;
         }
 
-        private static Material Emissive(string name, Color color, float intensity)
+        internal static Material Emissive(string name, Color color, float intensity)
         {
             var m = IlhaTesteBuilder.Mat(name, color);
             if (m.HasProperty("_EmissionColor"))

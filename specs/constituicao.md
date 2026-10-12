@@ -24,12 +24,13 @@ Regras que valem para todo o código e para toda spec. Mudar uma regra daqui exi
 - **Pasta raiz:** `Assets/_Apagao/`. Nada do jogo fora dela, além dos pacotes.
 - **Namespaces** espelham as pastas: `Apagao.Player`, `Apagao.AI`, `Apagao.AI.Sentinela`, `Apagao.Systems`, `Apagao.Combat`, `Apagao.Crafting`, `Apagao.EditorTools`.
 - **Idioma:** infraestrutura em inglês (`StateMachine`, `VisionSensor`, `NoiseSystem`); conteúdo do jogo em português (`SentinelaAI`, `PatrulhaState`, `Facao`, `Matilha`). Comentários e tooltips em português.
-- **Uma classe por estado** de IA, em `States/`, herdando `State<TOwner>`.
+- **Uma classe por estado** de IA, em `States/`, herdando `State<TOwner>`. Exceção registrada: drones usam FSM por `enum` (spec 15).
 - **Campos configuráveis** são `[SerializeField] private` com `[Header]` e `[Tooltip]`. Nada de campo público mutável.
 - **Dados de balanceamento** (armas, receitas, parâmetros de inimigo) vão para `ScriptableObject` em `Assets/_Apagao/Data/` assim que o sistema estiver estável.
 - **Comunicação entre sistemas** por interfaces (`IDamageable`, `IStunnable`, `IInteractable`, `INoiseListener`) e eventos C#. Evitar `FindObjectOfType` fora de `Awake`/`Start`.
 - **Unidades:** metros, segundos, graus. Velocidades em m/s.
 - **Sem `Update` vazio** e sem alocação por frame em código de IA (`NonAlloc`, buffers reutilizados).
+- **Conflito com o template:** o projeto veio de um template com classes sem namespace (`Pickup`, `ThirdPersonController`, `RespawnPlayer`, `MotionAudioController`, `UpdateCollectibleCount`, `StarterAssetsInputs`). Elas têm prioridade sobre os `using`. Ao usar um tipo nosso com um desses nomes, escreva o nome completo (`Apagao.Crafting.Pickup`).
 
 ## Definição de pronto
 
@@ -45,3 +46,4 @@ Um sistema está **pronto** quando:
 ## Registro de mudanças nesta constituição
 
 - 2026-10-12 — Versão inicial.
+- 2026-10-12 — Regra de conflito com classes globais do template (erro CS0117 em `Pickup`).

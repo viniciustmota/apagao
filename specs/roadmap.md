@@ -79,10 +79,13 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Galpões e muretas na vila de teste: rotas pelo alto e cobertura
 - [~] Matilha não sobe em telhado: telhados não se ligam ao chão no NavMesh — spec 13 + 14
 
-## Marco 10 — Drones
-- [ ] Olho: patrulha aérea, térmica, holofote — spec 15
-- [ ] Vespa: mergulho e explosão — spec 15
-- [ ] Brasa: fogo que queima cobertura — spec 15
+## Marco 10 — Drones (implementado, falta testar)
+- [~] `DroneMotor` (voo sem NavMesh, desvio subindo) e base `DroneAI` (rede, PEM, queda, saque) — spec 15
+- [~] Olho: patrulha a 12 m, térmica para baixo (telhado e água escondem), holofote, segue e reporta — spec 15
+- [~] Vespa: pousada na igreja, decola com o Caio marcado, trava 1 s, mergulha e explode (esquiva evita) — spec 15
+- [~] Brasa: despeja fogo de 6 m por 15 s na última posição, imune a fogo, PEM derruba por 6 s — spec 15
+- [~] Câmera olha mais para cima (−60°) para mirar em drones — spec 02
+- [ ] Fogo queima mato e cobertura (depende do mato, spec 22) — spec 15
 
 ## Marco 11 — Ilha e campanha
 - [ ] Greybox da ilha inteira com as zonas — spec 22

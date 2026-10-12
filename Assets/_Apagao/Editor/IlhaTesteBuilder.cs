@@ -84,6 +84,7 @@ namespace Apagao.EditorTools
 
             CreatePlayerAndCamera(terrain, matCaio);
             InimigosBuilder.Populate(terrain);
+            DronesBuilder.Populate(terrain);
             ItensBuilder.Populate(terrain);
 
             EditorSceneManager.SaveScene(scene, ScenePath);

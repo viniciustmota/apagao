@@ -189,23 +189,29 @@ namespace Apagao.Combat
     /// <summary>Área de fogo do molotov (spec 12): 4 m, 8 s, 10 de dano/s. Queima o Caio também.</summary>
     public class FireArea : MonoBehaviour
     {
-        private const float Radius = 4f;
-        private const float Duration = 8f;
-        private const float DamagePerSecond = 10f;
         private const float Tick = 0.5f;
+
+        // Molotov: 4 m, 8 s. Brasa (spec 15): 6 m, 15 s.
+        private float radius = 4f;
+        private float duration = 8f;
+        private float damagePerSecond = 10f;
 
         private readonly Collider[] buffer = new Collider[32];
         private readonly HashSet<IDamageable> hitThisTick = new HashSet<IDamageable>();
         private Light glow;
 
-        public static void Spawn(Vector3 point)
+        public static FireArea Spawn(Vector3 point, float radius = 4f, float duration = 8f, float damagePerSecond = 10f)
         {
             if (Physics.Raycast(point + Vector3.up, Vector3.down, out RaycastHit hit, 4f, ~0, QueryTriggerInteraction.Ignore))
                 point = hit.point;
 
             var go = new GameObject("Fogo");
             go.transform.position = point;
-            go.AddComponent<FireArea>();
+            var fire = go.AddComponent<FireArea>();
+            fire.radius = radius;
+            fire.duration = duration;
+            fire.damagePerSecond = damagePerSecond;
+            return fire;
         }
 
         private void Start()
@@ -213,7 +219,7 @@ namespace Apagao.Combat
             var disc = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             Destroy(disc.GetComponent<Collider>());
             disc.transform.SetParent(transform, false);
-            disc.transform.localScale = new Vector3(Radius * 2f, 0.02f, Radius * 2f);
+            disc.transform.localScale = new Vector3(radius * 2f, 0.02f, radius * 2f);
             var block = new MaterialPropertyBlock();
             block.SetColor("_BaseColor", new Color(1f, 0.45f, 0.05f));
             disc.GetComponent<Renderer>().SetPropertyBlock(block);
@@ -224,7 +230,7 @@ namespace Apagao.Combat
             glow = lightGo.AddComponent<Light>();
             glow.type = LightType.Point;
             glow.color = new Color(1f, 0.5f, 0.1f);
-            glow.range = 8f;
+            glow.range = radius * 2f;
 
             NoiseSystem.Emit(transform.position, 12f, 0.7f, NoiseType.Impacto, gameObject); // vidro quebrando
             StartCoroutine(Burn());
@@ -237,15 +243,15 @@ namespace Apagao.Combat
 
         private IEnumerator Burn()
         {
-            for (float t = 0f; t < Duration; t += Tick)
+            for (float t = 0f; t < duration; t += Tick)
             {
                 hitThisTick.Clear();
-                int count = Physics.OverlapSphereNonAlloc(transform.position + Vector3.up, Radius, buffer, ~0, QueryTriggerInteraction.Ignore);
+                int count = Physics.OverlapSphereNonAlloc(transform.position + Vector3.up, radius, buffer, ~0, QueryTriggerInteraction.Ignore);
                 for (int i = 0; i < count; i++)
                 {
                     var target = buffer[i].GetComponentInParent<IDamageable>();
                     if (target == null || target.IsDead || !hitThisTick.Add(target)) continue;
-                    target.TakeDamage(new DamageInfo(DamagePerSecond * Tick, DamageType.Fogo, buffer[i].bounds.center, Vector3.zero, gameObject));
+                    target.TakeDamage(new DamageInfo(damagePerSecond * Tick, DamageType.Fogo, buffer[i].bounds.center, Vector3.zero, gameObject));
                 }
                 yield return new WaitForSeconds(Tick);
             }

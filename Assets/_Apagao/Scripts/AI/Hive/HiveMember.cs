@@ -48,5 +48,13 @@ namespace Apagao.AI.Hive
             network.ReportDeath(this, aware);
             network = null;
         }
+
+        /// <summary>Sai da rede sem virar "desaparecido" (ex.: Vespa que explodiu de propósito).</summary>
+        public void Leave()
+        {
+            if (network == null) return;
+            network.Unregister(this);
+            network = null;
+        }
     }
 }

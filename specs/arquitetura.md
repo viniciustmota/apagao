@@ -27,6 +27,7 @@ Assets/_Apagao/
     AI/Senses/     Apagao.AI           VisionSensor, HearingSensor
     AI/Hive/       Apagao.AI.Hive      HiveNetwork, HiveMember, HiveAntenna
     AI/<Inimigo>/  Apagao.AI.<Inimigo> Controlador + States/ de cada inimigo
+    AI/Drones/     Apagao.AI.Drones    DroneMotor, DroneAI, Olho, Vespa, Brasa (FSM por enum)
     Combat/        Apagao.Combat       Health, DamageInfo, Facao, armas, PEM
     Crafting/      Apagao.Crafting     Recursos, inventário, receitas, bancada
     Systems/       Apagao.Systems      NoiseSystem, NavMeshBaker, interação, checkpoints
@@ -94,3 +95,5 @@ As layers ainda não existem no projeto; são criadas junto com a spec 06 (ruíd
 | 2026-10-12 | Cena de teste gerada por código | Recriável a qualquer momento, sem trabalho manual no Editor |
 | 2026-10-12 | FSM com uma classe por estado | Escala melhor que `switch` quando os estados passam de 5 |
 | 2026-10-12 | Base `MachineAI` para máquinas terrestres | Sentinela e Matilha compartilhavam 70% do código; drones terão base própria (voo) |
+| 2026-10-12 | Drones com base `DroneAI` + `DroneMotor` e FSM por `enum` | Voam sem NavMesh; estados de poucas linhas não justificam uma classe cada (exceção à regra de uma classe por estado) |
+| 2026-10-12 | `FireArea.Spawn` com raio, duração e dano | O mesmo fogo serve ao molotov (4 m, 8 s) e à Brasa (6 m, 15 s) |

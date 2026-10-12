@@ -28,7 +28,7 @@ namespace Apagao.Player
 
         [Header("Mouse")]
         [SerializeField] private float sensitivity = 0.12f;
-        [SerializeField] private float minPitch = -35f;
+        [SerializeField] private float minPitch = -60f; // olhar para cima o bastante para mirar em drones
         [SerializeField] private float maxPitch = 70f;
 
         [Header("Colisão")]
