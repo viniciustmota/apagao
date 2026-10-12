@@ -36,7 +36,7 @@ namespace Apagao.EditorTools
             Item(t, root, ResourceType.Componente, 1, 8f, 21f);   // território da Matilha
         }
 
-        private static void Item(Terrain t, Transform parent, ResourceType type, int amount, float x, float z)
+        internal static void Item(Terrain t, Transform parent, ResourceType type, int amount, float x, float z)
         {
             var go = new GameObject($"Item_{type}");
             go.transform.SetParent(parent);

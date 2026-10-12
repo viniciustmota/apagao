@@ -19,6 +19,8 @@ namespace Apagao.Game
         [Tooltip("Salva um checkpoint quando este objetivo começa.")]
         public bool checkpoint;
         [Range(0f, 1f)] public float signal = 1f;
+        [Tooltip("Ato a que pertence (spec 18). -1 = continua no ato atual.")]
+        public int act = -1;
         public DialogueLine[] onStart;
         public DialogueLine[] onComplete;
     }
@@ -30,6 +32,11 @@ namespace Apagao.Game
     public class Campaign : MonoBehaviour
     {
         [SerializeField] private Objective[] objectives;
+        [SerializeField] private string endTitle = "Fim da demo";
+        [SerializeField] private string endSubtitle = "F9 recomeça do zero";
+
+        public string EndTitle => endTitle;
+        public string EndSubtitle => endSubtitle;
 
         public static Campaign Instance { get; private set; }
 
@@ -69,6 +76,12 @@ namespace Apagao.Game
             var o = Current;
             if (o == null) return;
 
+            if (ActManager.Instance != null)
+            {
+                int act = ActFor(index);
+                if (act >= 0) ActManager.Instance.Enter(act, announce: true);
+            }
+
             if (RadioSystem.Instance != null)
             {
                 RadioSystem.Instance.SetSignal(o.signal);
@@ -76,6 +89,14 @@ namespace Apagao.Game
             }
             if (o.checkpoint && !fromCheckpoint && CheckpointManager.Instance != null)
                 CheckpointManager.Instance.Save();
+        }
+
+        /// <summary>O ato do objetivo, ou do último objetivo anterior que tinha ato.</summary>
+        private int ActFor(int index)
+        {
+            for (int i = Mathf.Min(index, Count - 1); i >= 0; i--)
+                if (objectives[i].act >= 0) return objectives[i].act;
+            return -1;
         }
 
         private void Update()

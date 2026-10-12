@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Apagao.Systems;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.Combat
 {
@@ -81,6 +82,7 @@ namespace Apagao.Combat
             }
 
             NoiseSystem.Emit(origin, noiseRadius, noiseIntensity, NoiseType.Eletrico, gameObject);
+            Sfx.Play2D("pem", 0.9f);
             if (wave != null) StartCoroutine(ShowWave(origin, direction));
             return stunned;
         }

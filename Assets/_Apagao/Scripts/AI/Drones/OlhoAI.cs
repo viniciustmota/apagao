@@ -1,3 +1,4 @@
+using Apagao.Audio;
 using Apagao.Combat;
 using UnityEngine;
 
@@ -44,6 +45,8 @@ namespace Apagao.AI.Drones
         private float nextReport;
 
         public override bool IsAware => state != State.Patrulha;
+        protected override float RotorPitch => 1f;
+        protected override float RotorVolume => 0.45f;
         public override string StateName => state == State.Travando ? $"Travando {lockProgress / lockTime:P0}" : state.ToString();
 
         protected override void Awake()
@@ -84,6 +87,7 @@ namespace Apagao.AI.Drones
             {
                 lockProgress = 0f;
                 ChangeState(State.Travando);
+                Sfx.Play("olho_scanner", transform.position, 1f, SoundCategory.Inimigos, 40f, 0f);
                 return;
             }
             if (waypoints == null || waypoints.Length == 0)

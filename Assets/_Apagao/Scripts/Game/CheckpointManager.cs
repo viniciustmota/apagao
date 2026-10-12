@@ -10,6 +10,7 @@ using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Apagao.Audio;
 
 namespace Apagao.Game
 {
@@ -28,6 +29,7 @@ namespace Apagao.Game
         public int espingardaLoaded, espingardaReserve;
         public int pemCharges;
         public float facaoDurability;
+        public int loadout = -1;
         public List<string> gone = new List<string>();
     }
 
@@ -40,7 +42,9 @@ namespace Apagao.Game
     public class CheckpointManager : MonoBehaviour
     {
         public static CheckpointManager Instance { get; private set; }
-        public static string SavePath => Path.Combine(Application.persistentDataPath, "apagao_save.json");
+        /// <summary>Um arquivo por cena: o save da ilha de teste não vaza para a campanha.</summary>
+        public static string PathFor(string scene) => Path.Combine(Application.persistentDataPath, $"apagao_save_{scene}.json");
+        public static string SavePath => PathFor(SceneManager.GetActiveScene().name);
 
         /// <summary>Save lido ao abrir a cena; null = jogo novo.</summary>
         public SaveData Loaded { get; private set; }
@@ -53,9 +57,12 @@ namespace Apagao.Game
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => Instance = null;
 
-        public static void DeleteSave()
+        public static void DeleteSave() => DeleteSave(SceneManager.GetActiveScene().name);
+
+        public static void DeleteSave(string scene)
         {
-            if (File.Exists(SavePath)) File.Delete(SavePath);
+            string path = PathFor(scene);
+            if (File.Exists(path)) File.Delete(path);
         }
 
         private void Awake()
@@ -145,6 +152,7 @@ namespace Apagao.Game
                 weapons.TryGetAmmo(weapons.Espingarda, out data.espingardaLoaded, out data.espingardaReserve);
             }
             if (player.TryGetComponent(out Pem pem)) data.pemCharges = pem.Charges;
+            if (player.TryGetComponent(out PlayerLoadout loadout)) data.loadout = loadout.Mask;
             var facao = player.GetComponentInChildren<Facao>();
             data.facaoDurability = facao != null ? facao.Durability : 0f;
 
@@ -152,6 +160,7 @@ namespace Apagao.Game
             {
                 File.WriteAllText(SavePath, JsonUtility.ToJson(data, true));
                 LastSaveTime = Time.time;
+                Sfx.Play2D("checkpoint", 0.5f, SoundCategory.Efeitos, 0f);
             }
             catch (Exception e)
             {
@@ -190,6 +199,7 @@ namespace Apagao.Game
                 weapons.SetAmmo(weapons.Espingarda, data.espingardaLoaded, data.espingardaReserve);
             }
             if (player.TryGetComponent(out Pem pem)) pem.SetCharges(data.pemCharges);
+            if (data.loadout >= 0 && player.TryGetComponent(out PlayerLoadout loadout)) loadout.Mask = data.loadout;
             var facao = player.GetComponentInChildren<Facao>();
             if (facao != null) facao.SetDurability(data.facaoDurability);
         }

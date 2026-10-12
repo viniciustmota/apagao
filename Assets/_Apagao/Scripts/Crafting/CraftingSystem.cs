@@ -3,6 +3,7 @@ using Apagao.Combat;
 using Apagao.Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Crafting
 {
@@ -135,6 +136,7 @@ namespace Apagao.Crafting
 
             Apply(recipe.Result);
             Message($"Fabricado: {recipe.Name}");
+            Sfx.Play2D("craft", 0.6f);
             Crafted?.Invoke(recipe, NearBench);
             CraftProgress = 0f;
             CurrentRecipe = null;

@@ -13,15 +13,19 @@ namespace Apagao.EditorTools
     {
         private static Material robo, lente, laranja;
 
+        internal static void InitMaterials()
+        {
+            robo = IlhaTesteBuilder.Mat("Drone", new Color(0.18f, 0.19f, 0.21f), 0.6f);
+            lente = InimigosBuilder.Unlit("Drone_Lente", Color.white);
+            laranja = InimigosBuilder.Emissive("Drone_Tanque", new Color(0.9f, 0.35f, 0.05f), 1.5f);
+        }
+
         public static void Populate(Terrain t)
         {
             var old = GameObject.Find("Drones");
             if (old != null) Object.DestroyImmediate(old);
             var root = new GameObject("Drones").transform;
-
-            robo = IlhaTesteBuilder.Mat("Drone", new Color(0.18f, 0.19f, 0.21f), 0.6f);
-            lente = InimigosBuilder.Unlit("Drone_Lente", Color.white);
-            laranja = InimigosBuilder.Emissive("Drone_Tanque", new Color(0.9f, 0.35f, 0.05f), 1.5f);
+            InitMaterials();
 
             // Olho: retângulo sobre a vila, a 12 m.
             var rotaOlho = InimigosBuilder.Route(t, root, "Rota_Olho", new[]
@@ -45,7 +49,7 @@ namespace Apagao.EditorTools
 
         // ---------- Tipos ----------
 
-        private static void CreateOlho(Transform parent, Vector3 position, Transform[] route)
+        internal static void CreateOlho(Transform parent, Vector3 position, Transform[] route)
         {
             var go = Base("Olho", parent, position, 0.5f, out var body, out var motor);
             Frame(body, 0.7f, 0.18f, 0.32f);
@@ -75,7 +79,7 @@ namespace Apagao.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void CreateVespa(Transform parent, string name, Vector3 position, float yaw)
+        internal static void CreateVespa(Transform parent, string name, Vector3 position, float yaw)
         {
             var go = Base(name, parent, position, 0.35f, out var body, out var motor);
             go.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
@@ -95,7 +99,7 @@ namespace Apagao.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void CreateBrasa(Transform parent, Vector3 position, Transform[] route)
+        internal static void CreateBrasa(Transform parent, Vector3 position, Transform[] route)
         {
             var go = Base("Brasa", parent, position, 0.6f, out var body, out var motor);
             Frame(body, 1.0f, 0.3f, 0.45f);

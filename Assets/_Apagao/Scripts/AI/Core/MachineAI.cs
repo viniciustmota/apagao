@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Apagao.AI.Hive;
+using Apagao.Audio;
 using Apagao.Combat;
 using Apagao.Crafting;
 using Apagao.Player;
@@ -91,6 +93,26 @@ namespace Apagao.AI
         /// <summary>Ao acordar da paralisia: por padrão a subclasse reinicia o estado atual.</summary>
         protected virtual void ResumeAfterStun() { }
         protected virtual void UpdateExtraFeedback() { }
+
+        // ---------- Som (spec 21 R2) ----------
+        /// <summary>Clipe de passo (Resources/Audio). null = sem passos.</summary>
+        protected virtual string FootstepSound => null;
+        protected virtual float StrideLength => 1.2f;
+        protected virtual float FootstepVolume => 0.6f;
+        /// <summary>Som contínuo do motor. null = nenhum.</summary>
+        protected virtual string MotorSound => null;
+        protected virtual float MotorPitch => 1f;
+        protected virtual float MotorVolume => 0.35f;
+
+        /// <summary>Máquinas terrestres vivas na cena (música e cigarras usam).</summary>
+        public static readonly List<MachineAI> Active = new List<MachineAI>();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetActive() => Active.Clear();
+
+        private LoopSound motor;
+        private float strideProgress;
+        private AlertLevel lastAlert;
         /// <summary>Quanto o modo de movimento do Caio pesa na visibilidade.</summary>
         protected virtual float StanceMultiplier(MoveMode mode) => mode switch
         {
@@ -119,10 +141,12 @@ namespace Apagao.AI
             Player = PlayerMove != null ? PlayerMove.transform : null;
             PlayerDamageable = Player != null ? Player.GetComponent<IDamageable>() : null;
             indicatorBlock = new MaterialPropertyBlock();
+            if (MotorSound != null) motor = LoopSound.Attach(gameObject, MotorSound, MotorVolume, 25f, SoundCategory.Inimigos, MotorPitch);
         }
 
         protected virtual void OnEnable()
         {
+            Active.Add(this);
             if (hearing != null) hearing.Heard += OnNoiseHeard;
             if (health != null)
             {
@@ -133,6 +157,7 @@ namespace Apagao.AI
 
         protected virtual void OnDisable()
         {
+            Active.Remove(this);
             if (hearing != null) hearing.Heard -= OnNoiseHeard;
             if (health != null)
             {
@@ -172,6 +197,36 @@ namespace Apagao.AI
             Think();
             UpdateIndicator();
             UpdateExtraFeedback();
+            UpdateSound();
+        }
+
+        private void UpdateSound()
+        {
+            float speed = Agent.velocity.magnitude;
+            if (motor != null)
+            {
+                motor.Volume = 0.5f + 0.5f * Mathf.Clamp01(speed / 3f);
+                motor.Pitch = MotorPitch * (0.9f + 0.15f * Mathf.Clamp01(speed / 3f));
+            }
+
+            if (FootstepSound != null && speed > 0.3f)
+            {
+                strideProgress += speed * Time.deltaTime;
+                if (strideProgress >= StrideLength)
+                {
+                    strideProgress = 0f;
+                    Sfx.Play(FootstepSound, transform.position, FootstepVolume, SoundCategory.Inimigos, 25f);
+                }
+            }
+
+            // Mudança de alerta: aviso sonoro para o jogador.
+            var alert = Alert;
+            if (alert != lastAlert)
+            {
+                if (alert == AlertLevel.Combate) Sfx.Play("alerta", transform.position + Vector3.up * 2f, 0.9f, SoundCategory.Inimigos, 45f, 0f);
+                else if (alert == AlertLevel.Suspeito && lastAlert == AlertLevel.Nenhum) Sfx.Play("suspeito", transform.position + Vector3.up * 2f, 0.7f, SoundCategory.Inimigos, 25f, 0f);
+                lastAlert = alert;
+            }
         }
 
         private void Sense()
@@ -180,6 +235,7 @@ namespace Apagao.AI
 
             CanSeePlayer = Vision.CanSee(Player, out float visibility);
             PlayerVisibility = visibility * (PlayerMove != null ? StanceMultiplier(PlayerMove.Mode) : 1f);
+            if (Player != null && Apagao.Systems.VegetationPatch.Contains(Player.position)) PlayerVisibility *= 0.4f; // spec 22 R6
             DistanceToPlayer = Player != null ? Vector3.Distance(transform.position, Player.position) : float.MaxValue;
 
             if (CanSeePlayer) LastKnownPosition = Player.position;
@@ -296,6 +352,7 @@ namespace Apagao.AI
         /// <summary>Levar dano revela o Caio: recuo e combate.</summary>
         private void OnDamaged(DamageInfo info, float amount)
         {
+            Sfx.Play("acerto_metal", info.Point, 0.8f, SoundCategory.Efeitos, 30f, 0.12f);
             if (IsDead || IsFrozen || health.Current <= 0f) return; // golpe fatal: quem cuida é o Died
             if (info.Source != null) LastKnownPosition = info.Source.transform.position;
             HeightenedAlert = true;
@@ -338,6 +395,7 @@ namespace Apagao.AI
             IsDead = true;
             if (hive != null) hive.ReportDeath(IsAware);
             Apagao.Systems.SaveId.ReportGone(gameObject);
+            Sfx.Play("robo_destruido", transform.position + Vector3.up, 1f, SoundCategory.Efeitos, 50f);
             SpawnLoot();
             SpawnWreck();
             Destroy(gameObject);

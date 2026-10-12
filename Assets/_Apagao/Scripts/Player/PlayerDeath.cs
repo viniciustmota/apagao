@@ -2,6 +2,7 @@ using System.Collections;
 using Apagao.Combat;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Apagao.Audio;
 
 namespace Apagao.Player
 {
@@ -26,12 +27,27 @@ namespace Apagao.Player
             player = GetComponent<PlayerController>();
         }
 
-        private void OnEnable() => health.Died += OnDied;
-        private void OnDisable() => health.Died -= OnDied;
+        private void OnEnable()
+        {
+            health.Died += OnDied;
+            health.Damaged += OnDamaged;
+        }
+
+        private void OnDisable()
+        {
+            health.Died -= OnDied;
+            health.Damaged -= OnDamaged;
+        }
+
+        private void OnDamaged(DamageInfo info, float amount)
+        {
+            if (!health.IsDead && info.Type != DamageType.Fogo) Sfx.Play2D("dano_caio", Mathf.Clamp01(0.5f + amount / 60f));
+        }
 
         private void OnDied()
         {
             DeathTime = Time.time;
+            Sfx.Play2D("morte", 0.9f, SoundCategory.Efeitos, 0f);
             player.InputLocked = true;
             StartCoroutine(Restart());
         }

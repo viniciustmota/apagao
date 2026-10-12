@@ -2,6 +2,7 @@ using Apagao.Combat;
 using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.AI.Brutamontes
 {
@@ -202,9 +203,21 @@ namespace Apagao.AI.Brutamontes
                 if (cameraRig != null) cameraRig.Shake(0.25f, 0.25f);
             }
             NoiseSystem.Emit(transform.position, 10f, 0.6f, NoiseType.Impacto, gameObject);
+            Sfx.Play("bruto_soco", transform.position + transform.forward * 1.5f + Vector3.up * 1.5f, 1f, SoundCategory.Inimigos, 30f);
         }
 
-        public void StartChargeCooldown() => nextChargeTime = Time.time + chargeCooldown;
+        public void StartChargeCooldown()
+        {
+            nextChargeTime = Time.time + chargeCooldown;
+            Sfx.Play("bruto_investida", transform.position + Vector3.up * 1.5f, 1f, SoundCategory.Inimigos, 40f);
+        }
+
+        protected override string FootstepSound => "bruto_passo";
+        protected override float StrideLength => stepLength;
+        protected override float FootstepVolume => 1f;
+        protected override string MotorSound => "sentinela_servo_loop";
+        protected override float MotorPitch => 0.6f;
+        protected override float MotorVolume => 0.5f;
 
         /// <summary>Dano da investida no Caio (uma vez por investida).</summary>
         public bool TryChargeHit()
@@ -235,6 +248,7 @@ namespace Apagao.AI.Brutamontes
         public void SlamWall()
         {
             NoiseSystem.Emit(transform.position, 20f, 1f, NoiseType.Impacto, gameObject);
+            Sfx.Play("bruto_parede", transform.position + transform.forward + Vector3.up * 1.5f, 1f, SoundCategory.Inimigos, 50f);
             Tremor(0.35f, 0.4f);
         }
 

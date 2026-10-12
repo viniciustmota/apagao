@@ -1,6 +1,6 @@
 # 18 — Campanha, objetivos e checkpoints
 
-**Status:** Parcial (demo da vila implementada, falta testar; atos completos com a ilha, spec 22) · **Marco:** 11
+**Status:** Implementada até a chegada à estação (falta testar); o ato 4 completo depende do Capataz (marco 12) · **Marco:** 11
 
 ## Objetivo
 Encadear os 5 atos do GDD numa campanha de 45 a 60 minutos, cada ato ensinando uma mecânica antes de testá-la.
@@ -30,6 +30,13 @@ Encadear os 5 atos do GDD numa campanha de 45 a 60 minutos, cada ato ensinando u
 - Morrer recarrega a cena, que volta ao último checkpoint; a rede recomeça sem `PlayerSpotted` (R6). Fabricar perto da bancada salva (R4). **F9** apaga o save e recomeça.
 - Demo na vila de teste: chegar à bancada → derrubar a antena → usar o rádio da estação atrás da igreja → fim da demo.
 - Itens coletados pela metade e saques de máquinas não são lembrados (aceito no MVP).
+
+## Atos na Ilha do Amparo
+- `ActManager` com `ActDefinition` (título, grupos `Ato_N`, luz). Um grupo fica ligado no seu ato e nos seguintes; atos futuros começam desligados.
+- `Objective.act` diz a que ato o objetivo pertence; ao começar um objetivo de outro ato, a cartela "Ato N — Nome" aparece e a luz muda.
+- O Caio começa de mãos vazias (`PlayerLoadout`): facão e revólver no sítio, espingarda no barco do manguezal, peças do PEM no almoxarifado (`WeaponPickup`). O checkpoint guarda o que ele já tem.
+- Saves separados por cena (`apagao_save_<cena>.json`).
+- Sequência: sair da vila → sítio → facão → antena do sítio → almoxarifado → montar o PEM → antena do almoxarifado → rua pelos telhados → entrar na estação → "Fim do conteúdo atual".
 
 ## Critérios de aceite
 - [ ] Morrer no meio do ato 2 volta ao início do ato 2 com o inventário daquele momento.

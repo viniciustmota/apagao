@@ -1,6 +1,7 @@
 using Apagao.Combat;
 using Apagao.Player;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.AI.Matilha
 {
@@ -206,11 +207,23 @@ namespace Apagao.AI.Matilha
             Vector3 dir = Player.position - transform.position;
             dir.y = 0f;
             PlayerDamageable.TakeDamage(new DamageInfo(biteDamage, DamageType.Corte, Player.position + Vector3.up, dir.normalized, gameObject));
+            Sfx.Play("cao_mordida", Player.position + Vector3.up, 0.9f, SoundCategory.Inimigos, 20f);
             return true;
         }
 
         /// <summary>Agacha antes do bote: o aviso visual de 0,4 s.</summary>
-        public void Squat(bool on) => squatting = on;
+        public void Squat(bool on)
+        {
+            if (on && !squatting) Sfx.Play("cao_rosnado", transform.position, 0.8f, SoundCategory.Inimigos, 20f, 0.1f);
+            squatting = on;
+        }
+
+        protected override string FootstepSound => "cao_passo";
+        protected override float StrideLength => 0.55f;
+        protected override float FootstepVolume => 0.35f;
+        protected override string MotorSound => "sentinela_servo_loop";
+        protected override float MotorPitch => 1.7f;
+        protected override float MotorVolume => 0.12f;
 
         protected override void OnFrozen() => Squat(false);
         protected override void OnStunned() => Squat(false);

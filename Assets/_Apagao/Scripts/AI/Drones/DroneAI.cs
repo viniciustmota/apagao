@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Apagao.AI.Hive;
+using Apagao.Audio;
 using Apagao.Combat;
 using Apagao.Crafting;
 using Apagao.Player;
@@ -48,6 +50,20 @@ namespace Apagao.AI.Drones
         /// <summary>Vida chegou a zero. Padrão: cai.</summary>
         protected virtual void HandleKilled() => Crash();
 
+        // ---------- Som (spec 21 R2) ----------
+        protected virtual float RotorPitch => 1f;
+        protected virtual float RotorVolume => 0.5f;
+        /// <summary>Hélices girando (a Vespa pousada fica quieta).</summary>
+        protected virtual bool RotorActive => true;
+
+        /// <summary>Drones vivos na cena (música e cigarras usam).</summary>
+        public static readonly List<DroneAI> Active = new List<DroneAI>();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetActive() => Active.Clear();
+
+        private LoopSound rotor;
+
         protected virtual void Awake()
         {
             Motor = GetComponent<DroneMotor>();
@@ -56,16 +72,19 @@ namespace Apagao.AI.Drones
             PlayerMove = FindAnyObjectByType<PlayerController>();
             Player = PlayerMove != null ? PlayerMove.transform : null;
             block = new MaterialPropertyBlock();
+            rotor = LoopSound.Attach(gameObject, "rotor_loop", RotorVolume, 35f, SoundCategory.Inimigos, RotorPitch);
         }
 
         protected virtual void OnEnable()
         {
+            Active.Add(this);
             health.Damaged += OnDamaged;
             health.Died += OnDied;
         }
 
         protected virtual void OnDisable()
         {
+            Active.Remove(this);
             health.Damaged -= OnDamaged;
             health.Died -= OnDied;
         }
@@ -74,6 +93,12 @@ namespace Apagao.AI.Drones
         {
             if (IsDead) return;
             Think();
+            if (rotor != null)
+            {
+                float speed = Motor.Velocity.magnitude;
+                rotor.Volume = Mathf.MoveTowards(rotor.Volume, RotorActive ? 1f : 0f, Time.deltaTime * 2f);
+                rotor.Pitch = RotorPitch * (0.92f + 0.012f * speed);
+            }
         }
 
         // ---------- Sentidos ----------
@@ -151,6 +176,7 @@ namespace Apagao.AI.Drones
 
         private void OnDamaged(DamageInfo info, float amount)
         {
+            Sfx.Play("acerto_metal", info.Point, 0.7f, SoundCategory.Efeitos, 30f, 0.15f, 1.3f);
             if (IsDead || health.Current <= 0f) return;
             if (info.Source != null) LastKnownPosition = info.Source.transform.position;
             HandleDamaged(info);
@@ -170,6 +196,8 @@ namespace Apagao.AI.Drones
             if (hive != null) hive.ReportDeath(IsAware);
             Apagao.Systems.SaveId.ReportGone(gameObject);
             SpawnLoot();
+            Sfx.Play("robo_destruido", transform.position, 0.8f, SoundCategory.Efeitos, 45f, 0.1f, 1.2f);
+            if (rotor != null) rotor.Stop();
 
             Motor.enabled = false;
             if (statusLight != null) statusLight.enabled = false;

@@ -3,6 +3,7 @@ using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Combat
 {
@@ -45,7 +46,7 @@ namespace Apagao.Combat
         {
             if (IsExecuting) return;
 
-            Candidate = FindCandidate();
+            Candidate = PlayerLoadout.Allows(this, WeaponSlot.Facao) ? FindCandidate() : null; // sem facão, sem takedown
             if (Candidate == null) return;
 
             var kb = Keyboard.current;
@@ -103,6 +104,7 @@ namespace Apagao.Combat
             yield return new WaitForSeconds(Mathf.Max(0f, killAt - alignTime));
 
             if (facao != null) facao.UseForTakedown();
+            Sfx.Play("takedown", transform.position + transform.forward + Vector3.up, 0.9f, SoundCategory.Efeitos, 20f);
             NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Impacto, gameObject);
             if (t != null) target.CompleteTakedown();
 

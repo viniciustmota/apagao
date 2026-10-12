@@ -117,6 +117,11 @@ namespace Apagao.UI
             if (slot == WeaponSlot.Facao)
             {
                 if (facao == null) return;
+                if (!PlayerLoadout.Allows(facao, WeaponSlot.Facao))
+                {
+                    GUI.Label(new Rect(24, Screen.height - 32, 500, 22), "<color=#a0a0a0>Mãos vazias</color>", smallStyle);
+                    return;
+                }
                 string state = facao.IsBroken ? "<color=#ff6060>quebrado</color>" : $"{facao.DurabilityNormalized:P0}";
                 text = $"[1] Facão {state}";
             }

@@ -24,9 +24,10 @@ namespace Apagao.UI
             var checkpoints = CheckpointManager.Instance;
 
             if (campaign != null && campaign.Current != null) DrawObjective(campaign);
+            DrawActTitle();
             if (radio != null && radio.HasLine) DrawSubtitle(radio);
             if (checkpoints != null && Time.time - checkpoints.LastSaveTime < checkpointToast) DrawCheckpoint();
-            if (campaign != null && campaign.Finished && campaign.Count > 0 && (radio == null || !radio.Busy)) DrawEnd();
+            if (campaign != null && campaign.Finished && campaign.Count > 0 && (radio == null || !radio.Busy)) DrawEnd(campaign);
         }
 
         private void DrawObjective(Campaign campaign)
@@ -39,6 +40,19 @@ namespace Apagao.UI
             objectiveStyle.fontSize = fresh ? 20 : 16;
             var rect = new Rect(0, 18, Screen.width, 30);
             Shadowed(rect, text, objectiveStyle);
+        }
+
+        /// <summary>Cartela do ato ("Ato 1 — A Roça") ao entrar num ato novo.</summary>
+        private void DrawActTitle()
+        {
+            var acts = ActManager.Instance;
+            if (acts == null || acts.CurrentTitle == null) return;
+            float age = Time.time - acts.LastChangeTime;
+            if (age < 0f || age > 4.5f) return;
+            float a = Mathf.Clamp01(age / 0.6f) * Mathf.Clamp01((4.5f - age) / 1f);
+            GUI.color = new Color(1f, 1f, 1f, a);
+            GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 60), acts.CurrentTitle, endStyle);
+            GUI.color = Color.white;
         }
 
         private void DrawSubtitle(RadioSystem radio)
@@ -61,13 +75,13 @@ namespace Apagao.UI
             Shadowed(rect, "<color=#9fe39f>Checkpoint salvo</color>", toastStyle);
         }
 
-        private void DrawEnd()
+        private void DrawEnd(Campaign campaign)
         {
             GUI.color = new Color(0f, 0f, 0f, 0.75f);
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            GUI.Label(new Rect(0, Screen.height * 0.4f, Screen.width, 60), "Fim da demo", endStyle);
-            GUI.Label(new Rect(0, Screen.height * 0.4f + 64, Screen.width, 30), "F9 recomeça do zero", endSmallStyle);
+            GUI.Label(new Rect(0, Screen.height * 0.4f, Screen.width, 60), campaign.EndTitle, endStyle);
+            GUI.Label(new Rect(0, Screen.height * 0.4f + 64, Screen.width, 30), campaign.EndSubtitle, endSmallStyle);
         }
 
         private static void Shadowed(Rect rect, string text, GUIStyle style)

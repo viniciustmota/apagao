@@ -2,6 +2,7 @@ using Apagao.Combat;
 using Apagao.Crafting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Player
 {
@@ -61,6 +62,7 @@ namespace Apagao.Player
 
             inventory.UseItem(ItemType.Kit);
             health.Heal(healAmount);
+            Sfx.Play2D("cura", 0.6f);
             IsHealing = false;
             Progress = 0f;
         }

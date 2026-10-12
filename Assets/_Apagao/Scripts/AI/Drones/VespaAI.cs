@@ -1,3 +1,4 @@
+using Apagao.Audio;
 using System.Collections.Generic;
 using Apagao.Combat;
 using Apagao.Player;
@@ -48,6 +49,10 @@ namespace Apagao.AI.Drones
         private readonly RaycastHit[] sweepHits = new RaycastHit[8];
 
         public override bool IsAware => state != State.Pousada;
+        protected override float RotorPitch => 1.9f;
+        protected override float RotorVolume => 0.4f;
+        protected override bool RotorActive => state != State.Pousada;
+        private bool beepOn;
         public override string StateName => state.ToString();
 
         protected override void Awake()
@@ -173,6 +178,7 @@ namespace Apagao.AI.Drones
             if (IsDead) return;
             Vector3 center = transform.position;
             ExplosionFlash.Spawn(center, explosionRadius);
+            Sfx.Play("explosao", center, 1f, SoundCategory.Efeitos, 80f, 0.05f);
             NoiseSystem.Emit(center, explosionNoise, 1f, NoiseType.Explosao, gameObject);
 
             var cam = FindAnyObjectByType<ThirdPersonCamera>();
@@ -238,6 +244,8 @@ namespace Apagao.AI.Drones
                     // Pisca cada vez mais rápido: o aviso para esquivar.
                     float freq = Mathf.Lerp(4f, 20f, stateTime / lockTime);
                     bool on = Mathf.Sin(stateTime * freq * Mathf.PI * 2f) > 0f;
+                    if (on && !beepOn) Sfx.Play("vespa_trava", transform.position, 0.9f, SoundCategory.Inimigos, 30f, 0f, Mathf.Lerp(1f, 1.5f, stateTime / lockTime));
+                    beepOn = on;
                     SetStatusColor(on ? new Color(1f, 0.1f, 0.05f) : new Color(0.2f, 0f, 0f), on ? 6f : 0.5f);
                     break;
                 case State.Mergulhando:

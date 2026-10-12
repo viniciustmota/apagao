@@ -4,6 +4,7 @@ using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Combat
 {
@@ -106,7 +107,7 @@ namespace Apagao.Combat
         private void Update()
         {
             // Com outra arma na mão, o facão fica guardado.
-            if (holder != null && holder.Current != WeaponSlot.Facao && !IsAttacking)
+            if ((holder != null && holder.Current != WeaponSlot.Facao || !PlayerLoadout.Allows(this, WeaponSlot.Facao)) && !IsAttacking)
             {
                 PreviewTarget = null;
                 if (charging) EndCharge();
@@ -161,6 +162,7 @@ namespace Apagao.Combat
 
             Transform target = FindAimTarget(out Vector3 aimDir);
             player.SnapFacing(aimDir);
+            Sfx.Play2D(heavy ? "facao_pesado" : "facao_leve", heavy ? 0.8f : 0.6f, SoundCategory.Efeitos, 0.1f);
 
             // Preparação: acompanha o alvo e avança até ele.
             float windup = heavy ? heavyWindup : lightWindup;

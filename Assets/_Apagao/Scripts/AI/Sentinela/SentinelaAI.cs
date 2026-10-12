@@ -1,4 +1,5 @@
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.AI.Sentinela
 {
@@ -168,6 +169,11 @@ namespace Apagao.AI.Sentinela
         {
             if (gun != null) gun.ResetAim();
         }
+
+        protected override string FootstepSound => "sentinela_passo";
+        protected override float StrideLength => 1.1f;
+        protected override float FootstepVolume => 0.5f;
+        protected override string MotorSound => "sentinela_servo_loop";
 
         protected override void OnStunned() => OnFrozen();
         protected override void ResumeAfterStun() => Fsm.Restart();

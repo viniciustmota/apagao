@@ -1,6 +1,7 @@
 using Apagao.Combat;
 using Apagao.Systems;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.Player
 {
@@ -67,7 +68,10 @@ namespace Apagao.Player
                 {
                     float fall = peakY - pos.y;
                     if (fall >= minFallHeight)
+                    {
                         NoiseSystem.Emit(pos, fallRadius, fallIntensity, NoiseType.Queda, gameObject);
+                        Sfx.Play2D("queda", Mathf.Clamp01(0.4f + fall * 0.1f));
+                    }
                     if (fall > safeFallHeight)
                     {
                         var health = GetComponent<IDamageable>();
@@ -104,6 +108,9 @@ namespace Apagao.Player
 
         private void EmitStep(Vector3 pos)
         {
+            float volume = player.Mode switch { MoveMode.Correndo => 0.75f, MoveMode.Agachado => 0.18f, _ => 0.4f };
+            Sfx.Play($"passo_{Random.Range(1, 5)}", pos, volume, SoundCategory.Efeitos, 20f, 0.1f);
+
             switch (player.Mode)
             {
                 case MoveMode.Correndo: NoiseSystem.Emit(pos, runRadius, runIntensity, NoiseType.Passo, gameObject); break;

@@ -5,6 +5,7 @@ using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Combat
 {
@@ -102,9 +103,12 @@ namespace Apagao.Combat
             if (IsAiming && mouse.leftButton.wasPressedThisFrame) Fire();
         }
 
+        /// <summary>Equipa uma arma (ex.: acabou de pegar).</summary>
+        public void Equip(WeaponSlot slot) => Select(slot);
+
         private void Select(WeaponSlot slot)
         {
-            if (slot == Current) return;
+            if (slot == Current || !PlayerLoadout.Allows(this, slot)) return;
             CancelReload(null);
             Current = slot;
         }
@@ -145,6 +149,7 @@ namespace Apagao.Combat
             if (a.Loaded <= 0)
             {
                 Message(a.Reserve > 0 ? "Sem munição no tambor — R para recarregar" : "Sem munição");
+                Sfx.Play2D("vazio", 0.6f);
                 nextShot = Time.time + 0.3f;
                 return;
             }
@@ -174,6 +179,7 @@ namespace Apagao.Combat
             }
 
             NoiseSystem.Emit(muzzlePos, data.NoiseRadius, data.NoiseIntensity, NoiseType.Arma, gameObject);
+            Sfx.Play2D(data == espingarda ? "espingarda" : "revolver", 1f, SoundCategory.Efeitos, 0.05f);
             Shake(recoilShake);
             if (a.Loaded == 0 && a.Reserve > 0) Message("R para recarregar");
         }
@@ -221,6 +227,7 @@ namespace Apagao.Combat
             if (a.Loaded >= data.Magazine) return;
             if (a.Reserve <= 0) { Message("Sem munição de reserva"); return; }
             reloading = StartCoroutine(Reload(data));
+            Sfx.Play2D("recarga", 0.7f);
         }
 
         private IEnumerator Reload(WeaponData data)

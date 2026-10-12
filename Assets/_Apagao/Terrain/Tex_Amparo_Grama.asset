@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!28 &2800000
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Tex_Amparo_Grama
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 4
+  m_Width: 8
+  m_Height: 8
+  m_CompleteImageSize: 340
+  m_MipsStripped: 0
+  m_TextureFormat: 4
+  m_MipCount: 4
+  m_IsReadable: 1
+  m_IsPreProcessed: 0
+  m_IgnoreMipmapLimit: 1
+  m_MipmapLimitGroupName: 
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_VTOnly: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 1
+  m_PlatformBlob: 
+  image data: 340
+  _typelessdata: 426e2cf4416d2cf244712dfa426d2cf3426f2cf6416c2bf1426e2cf3426d2cf3416c2bf1406b2bef436f2cf7426f2cf6426d2cf3426e2cf5416c2bf0436f2cf744712dfa426f2cf644712dfb416d2cf3426e2cf443702df9426d2cf3406b2bed426d2cf3416c2bf144712dfa416d2bf1416d2cf243702df9426e2cf5426e2cf4426e2cf3426e2cf4426e2cf4426e2cf5426d2cf3426e2cf4426e2cf5436f2df7436f2df8426d2cf3416c2bf0426e2cf4416c2bf0416d2cf243702df9416c2bf0416d2cf2426f2cf6426d2cf3426e2cf3426f2cf6416d2bf2426e2cf5416d2cf2426e2cf5416c2bf0436f2df7426e2cf6436f2cf7416c2bf0416d2cf2416d2bf1406c2bf1426f2cf6416d2bf3426d2bf3426e2bf5426f2cf6426e2cf5416d2bf2426e2cf4416d2bf3416c2bf2426e2cf5416d2bf3426d2cf4416d2bf3416d2bf2416d2bf4416d2bf3416d2bf3416d2bf2416d2bf2
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 

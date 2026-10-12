@@ -1,3 +1,4 @@
+using Apagao.Audio;
 using Apagao.Combat;
 using UnityEngine;
 
@@ -47,6 +48,22 @@ namespace Apagao.AI.Drones
         private float immuneUntil = float.NegativeInfinity;
 
         public override bool IsAware => state != State.Patrulha;
+        protected override float RotorPitch => 0.65f;
+        protected override float RotorVolume => 0.55f;
+        protected override bool RotorActive => state != State.Caida;
+        private LoopSound flame;
+
+        protected override void HandleKilled()
+        {
+            if (flame != null) flame.Stop();
+            Crash();
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            flame = LoopSound.Attach(gameObject, "brasa_chama_loop", 0.35f, 30f, SoundCategory.Inimigos);
+        }
         public override bool IsStunned => state == State.Caida;
         public override string StateName => state == State.Patrulha && lockProgress > 0f ? $"Patrulha {lockProgress / lockTime:P0}" : state.ToString();
 
@@ -144,6 +161,7 @@ namespace Apagao.AI.Drones
                 ground = h.point; // cai no telhado, se houver um
             }
             FireDrop.Spawn(transform.position + Vector3.down * 0.5f, ground, fireRadius, fireDuration, fireDamagePerSecond);
+            Sfx.Play("brasa_despejo", transform.position, 1f, SoundCategory.Inimigos, 45f);
         }
 
         // ---------- PEM: cai e fica 6 s no chão ----------
@@ -151,6 +169,7 @@ namespace Apagao.AI.Drones
         public override void Stun(float seconds)
         {
             if (IsDead || state == State.Caida || Time.time < immuneUntil) return;
+            if (flame != null) flame.Volume = 0f; // chama apaga enquanto está no chão
             fallSpeed = 0f;
             if (hive != null) hive.GoOffline(groundedTime + 1f);
             ChangeState(State.Caida);
@@ -168,6 +187,7 @@ namespace Apagao.AI.Drones
             }
             if (stateTime < groundedTime) return;
             immuneUntil = Time.time + stunImmunity;
+            if (flame != null) flame.Volume = 1f;
             ChangeState(State.Subindo);
         }
 

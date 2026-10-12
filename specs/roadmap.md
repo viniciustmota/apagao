@@ -87,19 +87,29 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Câmera olha mais para cima (−60°) para mirar em drones — spec 02
 - [ ] Fogo queima mato e cobertura (depende do mato, spec 22) — spec 15
 
+## Marco 10.5 — Som (implementado, falta testar)
+- [~] Sons provisórios gerados por síntese (`Tools/gerar_sons.py`) — spec 21
+- [~] `AudioManager`, `Sfx` e `LoopSound`: efeitos 3D, loops, categorias de volume, abafamento atrás de parede — spec 21
+- [~] Assinatura sonora de cada máquina, passos do Caio, armas, crafting, checkpoint — spec 21
+- [~] Ambiente (mar, vento, cigarras que calam perto das máquinas) e música de tensão e combate — spec 21
+- [~] Chiado do rádio pelo sinal — spec 19 + 21
+- [ ] Trocar os sons sintetizados por gravações/bibliotecas livres — spec 21
+- [ ] AudioMixer com grupos e filtro de rádio na voz — spec 21
+
 ## Marco 11 — Ilha e campanha
-- [ ] Greybox da ilha inteira com as zonas — spec 22
+- [~] Greybox da Ilha do Amparo: 6 zonas, mata, mato alto, água rasa, corrente, luz por ato — spec 22
 - [~] Brutamontes: soco, investida, parede atordoa, blindagem frontal, PEM curto, takedown fraco, tremor dos passos — spec 16
 - [~] Quintal de teste atrás da fileira sul com muro para a investida
 - [~] Checkpoints em JSON, `SaveId` dos objetos, morte volta ao checkpoint, F9 recomeça — spec 18
 - [~] Objetivos em sequência e demo da vila: bancada → antena → rádio da estação → fim — spec 18
 - [~] Rádio da Lia: legendas, sinal que piora, final com a voz falsa — spec 19
-- [ ] Atos completos (`ActDefinition`) na ilha inteira — spec 18
+- [~] Atos (`ActManager`), armas achadas no caminho (`PlayerLoadout`), campanha do prólogo até a estação — spec 18
+- [ ] Ato 4 completo: Núcleo e Capataz — spec 17 (marco 12)
 - [ ] Falas do Capataz nos alto-falantes e áudio do rádio — spec 19
 - [ ] HUD completo — spec 20
 
 ## Marco 12 — Chefe e polimento
 - [ ] Capataz em 3 fases — spec 17
-- [ ] Áudio e música dinâmica — spec 21
+- [~] Corpo low-poly do Caio com animação procedural (`CaioModelBuilder` + `CaioAnimator`)
 - [ ] Arte final dos robôs e da vila
 - [ ] Build para Linux e Windows e teste com outras pessoas

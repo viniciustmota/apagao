@@ -82,7 +82,7 @@ namespace Apagao.EditorTools
             Box("Nave", igreja, Ground(terrain, 32f, 0f), new Vector3(10f, 7f, 14f), matIgreja);
             Box("Torre", igreja, Ground(terrain, 32f, -9f), new Vector3(4f, 12f, 4f), matIgreja);
 
-            CreatePlayerAndCamera(terrain, matCaio);
+            CreatePlayerAndCamera(terrain, matCaio, new Vector2(-22f, 0f), 90f);
             InimigosBuilder.Populate(terrain);
             DronesBuilder.Populate(terrain);
             ItensBuilder.Populate(terrain);
@@ -96,7 +96,7 @@ namespace Apagao.EditorTools
 
         // ---------- Iluminação e ambiente ----------
 
-        private static void CreateLighting()
+        internal static Light CreateLighting()
         {
             var sol = new GameObject("Sol");
             var light = sol.AddComponent<Light>();
@@ -115,6 +115,7 @@ namespace Apagao.EditorTools
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogStartDistance = 120f;
             RenderSettings.fogEndDistance = 450f;
+            return light;
         }
 
         // ---------- Terreno ----------
@@ -195,7 +196,7 @@ namespace Apagao.EditorTools
             data.SetAlphamaps(0, 0, maps);
         }
 
-        private static TerrainLayer Layer(string dir, string name, Color color)
+        internal static TerrainLayer Layer(string dir, string name, Color color)
         {
             var tex = new Texture2D(8, 8, TextureFormat.RGBA32, true);
             var pixels = new Color[64];
@@ -213,19 +214,19 @@ namespace Apagao.EditorTools
             return layer;
         }
 
-        private static void CreateWater(Material mat)
+        internal static void CreateWater(Material mat, float size = 100f)
         {
             var agua = GameObject.CreatePrimitive(PrimitiveType.Plane);
             agua.name = "Mar";
             agua.transform.position = new Vector3(0f, WaterLevel, 0f);
-            agua.transform.localScale = new Vector3(100f, 1f, 100f);
+            agua.transform.localScale = new Vector3(size, 1f, size);
             Object.DestroyImmediate(agua.GetComponent<Collider>()); // dá para entrar no raso
             agua.GetComponent<MeshRenderer>().sharedMaterial = mat;
         }
 
         // ---------- Vila ----------
 
-        private static void BuildRow(Terrain t, Transform parent, string nome, float startX, float z,
+        internal static void BuildRow(Terrain t, Transform parent, string nome, float startX, float z,
             float[] larguras, float[] alturas, Material[] paredes, Material telhado)
         {
             const float profundidade = 8f;
@@ -245,7 +246,7 @@ namespace Apagao.EditorTools
         }
 
         /// <summary>Cria um cubo com a base em <paramref name="baseCenter"/>. Se <paramref name="bury"/>, enterra 1 m extra para não flutuar em terreno irregular.</summary>
-        private static GameObject Box(string name, Transform parent, Vector3 baseCenter, Vector3 size, Material mat, bool bury = true)
+        internal static GameObject Box(string name, Transform parent, Vector3 baseCenter, Vector3 size, Material mat, bool bury = true)
         {
             float extra = bury ? 1f : 0f;
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -260,11 +261,11 @@ namespace Apagao.EditorTools
 
         // ---------- Jogador ----------
 
-        private static void CreatePlayerAndCamera(Terrain t, Material mat)
+        internal static GameObject CreatePlayerAndCamera(Terrain t, Material mat, Vector2 start, float yaw)
         {
             var caio = new GameObject("Caio");
-            caio.transform.position = Ground(t, -22f, 0f) + Vector3.up * 0.05f;
-            caio.transform.rotation = Quaternion.Euler(0f, 90f, 0f); // olhando para a rua
+            caio.transform.position = Ground(t, start.x, start.y) + Vector3.up * 0.05f;
+            caio.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
             var cc = caio.AddComponent<CharacterController>();
             cc.height = 1.8f;
@@ -272,21 +273,8 @@ namespace Apagao.EditorTools
             cc.center = new Vector3(0f, 0.9f, 0f);
             cc.stepOffset = 0.35f;
 
-            var visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            visual.name = "Visual";
-            Object.DestroyImmediate(visual.GetComponent<Collider>());
-            visual.transform.SetParent(caio.transform, false);
-            visual.transform.localPosition = new Vector3(0f, 0.9f, 0f);
-            visual.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
-            visual.GetComponent<MeshRenderer>().sharedMaterial = mat;
-
-            // "Nariz" para enxergar para onde o Caio está virado.
-            var nariz = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            nariz.name = "Frente";
-            Object.DestroyImmediate(nariz.GetComponent<Collider>());
-            nariz.transform.SetParent(visual.transform, false);
-            nariz.transform.localPosition = new Vector3(0f, 0.55f, 0.5f);
-            nariz.transform.localScale = new Vector3(0.4f, 0.15f, 0.3f);
+            // Corpo low-poly articulado (o CaioAnimator anima por código).
+            CaioModelBuilder.Build(caio.transform);
 
             var controller = caio.AddComponent<PlayerController>();
             caio.AddComponent<PlayerFootsteps>();
@@ -365,11 +353,11 @@ namespace Apagao.EditorTools
             var tpc = camGo.AddComponent<ThirdPersonCamera>();
 
             SetRef(controller, "cameraTransform", camGo.transform);
-            SetRef(controller, "visual", visual.transform);
             SetRef(tpc, "target", caio.transform);
 
-            camGo.transform.position = caio.transform.position + new Vector3(-3.5f, 2f, 0f);
+            camGo.transform.position = caio.transform.position + caio.transform.rotation * new Vector3(0f, 2f, -3.5f);
             Selection.activeGameObject = caio;
+            return caio;
         }
 
         // ---------- Utilidades ----------
@@ -415,7 +403,7 @@ namespace Apagao.EditorTools
             return data;
         }
 
-        private static Material UnlitMat(string name, Color color)
+        internal static Material UnlitMat(string name, Color color)
         {
             string path = $"{Root}/Materials/{name}.mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -448,20 +436,20 @@ namespace Apagao.EditorTools
             return m;
         }
 
-        private static void ReplaceAsset(Object asset, string path)
+        internal static void ReplaceAsset(Object asset, string path)
         {
             if (AssetDatabase.LoadAssetAtPath<Object>(path) != null) AssetDatabase.DeleteAsset(path);
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        private static void SetRef(Object target, string field, Object value)
+        internal static void SetRef(Object target, string field, Object value)
         {
             var so = new SerializedObject(target);
             so.FindProperty(field).objectReferenceValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void EnsureFolders()
+        internal static void EnsureFolders()
         {
             if (!AssetDatabase.IsValidFolder(Root)) AssetDatabase.CreateFolder("Assets", "_Apagao");
             foreach (var sub in new[] { "Scenes", "Materials", "Terrain", "Prefabs", "Data" })
@@ -477,13 +465,13 @@ namespace Apagao.EditorTools
         }
 
         /// <summary>Smoothstep estilo shader: 0 em e0, 1 em e1 (aceita e0 &gt; e1).</summary>
-        private static float SmoothStep(float e0, float e1, float x)
+        internal static float SmoothStep(float e0, float e1, float x)
         {
             float t = Mathf.Clamp01((x - e0) / (e1 - e0));
             return t * t * (3f - 2f * t);
         }
 
-        private static float Gauss(float u, float v, float cu, float cv, float sigma)
+        internal static float Gauss(float u, float v, float cu, float cv, float sigma)
         {
             float du = u - cu, dv = v - cv;
             return Mathf.Exp(-(du * du + dv * dv) / (2f * sigma * sigma));

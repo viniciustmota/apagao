@@ -41,6 +41,7 @@ namespace Apagao.Player
             timer = 0f;
 
             if (player.Mode == MoveMode.Agachado || !player.IsGrounded) return;
+            if (player.InWater) return; // spec 14: a água apaga o rastro
 
             int last = (head - 1 + points.Length) % points.Length;
             if (IsAlive(points[last]) && (points[last].Position - transform.position).sqrMagnitude < minSpacing * minSpacing)

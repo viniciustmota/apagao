@@ -4,13 +4,14 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 
 **Referências:** The Last of Us (escassez e tensão) + Ghost of Tsushima (telhados e takedowns) + Exterminador do Futuro (ambientação).
 
-> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 10 de 12.
+> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 11 de 12.
 
 ## O que já existe
 
 | Sistema | Estado |
 | --- | --- |
 | Movimento do Caio (andar, correr, agachar, pular) e câmera por cima do ombro | Implementado |
+| Corpo low-poly do Caio animado por código (passos, agachar, golpes, mira, morte) | Implementado |
 | Sentinela: patrulha, visão em cone, suspeita, investigação, combate com rifle | Implementado |
 | Ruído: passos, quedas e golpes viram som que as máquinas ouvem | Implementado |
 | Rede da VIGÍLIA: visão compartilhada, check-in de robôs e antena sabotável | Implementado |
@@ -22,7 +23,9 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Drones: Olho (busca de cima), Vespa (kamikaze) e Brasa (fogo) | Implementado |
 | Brutamontes: mini-chefe blindado com soco e investida | Implementado |
 | Checkpoints, objetivos e rádio da Lia (demo da vila) | Implementado |
-| Ilha completa com os 5 atos, chefe final, áudio | Planejado |
+| Som: efeitos, assinatura de cada máquina, ambiente, cigarras que calam e música dinâmica (provisórios) | Implementado |
+| Ilha do Amparo (greybox) com campanha do prólogo até a estação | Implementado |
+| Chefe final (Capataz) e arte final | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -42,7 +45,7 @@ git clone https://github.com/viniciustmota/apagao.git
 
 1. Abra a pasta no **Unity Hub** com a versão 6000.6.
 2. Espere a primeira importação e compilação.
-3. No menu do topo, clique em **Apagão → Criar Ilha de Teste**.
+3. No menu do topo, clique em **Apagão → Criar Ilha do Amparo** (campanha) ou **Apagão → Criar Ilha de Teste** (laboratório com tudo liberado).
 4. Aperte **Play**.
 
 A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perdem ao recriar; mudanças permanentes vão nos builders em `Assets/_Apagao/Editor/`.
@@ -84,10 +87,13 @@ Assets/_Apagao/
     AI/Drones/    Motor de voo, base dos drones, Olho, Vespa e Brasa
     Combat/       Vida, dano, facão, takedown
     Systems/      Ruído e NavMesh em runtime
+    Audio/        AudioManager, Sfx e LoopSound
     Game/         Campanha, checkpoints e rádio
     UI/           HUD
     DebugTools/   Painel de teste da rede
   Editor/         Builders da cena de teste (menu Apagão)
+  Resources/Audio/  Sons (.wav) tocados por nome
+Tools/gerar_sons.py  Gera os sons provisórios por síntese
 specs/            SDD: constituição, arquitetura, roadmap e uma spec por sistema
 ```
 

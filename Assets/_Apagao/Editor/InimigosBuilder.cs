@@ -95,7 +95,7 @@ namespace Apagao.EditorTools
             muro.isStatic = true;
         }
 
-        private static void CreateBrutamontes(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
+        internal static void CreateBrutamontes(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
             Material robo, Material visor, Material indicador)
         {
             var root = new GameObject(name);
@@ -175,7 +175,7 @@ namespace Apagao.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void CreateSentinela(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
+        internal static void CreateSentinela(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
             Material robo, Material visor, Material indicador, Material laserMat, Material tracerMat)
         {
             var root = new GameObject(name);
@@ -263,7 +263,7 @@ namespace Apagao.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void CreateAntenna(Transform parent, Vector3 ground, Material metal, Material luz)
+        internal static void CreateAntenna(Transform parent, Vector3 ground, Material metal, Material luz)
         {
             var root = new GameObject("Antena_VIGILIA");
             root.transform.SetParent(parent);
@@ -296,7 +296,7 @@ namespace Apagao.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void CreateMatilha(Terrain t, Transform parent, string name, Vector2[] route, int count,
+        internal static void CreateMatilha(Terrain t, Transform parent, string name, Vector2[] route, int count,
             Material robo, Material visor, Material indicador)
         {
             var groupGo = new GameObject(name);

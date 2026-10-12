@@ -3,6 +3,7 @@ using Apagao.Combat;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Player
 {
@@ -118,6 +119,7 @@ namespace Apagao.Player
             float overTime = climbTime - upTime;
 
             NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Passo, gameObject);
+            Sfx.Play2D("escalada", 0.6f);
 
             for (float t = 0f; t < upTime; t += Time.deltaTime)
             {

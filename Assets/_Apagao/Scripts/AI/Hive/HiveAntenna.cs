@@ -3,6 +3,7 @@ using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.AI.Hive
 {
@@ -39,7 +40,10 @@ namespace Apagao.AI.Hive
             var pc = FindAnyObjectByType<PlayerController>();
             player = pc != null ? pc.transform : null;
             if (beaconLight != null) baseIntensity = beaconLight.intensity;
+            if (!Sabotaged) hum = LoopSound.Attach(gameObject, "antena_loop", 0.5f, 18f, SoundCategory.Inimigos);
         }
+
+        private LoopSound hum;
 
         private void Update()
         {
@@ -69,11 +73,17 @@ namespace Apagao.AI.Hive
         {
             if (Sabotaged) return;
             Sabotaged = true;
+            if (network == null) network = HiveNetwork.FindFor(transform.position); // sabotada antes do próprio Start (checkpoint)
             Progress = 1f;
             PlayerInRange = false;
 
             if (network != null) network.SetOnline(false);
-            if (!silent) NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Impacto, gameObject);
+            if (!silent)
+            {
+                NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Impacto, gameObject);
+                Sfx.Play("antena_sabotada", transform.position + Vector3.up * 2f, 1f, SoundCategory.Efeitos, 40f);
+            }
+            if (hum != null) hum.Stop();
             SaveId.ReportGone(gameObject);
 
             if (beacon != null) beacon.enabled = false;

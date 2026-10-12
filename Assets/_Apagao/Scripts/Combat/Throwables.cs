@@ -5,6 +5,7 @@ using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Combat
 {
@@ -142,6 +143,7 @@ namespace Apagao.Combat
             rb.linearVelocity = LaunchVelocity();
 
             go.AddComponent<ThrownItem>().Init(Selected);
+            Sfx.Play2D("arremesso", 0.5f);
             SetArc(false);
         }
 
@@ -174,6 +176,7 @@ namespace Apagao.Combat
             {
                 case ItemType.BombaRuido:
                     NoiseSystem.Emit(point, 20f, 0.8f, NoiseType.Distracao, gameObject);
+                    Sfx.Play("bomba_ruido", point, 1f, SoundCategory.Efeitos, 35f, 0f);
                     break;
                 case ItemType.Molotov:
                     FireArea.Spawn(point);
@@ -233,6 +236,8 @@ namespace Apagao.Combat
             glow.range = radius * 2f;
 
             NoiseSystem.Emit(transform.position, 12f, 0.7f, NoiseType.Impacto, gameObject); // vidro quebrando
+            Sfx.Play("vidro", transform.position, 0.8f, SoundCategory.Efeitos, 25f);
+            LoopSound.Attach(gameObject, "fogo_loop", Mathf.Clamp(radius / 6f, 0.4f, 0.8f), 20f, SoundCategory.Efeitos);
             StartCoroutine(Burn());
         }
 
@@ -307,6 +312,7 @@ namespace Apagao.Combat
             blink.range = 5f;
 
             endTime = Time.time + Duration;
+            LoopSound.Attach(gameObject, "isca_loop", 0.5f, 20f, SoundCategory.Efeitos);
         }
 
         private void Update()

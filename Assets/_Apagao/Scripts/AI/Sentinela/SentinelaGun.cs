@@ -1,6 +1,7 @@
 using Apagao.Combat;
 using Apagao.Player;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.AI.Sentinela
 {
@@ -64,6 +65,7 @@ namespace Apagao.AI.Sentinela
 
             if (cooldownTimer > 0f) return;
 
+            if (aimTimer == 0f) Sfx.Play("sentinela_mira", muzzle, 0.6f, SoundCategory.Inimigos, 30f, 0f);
             aimTimer += Time.deltaTime;
             if (aimTimer >= aimTime)
             {
@@ -81,6 +83,7 @@ namespace Apagao.AI.Sentinela
 
         private void Fire(Vector3 muzzle, Transform target, IDamageable targetHealth, PlayerController targetMove)
         {
+            Sfx.Play("sentinela_tiro", muzzle, 0.9f, SoundCategory.Inimigos, 60f);
             Vector3 aimPoint = target.position + Vector3.up * 1.2f;
             float distance = Vector3.Distance(muzzle, aimPoint);
 

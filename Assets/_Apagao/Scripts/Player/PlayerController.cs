@@ -2,6 +2,7 @@ using Apagao.Combat;
 using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Apagao.Audio;
 
 namespace Apagao.Player
 {
@@ -19,6 +20,15 @@ namespace Apagao.Player
         [SerializeField] private float walkSpeed = 3f;
         [SerializeField] private float runSpeed = 6f;
         [SerializeField] private float crouchSpeed = 1.5f;
+
+        [Header("Água rasa (spec 22 R5)")]
+        [SerializeField] private float waterLevel = 4f;
+        [SerializeField] private float waterSpeedMultiplier = 0.6f;
+
+        /// <summary>Com os pés dentro da água rasa.</summary>
+        public bool InWater => transform.position.y < waterLevel - 0.25f;
+        /// <summary>Cabeça abaixo da linha d'água (agachado no raso).</summary>
+        public float WaterLevel => waterLevel;
         [SerializeField] private float acceleration = 20f;
         [SerializeField] private float turnSpeed = 720f;
 
@@ -128,6 +138,7 @@ namespace Apagao.Player
 
             float targetSpeed = IsCrouching ? crouchSpeed : running ? runSpeed : walkSpeed;
             if (Aiming) targetSpeed = Mathf.Min(targetSpeed, aimSpeed);
+            if (InWater) targetSpeed *= waterSpeedMultiplier;
 
             WishDirection = moving ? (forward * input.y + right * input.x).normalized : Vector3.zero;
             Vector3 desired = (forward * input.y + right * input.x) * targetSpeed;
@@ -186,6 +197,7 @@ namespace Apagao.Player
             nextDodge = dodgeEnd + dodgeCooldown;
             horizontalVelocity = Vector3.zero;
             NoiseSystem.Emit(transform.position, dodgeNoiseRadius, dodgeNoiseIntensity, NoiseType.Passo, gameObject);
+            Sfx.Play2D("esquiva", 0.7f);
         }
 
         private void TickDodge()

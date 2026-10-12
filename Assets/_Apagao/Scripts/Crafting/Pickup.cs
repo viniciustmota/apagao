@@ -1,6 +1,7 @@
 using System;
 using Apagao.Systems;
 using UnityEngine;
+using Apagao.Audio;
 
 namespace Apagao.Crafting
 {
@@ -53,6 +54,7 @@ namespace Apagao.Crafting
             var inv = who.GetComponent<Inventory>();
             if (inv == null) return;
             amount -= inv.Add(resource, amount);
+            Sfx.Play2D("coleta", 0.6f);
             if (amount <= 0)
             {
                 SaveId.ReportGone(gameObject);

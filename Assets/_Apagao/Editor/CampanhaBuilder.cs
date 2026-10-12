@@ -20,7 +20,7 @@ namespace Apagao.EditorTools
         {
             var old = GameObject.Find("Campanha");
             if (old != null) Object.DestroyImmediate(old);
-            CheckpointManager.DeleteSave(); // cena nova, save novo
+            CheckpointManager.DeleteSave("Ilha_Teste"); // cena nova, save novo
 
             var root = new GameObject("Campanha");
             root.AddComponent<CheckpointManager>();
@@ -88,7 +88,8 @@ namespace Apagao.EditorTools
             {
                 if (!go.scene.IsValid() || EditorUtility.IsPersistent(go)) continue; // só objetos da cena
                 bool tracked = go.GetComponent<MachineAI>() || go.GetComponent<DroneAI>() ||
-                               go.GetComponent<Apagao.Crafting.Pickup>() || go.GetComponent<HiveAntenna>();
+                               go.GetComponent<Apagao.Crafting.Pickup>() || go.GetComponent<HiveAntenna>() ||
+                               go.GetComponent<Apagao.Combat.WeaponPickup>();
                 if (!tracked) continue;
 
                 var id = go.GetComponent<SaveId>();
@@ -135,7 +136,7 @@ namespace Apagao.EditorTools
             return root.transform;
         }
 
-        private static void SetObjective(SerializedProperty o, string text, ObjectiveKind kind, Transform target, float radius,
+        internal static void SetObjective(SerializedProperty o, string text, ObjectiveKind kind, Transform target, float radius,
             bool checkpoint, float signal, DialogueLine[] onStart, DialogueLine[] onComplete)
         {
             o.FindPropertyRelative("text").stringValue = text;
@@ -160,7 +161,7 @@ namespace Apagao.EditorTools
             }
         }
 
-        private static DialogueLine L(string speaker, string text, float duration = 3.5f) => new DialogueLine(speaker, text, duration);
+        internal static DialogueLine L(string speaker, string text, float duration = 3.5f) => new DialogueLine(speaker, text, duration);
 
         private static string Path(Transform t) => t.parent == null ? t.name : Path(t.parent) + "/" + t.name;
     }
