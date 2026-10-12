@@ -8,10 +8,10 @@ using Apagao.Audio;
 namespace Apagao.AI.Hive
 {
     /// <summary>
-    /// Antena da área (spec 07). Segurar E perto dela por 2 s derruba a rede: os robôs passam a agir sozinhos.
-    /// No marco 7 o PEM também vai sabotar a antena.
+    /// Antena da área (spec 07). Segurar E perto dela por 2 s (interação comum, com aviso e barra no HUD)
+    /// ou acertar com o PEM derruba a rede: os robôs passam a agir sozinhos.
     /// </summary>
-    public class HiveAntenna : MonoBehaviour, IStunnable
+    public class HiveAntenna : MonoBehaviour, IStunnable, IInteractable
     {
         [Tooltip("Vazio = usa a rede cuja área contém a antena.")]
         [SerializeField] private HiveNetwork network;
@@ -45,6 +45,17 @@ namespace Apagao.AI.Hive
 
         private LoopSound hum;
 
+        private void OnEnable() => InteractableRegistry.Register(this);
+        private void OnDisable() => InteractableRegistry.Unregister(this);
+
+        // ---------- Interação (segurar E, pelo PlayerInteractor) ----------
+
+        public string Prompt => "Sabotar a antena";
+        public float HoldTime => sabotageTime;
+        public Vector3 Position => transform.position + Vector3.up * 0.6f;
+        public bool CanInteract(GameObject who) => !Sabotaged;
+        public void Interact(GameObject who) => Sabotage();
+
         private void Update()
         {
             if (Sabotaged) return;
@@ -56,11 +67,6 @@ namespace Apagao.AI.Hive
             Vector3 d = player.position - transform.position;
             d.y = 0f;
             PlayerInRange = d.magnitude <= interactRange;
-
-            var kb = Keyboard.current;
-            bool holding = PlayerInRange && kb != null && kb.eKey.isPressed;
-            Progress = holding ? Progress + Time.deltaTime / sabotageTime : 0f;
-            if (Progress >= 1f) Sabotage();
         }
 
         public bool IsStunned => Sabotaged;

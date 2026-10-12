@@ -41,11 +41,7 @@ namespace Apagao.Audio
             source.clip = Sfx.Clip(clipName);
             source.loop = true;
             source.playOnAwake = false;
-            source.spatialBlend = 1f;
-            source.rolloffMode = AudioRolloffMode.Logarithmic;
-            source.minDistance = Mathf.Max(1f, maxDistance * 0.08f);
-            source.maxDistance = maxDistance;
-            source.dopplerLevel = 0f;
+            Sfx.Configure3D(source, maxDistance);
             filter = gameObject.AddComponent<AudioLowPassFilter>();
             filter.cutoffFrequency = 22000f;
             if (source.clip == null) return;

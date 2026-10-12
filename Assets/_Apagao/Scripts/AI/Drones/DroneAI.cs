@@ -55,6 +55,8 @@ namespace Apagao.AI.Drones
         protected virtual float RotorVolume => 0.5f;
         /// <summary>Hélices girando (a Vespa pousada fica quieta).</summary>
         protected virtual bool RotorActive => true;
+        /// <summary>Até onde a hélice é ouvida (o Olho voa alto: alcance curto para não zumbir na ilha toda).</summary>
+        protected virtual float RotorRange => 28f;
 
         /// <summary>Drones vivos na cena (música e cigarras usam).</summary>
         public static readonly List<DroneAI> Active = new List<DroneAI>();
@@ -72,7 +74,7 @@ namespace Apagao.AI.Drones
             PlayerMove = FindAnyObjectByType<PlayerController>();
             Player = PlayerMove != null ? PlayerMove.transform : null;
             block = new MaterialPropertyBlock();
-            rotor = LoopSound.Attach(gameObject, "rotor_loop", RotorVolume, 35f, SoundCategory.Inimigos, RotorPitch);
+            rotor = LoopSound.Attach(gameObject, "rotor_loop", RotorVolume, RotorRange, SoundCategory.Inimigos, RotorPitch);
         }
 
         protected virtual void OnEnable()

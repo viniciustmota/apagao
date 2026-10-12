@@ -126,9 +126,7 @@ namespace Apagao.Audio
             bool occluded = IsOccluded(position, null);
             s.transform.position = position;
             s.clip = clip;
-            s.spatialBlend = 1f;
-            s.minDistance = Mathf.Max(1f, maxDistance * 0.08f);
-            s.maxDistance = maxDistance;
+            Sfx.Configure3D(s, maxDistance);
             s.volume = volume * VolumeOf(category) * (occluded ? 0.6f : 1f);
             s.pitch = pitch;
             filters[i].cutoffFrequency = occluded ? 900f : 22000f; // R6: atrás de parede soa abafado

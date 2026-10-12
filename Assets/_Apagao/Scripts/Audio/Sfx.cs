@@ -12,6 +12,26 @@ namespace Apagao.Audio
     /// </summary>
     public static class Sfx
     {
+        private static AnimationCurve rolloff;
+
+        /// <summary>
+        /// Queda de volume com a distância (0 = colado, 1 = alcance máximo). Cai rápido e chega a zero no alcance:
+        /// longe, a máquina some de verdade.
+        /// </summary>
+        public static AnimationCurve Rolloff => rolloff ??= new AnimationCurve(
+            new Keyframe(0f, 1f), new Keyframe(0.1f, 0.72f), new Keyframe(0.3f, 0.32f),
+            new Keyframe(0.6f, 0.08f), new Keyframe(1f, 0f));
+
+        /// <summary>Configura uma fonte 3D com a queda de volume do jogo.</summary>
+        public static void Configure3D(AudioSource s, float maxDistance)
+        {
+            s.spatialBlend = 1f;
+            s.rolloffMode = AudioRolloffMode.Custom;
+            s.SetCustomCurve(AudioSourceCurveType.CustomRolloff, Rolloff);
+            s.minDistance = 1f;
+            s.maxDistance = maxDistance;
+            s.dopplerLevel = 0f;
+        }
         private static readonly Dictionary<string, AudioClip> cache = new Dictionary<string, AudioClip>();
         private static readonly HashSet<string> missing = new HashSet<string>();
 

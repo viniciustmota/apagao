@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!28 &2800000
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Tex_Amparo_Trilha
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 4
+  m_Width: 8
+  m_Height: 8
+  m_CompleteImageSize: 340
+  m_MipsStripped: 0
+  m_TextureFormat: 4
+  m_MipCount: 4
+  m_IsReadable: 1
+  m_IsPreProcessed: 0
+  m_IgnoreMipmapLimit: 1
+  m_MipmapLimitGroupName: 
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_VTOnly: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 1
+  m_PlatformBlob: 
+  image data: 340
+  _typelessdata: 866742f4856641f28a6944fa866642f3876742f6846541f1866642f3866642f3846541f1836440ef886843f7876742f6866642f3866742f5846541f0886843f78a6944fa876742f68a6944fb856641f3866742f4896843f9866642f3836440ed866642f3846541f18a6944fa856541f1856641f2896943f9876742f5866742f4866642f3866742f4866642f4876742f5856642f3866642f4876742f5886843f7886843f8856642f3846541f0866642f4846541f0856641f2896943f9846541f0856641f2876742f6866642f3866642f3876742f6856541f2876742f5856641f2876742f5846541f0886843f7876742f6886843f7846541f0856641f2856541f1846540f1876742f6856641f3866642f3866642f5876742f6876742f5856641f2866642f4856541f3846541f2866742f5856641f3866642f4866641f3856541f2856641f4856641f3856541f3856541f2856541f2
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 

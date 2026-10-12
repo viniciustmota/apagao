@@ -58,8 +58,6 @@ namespace Apagao.DebugTools
 
             if (player != null) GUILayout.Label($"Movimento: {player.Mode}", style);
 
-            if (antenna != null && antenna.PlayerInRange && !antenna.Sabotaged)
-                GUILayout.Label($"<b>[Segure E]</b> sabotar antena  {antenna.Progress:P0}", style);
 
             if (Time.time - lastEventTime < 5f && lastEvent.Length > 0)
                 GUILayout.Label($"<color=#ffffff>{lastEvent}</color>", style);
