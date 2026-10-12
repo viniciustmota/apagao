@@ -15,7 +15,7 @@ namespace Apagao.EditorTools
     /// </summary>
     public static class IlhaTesteBuilder
     {
-        private const string Root = "Assets/_Apagao";
+        internal const string Root = "Assets/_Apagao";
         private const string ScenePath = Root + "/Scenes/Ilha_Teste.unity";
 
         private const float TerrainSize = 400f;
@@ -72,6 +72,7 @@ namespace Apagao.EditorTools
             Box("Torre", igreja, Ground(terrain, 32f, -9f), new Vector3(4f, 12f, 4f), matIgreja);
 
             CreatePlayerAndCamera(terrain, matCaio);
+            InimigosBuilder.Populate(terrain);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();
@@ -292,14 +293,14 @@ namespace Apagao.EditorTools
 
         // ---------- Utilidades ----------
 
-        private static Vector3 Ground(Terrain t, float x, float z)
+        internal static Vector3 Ground(Terrain t, float x, float z)
         {
             var p = new Vector3(x, 0f, z);
             p.y = t.SampleHeight(p) + t.transform.position.y;
             return p;
         }
 
-        private static Material Mat(string name, Color color, float smoothness = 0.15f)
+        internal static Material Mat(string name, Color color, float smoothness = 0.15f)
         {
             string path = $"{Root}/Materials/{name}.mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
