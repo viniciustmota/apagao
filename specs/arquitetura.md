@@ -96,6 +96,8 @@ As layers ainda não existem no projeto; são criadas junto com a spec 06 (ruíd
 | 2026-10-12 | FSM com uma classe por estado | Escala melhor que `switch` quando os estados passam de 5 |
 | 2026-10-12 | Base `MachineAI` para máquinas terrestres | Sentinela e Matilha compartilhavam 70% do código; drones terão base própria (voo) |
 | 2026-10-12 | Drones com base `DroneAI` + `DroneMotor` e FSM por `enum` | Voam sem NavMesh; estados de poucas linhas não justificam uma classe cada (exceção à regra de uma classe por estado) |
+| 2026-10-12 | Ilha do Amparo compacta (600 m) + marcador de objetivo e bússola | Teste: a ilha de 1 km era grande, vazia e o jogador se perdia |
+| 2026-10-12 | `HiveNetwork.FindFor` escolhe a rede de centro mais próximo | Áreas de rede se sobrepõem na ilha compacta |
 | 2026-10-12 | Sons sintetizados em `Resources/Audio`, tocados por nome (`Sfx`) | Sem depender de download nem licença; trocar um som é sobrescrever o `.wav` |
 | 2026-10-12 | Checkpoint por `SaveId` + evento `SaveId.Gone` | O jogo (camada de cima) ouve o que some sem que inimigos e itens dependam dele |
 | 2026-10-12 | Objetivos como dados serializados no `Campaign` | Mais simples que ScriptableObject enquanto há uma só cena; migra junto com `ActDefinition` |

@@ -64,12 +64,23 @@ namespace Apagao.AI.Hive
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => all.Clear();
 
-        /// <summary>Rede cuja área contém o ponto, ou null.</summary>
+        /// <summary>Rede cuja área contém o ponto (a de centro mais próximo, se houver sobreposição), ou null.</summary>
         public static HiveNetwork FindFor(Vector3 point)
         {
+            HiveNetwork best = null;
+            float bestDist = float.MaxValue;
             foreach (var n in all)
-                if (n.Bounds.Contains(point)) return n;
-            return null;
+            {
+                if (!n.Bounds.Contains(point)) continue;
+                Vector3 d = n.transform.position - point;
+                d.y = 0f;
+                if (d.sqrMagnitude < bestDist)
+                {
+                    bestDist = d.sqrMagnitude;
+                    best = n;
+                }
+            }
+            return best;
         }
 
         private void OnEnable() => all.Add(this);

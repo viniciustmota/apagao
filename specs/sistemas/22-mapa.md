@@ -20,8 +20,12 @@ Uma ilha pequena e densa, com várias rotas em toda área.
 - Continua sendo o laboratório de mecânicas; a ilha final é outra cena.
 
 ## Ilha do Amparo (greybox, marco 11)
-- Gerada por `Apagão > Criar Ilha do Amparo` (`IlhaAmparoBuilder`): terreno de 1000 × 1000 m, ilha com ~400 m de raio, mar fundo em volta.
-- Zonas planas (`Pad`) sobre o relevo: Vila (0, −250), Sítio (−230, −50), Manguezal (245, −60, água de 1,1 m), Almoxarifado (130, 110), Rua principal (z = 200), Estação (0, 320) num morro.
+- Gerada por `Apagão > Criar Ilha do Amparo` (`IlhaAmparoBuilder`): terreno de 600 × 600 m, ilha com ~250 m de raio, mar fundo em volta.
+- **Revisão pós-teste:** a primeira versão (1 km, ~1 km de caminhada) ficou grande, vazia e fácil de se perder. Ilha compactada (~560 m de trilha do começo ao fim), com trilhas de terra, placas, pontos de interesse no caminho e orientação no HUD. R1 passa a ser "ilha compacta" em vez de 1 km².
+- Zonas planas (`Pad`): Vila (0, −150), Sítio (−110, −50), Manguezal (150, −80, água de 1,1 m), Almoxarifado (80, 40), Rua principal (z = 110), Estação (0, 190) num morro. Cada zona foi desenhada nas coordenadas da 1ª versão e é aproximada por um deslocamento (`VilaOff`, `SitioOff`…).
+- Trilhas de terra pintadas no terreno ligando vila → sítio → almoxarifado → rua → estação, com ramal para o manguezal; placas nas bifurcações.
+- Caminho com conteúdo: matilha na trilha da vila ao sítio, caminhonete e barraco com saque, uma Sentinela sozinha na trilha para treinar o takedown.
+- HUD: losango no objetivo com a distância (gruda na borda quando fora da tela) e bússola no topo com os pontos cardeais e o objetivo.
 - Mata: ~260 árvores (tronco com colisão, copa sem) e ~45 manchas de mato alto entre a vila e o resto.
 - 3 rotas: vila (rua / telhados / mato ao norte), sítio (curral / caixa d'água / mata), almoxarifado (pátio / anexo → telhado / portas dos fundos), rua (chão / telhados com vãos de 1,2 m / quintais), estação (portão / muro de 2,5 m escalável).
 - Uma rede e uma antena por zona com inimigos (R4). NavMesh gerado por zona quando o ato liga (a ilha inteira de uma vez travaria o início).

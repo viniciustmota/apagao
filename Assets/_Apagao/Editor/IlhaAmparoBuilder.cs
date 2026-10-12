@@ -25,7 +25,7 @@ namespace Apagao.EditorTools
     {
         private const string SceneName = "Ilha_Amparo";
         private const string ScenePath = IlhaTesteBuilder.Root + "/Scenes/" + SceneName + ".unity";
-        private const float Size = 1000f;
+        private const float Size = 600f;
         private const float MaxHeight = 60f;
         private const float WaterLevel = 4f;
         private const int HeightRes = 513;
@@ -46,14 +46,24 @@ namespace Apagao.EditorTools
 
         private static readonly Pad[] Pads =
         {
-            new Pad(0f, -250f, 80f, 6f),        // Vila dos pescadores
-            new Pad(-230f, -50f, 50f, 9f),      // Sítio do pai
-            new Pad(245f, -60f, 70f, 2.9f, 50f),// Manguezal (água rasa: agachado, a cabeça fica abaixo d'água)
-            new Pad(130f, 110f, 55f, 8f),       // Almoxarifado
-            new Pad(-50f, 200f, 40f, 9f),       // Rua principal (oeste)
-            new Pad(0f, 200f, 40f, 9f),         // Rua principal (centro)
-            new Pad(50f, 200f, 40f, 9f),        // Rua principal (leste)
-            new Pad(0f, 320f, 50f, 14f, 60f),   // Estação de cabos
+            new Pad(0f, -150f, 75f, 6f),        // Vila dos pescadores
+            new Pad(-110f, -50f, 50f, 9f),      // Sítio do pai
+            new Pad(150f, -80f, 62f, 2.9f, 40f),// Manguezal (água rasa: agachado, a cabeça fica abaixo d'água)
+            new Pad(80f, 40f, 52f, 8f),         // Almoxarifado
+            new Pad(-50f, 110f, 40f, 9f),       // Rua principal (oeste)
+            new Pad(0f, 110f, 40f, 9f),         // Rua principal (centro)
+            new Pad(50f, 110f, 40f, 9f),        // Rua principal (leste)
+            new Pad(0f, 190f, 48f, 14f, 50f),   // Estação de cabos
+        };
+
+        /// <summary>Trilhas de terra entre as zonas (pintadas no terreno, sem árvores em cima).</summary>
+        private static readonly Vector2[][] Trails =
+        {
+            new[] { new Vector2(0f, -112f), new Vector2(-40f, -100f), new Vector2(-85f, -68f), new Vector2(-110f, -52f) },          // vila → sítio
+            new[] { new Vector2(-105f, -40f), new Vector2(-70f, -10f), new Vector2(-10f, 10f), new Vector2(40f, 25f), new Vector2(72f, 36f) }, // sítio → almoxarifado
+            new[] { new Vector2(80f, 60f), new Vector2(40f, 76f), new Vector2(-40f, 88f), new Vector2(-82f, 100f) },               // almoxarifado → rua
+            new[] { new Vector2(76f, 115f), new Vector2(55f, 140f), new Vector2(20f, 158f), new Vector2(0f, 166f) },               // rua → estação
+            new[] { new Vector2(90f, 20f), new Vector2(120f, -10f), new Vector2(145f, -55f) },                                     // ramal do manguezal
         };
 
         private static Material paredeA, paredeB, paredeC, telhado, madeira, metal, concreto, caule, copa, mato, luzMat;
@@ -91,7 +101,7 @@ namespace Apagao.EditorTools
             BuildRua(cenario, atos[3]);
             BuildEstacao(cenario, atos[4]);
 
-            var caio = IlhaTesteBuilder.CreatePlayerAndCamera(terrain, IlhaTesteBuilder.Mat("Caio", new Color(0.90f, 0.45f, 0.10f)), new Vector2(-52f, -250f), 90f);
+            var caio = IlhaTesteBuilder.CreatePlayerAndCamera(terrain, IlhaTesteBuilder.Mat("Caio", new Color(0.90f, 0.45f, 0.10f)), new Vector2(-52f, -150f), 90f);
             var loadout = caio.AddComponent<PlayerLoadout>();
             var lso = new SerializedObject(loadout);
             foreach (var f in new[] { "facao", "revolver", "espingarda", "pem" }) lso.FindProperty(f).boolValue = false;
@@ -146,10 +156,11 @@ namespace Apagao.EditorTools
             var areia = IlhaTesteBuilder.Layer(dir, "Amparo_Areia", new Color(0.86f, 0.78f, 0.58f));
             var grama = IlhaTesteBuilder.Layer(dir, "Amparo_Grama", new Color(0.27f, 0.45f, 0.18f));
             var lama = IlhaTesteBuilder.Layer(dir, "Amparo_Lama", new Color(0.33f, 0.28f, 0.2f));
-            data.terrainLayers = new[] { areia, grama, lama };
+            var trilha = IlhaTesteBuilder.Layer(dir, "Amparo_Trilha", new Color(0.55f, 0.42f, 0.27f));
+            data.terrainLayers = new[] { areia, grama, lama, trilha };
 
             int res = data.alphamapResolution;
-            var maps = new float[res, res, 3];
+            var maps = new float[res, res, 4];
             for (int y = 0; y < res; y++)
             for (int x = 0; x < res; x++)
             {
@@ -157,9 +168,11 @@ namespace Apagao.EditorTools
                 float wx = x / (res - 1f) * Size - Size / 2f, wz = y / (res - 1f) * Size - Size / 2f;
                 float mud = PadWeight(Pads[2], wx, wz);
                 float grass = IlhaTesteBuilder.SmoothStep(WaterLevel + 0.6f, WaterLevel + 1.4f, height) * (1f - mud);
-                maps[y, x, 0] = Mathf.Max(0f, 1f - grass - mud);
-                maps[y, x, 1] = grass;
-                maps[y, x, 2] = mud;
+                float path = IlhaTesteBuilder.SmoothStep(3.5f, 1.8f, TrailDistance(wx, wz));
+                maps[y, x, 0] = Mathf.Max(0f, 1f - grass - mud) * (1f - path);
+                maps[y, x, 1] = grass * (1f - path);
+                maps[y, x, 2] = mud * (1f - path);
+                maps[y, x, 3] = path;
             }
             data.SetAlphamaps(0, 0, maps);
 
@@ -183,8 +196,8 @@ namespace Apagao.EditorTools
         {
             float d = Mathf.Sqrt(x * x + z * z);
             float ang = Mathf.Atan2(z, x);
-            float coast = 410f + 25f * Mathf.Sin(ang * 3f + 1.3f) + 15f * Mathf.Sin(ang * 7f);
-            float land = IlhaTesteBuilder.SmoothStep(coast, coast - 60f, d);
+            float coast = 255f + 18f * Mathf.Sin(ang * 3f + 1.3f) + 10f * Mathf.Sin(ang * 7f);
+            float land = IlhaTesteBuilder.SmoothStep(coast, coast - 45f, d);
 
             float relief = 7f + (Mathf.PerlinNoise(x * 0.012f + 31f, z * 0.012f + 7f) - 0.5f) * 8f
                            + 10f * IlhaTesteBuilder.Gauss(x / Size, z / Size, -0.05f, 0.05f, 0.08f)   // morro da mata
@@ -202,13 +215,35 @@ namespace Apagao.EditorTools
             return IlhaTesteBuilder.SmoothStep(p.Radius + p.Blend, p.Radius, dist);
         }
 
-        private static Vector3 G(float x, float z) => IlhaTesteBuilder.Ground(terrain, x, z);
+        // Cada zona foi desenhada nas coordenadas da primeira versão (ilha de 1 km); o deslocamento
+        // da zona a aproxima das outras na ilha compacta. G, Item, rotas e marcadores aplicam o deslocamento.
+        private static readonly Vector2 VilaOff = new Vector2(0f, 100f);
+        private static readonly Vector2 SitioOff = new Vector2(120f, 0f);
+        private static readonly Vector2 MangueOff = new Vector2(-95f, -20f);
+        private static readonly Vector2 AlmoxOff = new Vector2(-50f, -70f);
+        private static readonly Vector2 RuaOff = new Vector2(0f, -90f);
+        private static readonly Vector2 EstacaoOff = new Vector2(0f, -130f);
+        private static Vector2 off;
+
+        private static Vector3 G(float x, float z) => IlhaTesteBuilder.Ground(terrain, x + off.x, z + off.y);
+
+        /// <summary>Rota da zona atual (aplica o deslocamento).</summary>
+        private static Vector2[] S(params Vector2[] pts)
+        {
+            var r = new Vector2[pts.Length];
+            for (int i = 0; i < pts.Length; i++) r[i] = pts[i] + off;
+            return r;
+        }
+
+        private static Transform[] Rt(Transform parent, string name, params Vector2[] pts) =>
+            InimigosBuilder.Route(terrain, parent, name, S(pts));
 
         // ---------- Zonas ----------
 
         /// <summary>Prólogo — noite. Rua leste-oeste com beco no meio da fileira norte (a saída).</summary>
         private static void BuildVila(Transform cenario, Transform ato)
         {
+            off = VilaOff;
             var vila = Group(cenario, "Vila");
             Material[] paredes = { paredeA, paredeB, paredeC };
             IlhaTesteBuilder.BuildRow(terrain, vila, "Vila_N_Oeste", -62f, -238f, new float[] { 7, 6, 7, 6, 8, 6, 7 }, new[] { 3.2f, 3.6f, 3.0f, 3.8f, 3.4f, 3.1f, 3.5f }, paredes, telhado);
@@ -232,8 +267,7 @@ namespace Apagao.EditorTools
             InimigosBuilder.CreateAntenna(ato, G(68f, -245f), robo, visor);
             Sentinela(ato, "Sentinela_Vila_1", new[] { new Vector2(-45f, -250f), new Vector2(45f, -250f) });
             Sentinela(ato, "Sentinela_Vila_2", new[] { new Vector2(-50f, -228f), new Vector2(-8f, -228f), new Vector2(-8f, -222f), new Vector2(50f, -222f) });
-            DronesBuilder.CreateOlho(ato, G(-50f, -280f) + Vector3.up * 14f, InimigosBuilder.Route(terrain, ato, "Rota_Olho_Vila",
-                new[] { new Vector2(-50f, -280f), new Vector2(50f, -280f), new Vector2(50f, -220f), new Vector2(-50f, -220f) }));
+            DronesBuilder.CreateOlho(ato, G(-50f, -280f) + Vector3.up * 14f, Rt(ato, "Rota_Olho_Vila", new Vector2(-50f, -280f), new Vector2(50f, -280f), new Vector2(50f, -220f), new Vector2(-50f, -220f)));
 
             Item(ato, ResourceType.Pano, 1, -40f, -244f);
             Item(ato, ResourceType.Alcool, 1, 5f, -256f);
@@ -244,35 +278,58 @@ namespace Apagao.EditorTools
         /// <summary>Mata e coqueiral entre a vila e o resto da ilha: árvores, mato alto e uma matilha solta.</summary>
         private static void BuildMata(Transform cenario, Transform ato)
         {
+            off = Vector2.zero; // a mata usa coordenadas da ilha compacta
             var mata = Group(cenario, "Mata");
             int placed = 0;
-            for (int i = 0; i < 2000 && placed < 260; i++)
+            for (int i = 0; i < 3000 && placed < 230; i++)
             {
-                float x = Range(-320f, 320f), z = Range(-200f, 160f);
-                if (InAnyPad(x, z, 10f) || G(x, z).y < WaterLevel + 1f) continue;
+                float x = Range(-220f, 220f), z = Range(-130f, 160f);
+                if (InAnyPad(x, z, 10f) || NearTrail(x, z, 4f) || G(x, z).y < WaterLevel + 1f) continue;
                 Tree(mata, x, z);
                 placed++;
             }
             for (int i = 0, n = 0; i < 400 && n < 45; i++)
             {
-                float x = Range(-300f, 300f), z = Range(-195f, 150f);
+                float x = Range(-200f, 200f), z = Range(-125f, 150f);
                 if (InAnyPad(x, z, 5f) || G(x, z).y < WaterLevel + 1f) continue;
                 Grass(mata, x, z, Range(5f, 10f), Range(5f, 10f));
                 n++;
             }
 
+            // Placas nas bifurcações: quem está perdido segue a trilha de terra.
+            Sign(mata, 7f, -116f, 0f, "<- Sitio");
+            Sign(mata, -98f, -32f, 0f, "Almoxarifado ->");
+            Sign(mata, 72f, 66f, 0f, "<- Rua principal");
+            Sign(mata, 98f, 16f, 0f, "Manguezal ->");
+            Sign(mata, 82f, 122f, 0f, "Estacao ^");
+
+            // Pontos de interesse no caminho: caminhonete largada, barraco de pescador e caixas para saquear.
+            IlhaTesteBuilder.Box("Caminhonete", mata, G(-52f, -2f), new Vector3(2.2f, 1.8f, 5f), metal);
+            IlhaTesteBuilder.Box("Cacamba", mata, G(-52f, 1f), new Vector3(2.2f, 0.6f, 2.2f), madeira);
+            Shed(mata, "Barraco", G(18f, 38f), new Vector3(5f, 2.6f, 4f), madeira, openSouth: true);
+            IlhaTesteBuilder.Box("Caixote_Barraco", mata, G(18f, 39f), new Vector3(1f, 0.8f, 1f), madeira);
+            Item(ato, ResourceType.Componente, 1, 18f, 39f);
+            Item(ato, ResourceType.Sucata, 1, -49f, -2f);
+            // Uma Sentinela sozinha na trilha do sítio ao almoxarifado: treino de takedown sem rede por perto.
+            Sentinela(ato, "Sentinela_Trilha", new[] { new Vector2(-60f, -8f), new Vector2(-5f, 10f), new Vector2(35f, 22f) });
+            Baker(ato, "NavMesh_Trilha", G(-10f, 10f), 120f);
+
+            // A matilha ronda a trilha entre a vila e o sítio: o primeiro encontro do ato 1.
             InimigosBuilder.CreateMatilha(terrain, ato, "Matilha_Mata", new[]
             {
-                new Vector2(-140f, -140f), new Vector2(-90f, -140f), new Vector2(-90f, -100f), new Vector2(-140f, -100f)
+                new Vector2(-75f, -105f), new Vector2(-35f, -105f), new Vector2(-35f, -75f), new Vector2(-75f, -75f)
             }, 3, robo, visor, indicador);
-            Item(ato, ResourceType.Pano, 2, -60f, -170f);
-            Item(ato, ResourceType.Polvora, 1, -150f, -90f);
-            Baker(ato, "NavMesh_Mata", G(-115f, -120f), 110f);
+            Item(ato, ResourceType.Pano, 2, -20f, -95f);
+            Item(ato, ResourceType.Polvora, 1, -85f, -80f);
+            Item(ato, ResourceType.Alcool, 1, 10f, 15f);      // no meio do caminho para o almoxarifado
+            Item(ato, ResourceType.Sucata, 2, -40f, 60f);
+            Baker(ato, "NavMesh_Mata", G(-55f, -90f), 90f);
         }
 
         /// <summary>Ato 1 — sítio do pai: casa, galpão aberto com o facão, curral e a antena.</summary>
         private static Transform BuildSitio(Transform cenario, Transform ato, out Transform antena)
         {
+            off = SitioOff;
             var sitio = Group(cenario, "Sitio");
             IlhaTesteBuilder.Box("Casa_do_Pai", sitio, G(-240f, -55f), new Vector3(12f, 4f, 9f), paredeA);
             IlhaTesteBuilder.Box("Telhado_Casa", sitio, G(-240f, -55f) + Vector3.up * 4f, new Vector3(12.6f, 0.3f, 9.6f), telhado, bury: false);
@@ -302,6 +359,7 @@ namespace Apagao.EditorTools
         /// <summary>Manguezal (opcional): água rasa, raízes, barco com a espingarda e a Brasa por cima.</summary>
         private static void BuildMangue(Transform cenario, Transform ato)
         {
+            off = MangueOff;
             var mangue = Group(cenario, "Manguezal");
             for (int i = 0; i < 70; i++)
             {
@@ -324,13 +382,13 @@ namespace Apagao.EditorTools
             WeaponPickupAt(ato, "Espingarda_de_Pesca", WeaponSlot.Espingarda, "Pegar a espingarda de pesca", G(262f, -78f) + Vector3.up * 1.1f, 4);
             Item(ato, ResourceType.Componente, 1, 230f, -40f);
 
-            DronesBuilder.CreateBrasa(ato, G(200f, -100f) + Vector3.up * 8f, InimigosBuilder.Route(terrain, ato, "Rota_Brasa_Mangue",
-                new[] { new Vector2(200f, -100f), new Vector2(290f, -100f), new Vector2(290f, -20f), new Vector2(200f, -20f) }));
+            DronesBuilder.CreateBrasa(ato, G(200f, -100f) + Vector3.up * 8f, Rt(ato, "Rota_Brasa_Mangue", new Vector2(200f, -100f), new Vector2(290f, -100f), new Vector2(290f, -20f), new Vector2(200f, -20f)));
         }
 
         /// <summary>Ato 2 — galpão oco com prateleiras, bancada e as peças do PEM. Brutamontes no pátio.</summary>
         private static Transform BuildAlmoxarifado(Transform cenario, Transform ato, out Transform antena)
         {
+            off = AlmoxOff;
             var almox = Group(cenario, "Almoxarifado");
             Vector3 c = G(130f, 110f);
             Shed(almox, "Galpao_Almoxarifado", c, new Vector3(32f, 6f, 20f), concreto, openSouth: true, openNorth: true);
@@ -352,13 +410,12 @@ namespace Apagao.EditorTools
             InimigosBuilder.CreateAntenna(ato, G(165f, 135f), robo, visor);
             antena = ato.GetChild(ato.childCount - 1);
             InimigosBuilder.CreateBrutamontes("Brutamontes_Patio", ato, G(100f, 86f), 90f,
-                InimigosBuilder.Route(terrain, ato, "Rota_Bruto_Patio", new[] { new Vector2(100f, 86f), new Vector2(160f, 86f) }), robo, visor, indicador);
+                Rt(ato, "Rota_Bruto_Patio", new Vector2(100f, 86f), new Vector2(160f, 86f)), robo, visor, indicador);
             Sentinela(ato, "Sentinela_Almox_1", new[] { new Vector2(118f, 108f), new Vector2(142f, 108f) });
             Sentinela(ato, "Sentinela_Almox_2", new[] { new Vector2(108f, 130f), new Vector2(152f, 130f), new Vector2(152f, 92f), new Vector2(108f, 92f) });
-            InimigosBuilder.CreateMatilha(terrain, ato, "Matilha_Almox", new[]
-            {
+            InimigosBuilder.CreateMatilha(terrain, ato, "Matilha_Almox", S(
                 new Vector2(165f, 95f), new Vector2(180f, 95f), new Vector2(180f, 130f), new Vector2(165f, 130f)
-            }, 2, robo, visor, indicador);
+            ), 2, robo, visor, indicador);
 
             Item(ato, ResourceType.Componente, 1, 140f, 116f);
             Item(ato, ResourceType.Sucata, 2, 105f, 110f);
@@ -371,6 +428,7 @@ namespace Apagao.EditorTools
         /// <summary>Ato 3 — rua principal: duas fileiras de casas com vãos de 1,2 m para pular de telhado em telhado.</summary>
         private static void BuildRua(Transform cenario, Transform ato)
         {
+            off = RuaOff;
             var rua = Group(cenario, "Rua_Principal");
             Material[] paredes = { paredeA, paredeB, paredeC };
             foreach (var row in new[] { (z: 188f, name: "Sul", seed: 0), (z: 212f, name: "Norte", seed: 3) })
@@ -399,17 +457,16 @@ namespace Apagao.EditorTools
             // Caixa d'água: ninho das Vespas.
             IlhaTesteBuilder.Box("Torre_Caixa_Dagua", rua, G(0f, 228f), new Vector3(1.2f, 9f, 1.2f), metal);
             IlhaTesteBuilder.Box("Caixa_Dagua_Rua", rua, G(0f, 228f) + Vector3.up * 9f, new Vector3(5f, 3f, 5f), concreto, bury: false);
-            float top = G(0f, 228f).y + 12f + 0.4f;
-            DronesBuilder.CreateVespa(ato, "Vespa_Rua_1", new Vector3(-1.2f, top, 228f), 180f);
-            DronesBuilder.CreateVespa(ato, "Vespa_Rua_2", new Vector3(1.2f, top, 228f), 180f);
+            Vector3 top = G(0f, 228f) + Vector3.up * 12.4f;
+            DronesBuilder.CreateVespa(ato, "Vespa_Rua_1", top + Vector3.left * 1.2f, 180f);
+            DronesBuilder.CreateVespa(ato, "Vespa_Rua_2", top + Vector3.right * 1.2f, 180f);
 
             var rede = Network(ato, "Rede_Rua", G(0f, 200f), 150f);
             InimigosBuilder.CreateAntenna(ato, G(76f, 216f), robo, visor);
             Sentinela(ato, "Sentinela_Rua_1", new[] { new Vector2(-60f, 200f), new Vector2(60f, 200f) });
             Sentinela(ato, "Sentinela_Rua_2", new[] { new Vector2(60f, 196f), new Vector2(-60f, 196f) });
             Sentinela(ato, "Sentinela_Rua_3", new[] { new Vector2(-55f, 224f), new Vector2(55f, 224f) });
-            DronesBuilder.CreateOlho(ato, G(-60f, 200f) + Vector3.up * 14f, InimigosBuilder.Route(terrain, ato, "Rota_Olho_Rua",
-                new[] { new Vector2(-60f, 200f), new Vector2(60f, 200f) }));
+            DronesBuilder.CreateOlho(ato, G(-60f, 200f) + Vector3.up * 14f, Rt(ato, "Rota_Olho_Rua", new Vector2(-60f, 200f), new Vector2(60f, 200f)));
             Bench(ato, "Bancada_Rua", G(-78f, 196f));
             Item(ato, ResourceType.Componente, 1, -40f, 205f);
             Item(ato, ResourceType.Alcool, 1, 10f, 194f);
@@ -420,6 +477,7 @@ namespace Apagao.EditorTools
         /// <summary>Ato 4 — estação de cabos no morro: muro com portão, prédio oco e o rádio.</summary>
         private static void BuildEstacao(Transform cenario, Transform ato)
         {
+            off = EstacaoOff;
             var est = Group(cenario, "Estacao");
             Vector3 c = G(0f, 320f);
             // Muro de 2,5 m (escalável) com portão ao sul.
@@ -436,11 +494,10 @@ namespace Apagao.EditorTools
             var rede = Network(ato, "Rede_Estacao", c, 140f);
             InimigosBuilder.CreateAntenna(ato, G(24f, 304f), robo, visor);
             InimigosBuilder.CreateBrutamontes("Brutamontes_Portao", ato, G(-12f, 290f), 90f,
-                InimigosBuilder.Route(terrain, ato, "Rota_Bruto_Portao", new[] { new Vector2(-12f, 290f), new Vector2(12f, 290f) }), robo, visor, indicador);
+                Rt(ato, "Rota_Bruto_Portao", new Vector2(-12f, 290f), new Vector2(12f, 290f)), robo, visor, indicador);
             Sentinela(ato, "Sentinela_Estacao_1", new[] { new Vector2(-25f, 300f), new Vector2(-25f, 340f), new Vector2(25f, 340f), new Vector2(25f, 300f) });
             Sentinela(ato, "Sentinela_Estacao_2", new[] { new Vector2(-8f, 318f), new Vector2(8f, 318f) });
-            DronesBuilder.CreateOlho(ato, G(-30f, 280f) + Vector3.up * 14f, InimigosBuilder.Route(terrain, ato, "Rota_Olho_Estacao",
-                new[] { new Vector2(-30f, 280f), new Vector2(30f, 280f), new Vector2(30f, 350f), new Vector2(-30f, 350f) }));
+            DronesBuilder.CreateOlho(ato, G(-30f, 280f) + Vector3.up * 14f, Rt(ato, "Rota_Olho_Estacao", new Vector2(-30f, 280f), new Vector2(30f, 280f), new Vector2(30f, 350f), new Vector2(-30f, 350f)));
             Item(ato, ResourceType.Componente, 1, -20f, 335f);
             Item(ato, ResourceType.Sucata, 2, 20f, 285f);
             Baker(ato, "NavMesh_Estacao", c, 120f);
@@ -470,8 +527,9 @@ namespace Apagao.EditorTools
             Act(list.GetArrayElementAtIndex(4), "Ato 4 — A Estação", atos[4], new Vector3(25f, 150f, 0f), new Color(0.55f, 0.65f, 0.95f), 0.3f, new Color(0.07f, 0.08f, 0.12f), new Color(0.04f, 0.05f, 0.08f), 160f);
             aso.ApplyModifiedPropertiesWithoutUndo();
 
-            Transform Marker(string name, float x, float z)
+            Transform Marker(string name, float x, float z, Vector2 zone)
             {
+                off = zone;
                 var m = new GameObject("Marcador_" + name).transform;
                 m.SetParent(root.transform);
                 m.position = G(x, z);
@@ -495,10 +553,10 @@ namespace Apagao.EditorTools
             }
             DialogueLine L(string who, string text, float d = 3.8f) => CampanhaBuilder.L(who, text, d);
 
-            O(0, "Saia da vila pelo beco ao norte sem ser visto", ObjectiveKind.Chegar, Marker("Saida_Vila", 0f, -205f), 10f, false, 0.95f,
+            O(0, "Saia da vila pelo beco ao norte sem ser visto", ObjectiveKind.Chegar, Marker("Saida_Vila", 0f, -205f, VilaOff), 10f, false, 0.95f,
                 new[] { L(Lia, "Caio? É a Lia. Se você tá ouvindo, não acende luz nenhuma.", 4.5f), L(Caio, "Tô ouvindo. Elas tão na rua."), L(Lia, "Sai pelo beco do meio, atrás das casas. Agachado. Vai pro sítio do teu pai.", 4.5f) },
                 new[] { L(Lia, "Isso. Agora some no mato.") });
-            O(1, "Atravesse a mata até o sítio do seu pai, a oeste", ObjectiveKind.Chegar, Marker("Sitio", -230f, -50f), 18f, true, 0.85f,
+            O(1, "Atravesse a mata até o sítio do seu pai, a oeste", ObjectiveKind.Chegar, Marker("Sitio", -230f, -50f, SitioOff), 18f, true, 0.85f,
                 new[] { L(Lia, "Tem cão solto na mata. Fica no mato alto e longe da trilha.", 4.5f) },
                 new[] { L(Caio, "Cheguei no sítio. Tá tudo revirado.") });
             O(1, "Pegue o facão no galpão do sítio", ObjectiveKind.Destruir, facao, 0f, false, 0.85f,
@@ -507,7 +565,7 @@ namespace Apagao.EditorTools
             O(1, "Derrube a antena do sítio", ObjectiveKind.SabotarAntena, antenaSitio, 0f, false, 0.85f,
                 new[] { L(Lia, "A antena perto do curral liga as máquinas daqui. Derruba e elas param de se avisar.", 5f) },
                 new[] { L(Lia, "Boa. O almoxarifado da estação fica a nordeste. Lá tem peça pra montar um PEM.", 5f) });
-            O(2, "Chegue ao almoxarifado da estação, a nordeste", ObjectiveKind.Chegar, Marker("Almoxarifado", 130f, 110f), 28f, true, 0.7f,
+            O(2, "Chegue ao almoxarifado da estação, a nordeste", ObjectiveKind.Chegar, Marker("Almoxarifado", 130f, 110f, AlmoxOff), 28f, true, 0.7f,
                 new[] { L(Caio, "PEM?"), L(Lia, "Um pulso elétrico. Apaga elas por uns segundos. É a tua chance de chegar perto.", 4.5f) },
                 new[] { L(Lia, "Cuidado com o grandão. Bala de frente nem arranha ele.", 4f) });
             O(2, "Monte o PEM na mesa do almoxarifado", ObjectiveKind.Destruir, pem, 0f, false, 0.7f,
@@ -516,10 +574,10 @@ namespace Apagao.EditorTools
             O(2, "Derrube a antena do almoxarifado", ObjectiveKind.SabotarAntena, antenaAlmox, 0f, false, 0.7f,
                 new DialogueLine[0],
                 new[] { L(Lia, "A rua principal leva até a estação. Pelo chão você não passa. Vai por cima.", 4.5f) });
-            O(3, "Atravesse a rua principal pelos telhados", ObjectiveKind.Chegar, Marker("Fim_da_Rua", 72f, 200f), 10f, true, 0.5f,
+            O(3, "Atravesse a rua principal pelos telhados", ObjectiveKind.Chegar, Marker("Fim_da_Rua", 72f, 200f, RuaOff), 10f, true, 0.5f,
                 new[] { L(Lia, "Tem drone nessa rua. Telhado esconde da câmera de calor, mas não do olho.", 4.5f) },
                 new[] { L(Caio, "Tô vendo a estação.") });
-            O(4, "Entre na estação de cabos", ObjectiveKind.Chegar, Marker("Estacao", 0f, 324f), 5f, true, 0.3f,
+            O(4, "Entre na estação de cabos", ObjectiveKind.Chegar, Marker("Estacao", 0f, 324f, EstacaoOff), 5f, true, 0.3f,
                 new[] { L(Lia, "Caio… o sinal tá… quase indo. Chega no rádio. Por favor.", 4.5f) },
                 new[] { L(Caio, "Tô dentro. O rádio tá aqui… e tem alguma coisa ligada lá embaixo.", 4.5f) });
             cso.ApplyModifiedPropertiesWithoutUndo();
@@ -574,7 +632,7 @@ namespace Apagao.EditorTools
 
         private static void Sentinela(Transform parent, string name, Vector2[] route)
         {
-            var points = InimigosBuilder.Route(terrain, parent, "Rota_" + name, route);
+            var points = InimigosBuilder.Route(terrain, parent, "Rota_" + name, S(route));
             Vector3 dir = route.Length > 1 ? new Vector3(route[1].x - route[0].x, 0f, route[1].y - route[0].y) : Vector3.forward;
             float yaw = Quaternion.LookRotation(dir.sqrMagnitude > 0.01f ? dir : Vector3.forward).eulerAngles.y;
             InimigosBuilder.CreateSentinela(name, parent, G(route[0].x, route[0].y), yaw, points, robo, visor, indicador, laser, tracer);
@@ -605,7 +663,7 @@ namespace Apagao.EditorTools
         }
 
         private static void Item(Transform parent, ResourceType type, int amount, float x, float z) =>
-            ItensBuilder.Item(terrain, parent, type, amount, x, z);
+            ItensBuilder.Item(terrain, parent, type, amount, x + off.x, z + off.y);
 
         private static void Bench(Transform parent, string name, Vector3 ground)
         {
@@ -744,6 +802,56 @@ namespace Apagao.EditorTools
         }
 
         // ---------- Utilidades ----------
+
+        private static float TrailDistance(float x, float z)
+        {
+            var p = new Vector2(x, z);
+            float best = float.MaxValue;
+            foreach (var trail in Trails)
+                for (int i = 0; i < trail.Length - 1; i++)
+                {
+                    Vector2 a = trail[i], b = trail[i + 1], ab = b - a;
+                    float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / ab.sqrMagnitude);
+                    best = Mathf.Min(best, Vector2.Distance(p, a + ab * t));
+                }
+            return best;
+        }
+
+        private static bool NearTrail(float x, float z, float margin) => TrailDistance(x, z) < margin;
+
+        /// <summary>Placa de madeira com texto dos dois lados.</summary>
+        private static void Sign(Transform parent, float x, float z, float yaw, string text)
+        {
+            var root = new GameObject("Placa_" + text).transform;
+            root.SetParent(parent);
+            root.position = G(x, z);
+            root.rotation = Quaternion.Euler(0f, yaw, 0f);
+            IlhaTesteBuilder.Box("Poste", root, root.position, new Vector3(0.12f, 2f, 0.12f), madeira);
+            var tabua = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tabua.name = "Tabua";
+            tabua.transform.SetParent(root, false);
+            tabua.transform.localPosition = new Vector3(0f, 1.75f, 0f);
+            tabua.transform.localScale = new Vector3(2.2f, 0.45f, 0.06f);
+            tabua.GetComponent<MeshRenderer>().sharedMaterial = madeira;
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            foreach (var back in new[] { false, true })
+            {
+                var tgo = new GameObject(back ? "Texto_Verso" : "Texto");
+                tgo.transform.SetParent(root, false);
+                tgo.transform.localPosition = new Vector3(0f, 1.75f, back ? 0.04f : -0.04f);
+                tgo.transform.localRotation = Quaternion.Euler(0f, back ? 180f : 0f, 0f);
+                var tm = tgo.AddComponent<TextMesh>();
+                // Do outro lado a seta vira: "->" de frente aponta para o mesmo lugar que "<-" de costas.
+                tm.text = back ? text.Replace("<-", "\u0001").Replace("->", "<-").Replace("\u0001", "->") : text;
+                tm.font = font;
+                tm.fontSize = 48;
+                tm.characterSize = 0.045f;
+                tm.anchor = TextAnchor.MiddleCenter;
+                tm.alignment = TextAlignment.Center;
+                tm.color = new Color(0.95f, 0.92f, 0.8f);
+                tgo.GetComponent<MeshRenderer>().sharedMaterial = font.material;
+            }
+        }
 
         private static bool InAnyPad(float x, float z, float margin)
         {

@@ -111,5 +111,6 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 ## Marco 12 — Chefe e polimento
 - [ ] Capataz em 3 fases — spec 17
 - [~] Corpo low-poly do Caio com animação procedural (`CaioModelBuilder` + `CaioAnimator`)
-- [ ] Arte final dos robôs e da vila
+- [~] Corpos articulados dos robôs (Sentinela com rifle, cão de quatro patas, Brutamontes) com animação procedural (`RobotBodyBuilder` + `RobotAnimator`)
+- [ ] Arte final da vila e dos drones
 - [ ] Build para Linux e Windows e teste com outras pessoas

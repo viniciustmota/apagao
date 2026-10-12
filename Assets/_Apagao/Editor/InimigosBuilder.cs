@@ -137,40 +137,24 @@ namespace Apagao.EditorTools
 
             var ai = root.AddComponent<BrutamontesAI>();
 
-            var armadura = IlhaTesteBuilder.Mat("Brutamontes_Blindagem", new Color(0.55f, 0.48f, 0.2f), 0.5f);
-            var juntas = Emissive("Brutamontes_Juntas", new Color(1f, 0.45f, 0.1f), 1.2f);
-            var corpo = Part(PrimitiveType.Cube, "Corpo", root.transform, new Vector3(0f, 1.75f, 0f), new Vector3(1.4f, 1.3f, 0.9f), robo);
-            var placa = Part(PrimitiveType.Cube, "Blindagem", root.transform, new Vector3(0f, 1.8f, 0.48f), new Vector3(1.3f, 1.1f, 0.12f), armadura);
-            var cabeca = Part(PrimitiveType.Cube, "Cabeca", root.transform, new Vector3(0f, 2.6f, 0.1f), new Vector3(0.55f, 0.4f, 0.55f), robo);
-            Part(PrimitiveType.Cube, "Visor", cabeca.transform, new Vector3(0f, 0.05f, 0.51f), new Vector3(0.8f, 0.15f, 0.05f), visor);
-            foreach (float x in new[] { -0.4f, 0.4f })
-            {
-                Part(PrimitiveType.Cube, "Perna", root.transform, new Vector3(x, 0.55f, 0f), new Vector3(0.4f, 1.1f, 0.45f), robo);
-                Part(PrimitiveType.Sphere, "Junta", root.transform, new Vector3(x, 0.6f, -0.2f), Vector3.one * 0.3f, juntas); // ponto fraco
-            }
-            Part(PrimitiveType.Cube, "Braco_E", root.transform, new Vector3(-0.95f, 1.6f, 0f), new Vector3(0.45f, 1.4f, 0.5f), robo);
-
-            // Braço direito num pivô no ombro, para erguer no soco.
-            var ombro = new GameObject("Ombro_D").transform;
-            ombro.SetParent(root.transform, false);
-            ombro.localPosition = new Vector3(0.95f, 2.25f, 0f);
-            Part(PrimitiveType.Cube, "Braco_D", ombro, new Vector3(0f, -0.65f, 0f), new Vector3(0.5f, 1.4f, 0.55f), robo);
+            // Corpo articulado (RobotBodyBuilder + RobotAnimator). O ombro direito "Ombro_D" ergue no soco.
+            var body = RobotBodyBuilder.Brutamontes(root.transform, robo, visor);
 
             var indicator = Part(PrimitiveType.Sphere, "Indicador", root.transform, new Vector3(0f, 3.3f, 0f), Vector3.one * 0.25f, indicador);
             indicator.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
 
             var flash = root.AddComponent<HitFlash>();
             var fso = new SerializedObject(flash);
-            SetArray(fso.FindProperty("renderers"), corpo.GetComponent<Renderer>(), cabeca.GetComponent<Renderer>(), placa.GetComponent<Renderer>());
+            SetArray(fso.FindProperty("renderers"), body.Flash.ToArray());
             fso.ApplyModifiedPropertiesWithoutUndo();
 
             var so = new SerializedObject(ai);
             SetArray(so.FindProperty("waypoints"), route);
-            so.FindProperty("rightArm").objectReferenceValue = ombro;
+            so.FindProperty("rightArm").objectReferenceValue = body.RightShoulder;
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
             so.FindProperty("stunDurationMultiplier").floatValue = 0.5f; // R5: PEM paralisa 1,5 s
             so.FindProperty("knockbackScale").floatValue = 0.2f;
-            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform, placa.transform);
+            SetArray(so.FindProperty("wreckParts"), body.Wreck.ToArray());
             SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 3, 1f), (ResourceType.Componente, 2, 1f));
             so.ApplyModifiedPropertiesWithoutUndo();
         }
@@ -213,17 +197,13 @@ namespace Apagao.EditorTools
             var gun = root.AddComponent<SentinelaGun>();
             var ai = root.AddComponent<SentinelaAI>();
 
-            var corpo = Part(PrimitiveType.Capsule, "Corpo", root.transform, new Vector3(0f, 1f, 0f), new Vector3(0.8f, 1f, 0.8f), robo);
-            var cabeca = Part(PrimitiveType.Cube, "Cabeca", root.transform, new Vector3(0f, 1.75f, 0f), new Vector3(0.45f, 0.35f, 0.45f), robo);
+            // Corpo articulado com rifle no braço direito (RobotBodyBuilder + RobotAnimator).
+            var body = RobotBodyBuilder.Sentinela(root.transform, robo, visor);
 
             var flash = root.AddComponent<HitFlash>();
             var fso = new SerializedObject(flash);
-            var rs = fso.FindProperty("renderers");
-            rs.arraySize = 2;
-            rs.GetArrayElementAtIndex(0).objectReferenceValue = corpo.GetComponent<Renderer>();
-            rs.GetArrayElementAtIndex(1).objectReferenceValue = cabeca.GetComponent<Renderer>();
+            SetArray(fso.FindProperty("renderers"), body.Flash.ToArray());
             fso.ApplyModifiedPropertiesWithoutUndo();
-            Part(PrimitiveType.Cube, "Visor", root.transform, new Vector3(0f, 1.78f, 0.23f), new Vector3(0.38f, 0.07f, 0.04f), visor);
             var indicator = Part(PrimitiveType.Sphere, "Indicador", root.transform, new Vector3(0f, 2.4f, 0f), Vector3.one * 0.2f, indicador);
             indicator.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
 
@@ -258,7 +238,7 @@ namespace Apagao.EditorTools
             for (int i = 0; i < route.Length; i++) wp.GetArrayElementAtIndex(i).objectReferenceValue = route[i];
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
             so.FindProperty("laser").objectReferenceValue = laser;
-            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
+            SetArray(so.FindProperty("wreckParts"), body.Wreck.ToArray());
             SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 2, 1f), (ResourceType.Componente, 1, 0.5f));
             so.ApplyModifiedPropertiesWithoutUndo();
         }
@@ -369,24 +349,21 @@ namespace Apagao.EditorTools
 
             var ai = root.AddComponent<MatilhaAI>();
 
-            var corpo = Part(PrimitiveType.Cube, "Corpo", root.transform, new Vector3(0f, 0.62f, 0f), new Vector3(0.45f, 0.4f, 1.0f), robo);
-            var cabeca = Part(PrimitiveType.Cube, "Cabeca", root.transform, new Vector3(0f, 0.85f, 0.6f), new Vector3(0.3f, 0.28f, 0.38f), robo);
-            Part(PrimitiveType.Cube, "Visor", cabeca.transform, new Vector3(0f, 0.1f, 0.51f), new Vector3(0.85f, 0.18f, 0.06f), visor);
-            foreach (var leg in new[] { new Vector3(0.17f, 0.22f, 0.36f), new Vector3(-0.17f, 0.22f, 0.36f), new Vector3(0.17f, 0.22f, -0.36f), new Vector3(-0.17f, 0.22f, -0.36f) })
-                Part(PrimitiveType.Cube, "Pata", root.transform, leg, new Vector3(0.09f, 0.44f, 0.09f), robo);
+            // Corpo articulado de quatro patas (RobotBodyBuilder + RobotAnimator).
+            var body = RobotBodyBuilder.Cao(root.transform, robo, visor);
             var indicator = Part(PrimitiveType.Sphere, "Indicador", root.transform, new Vector3(0f, 1.45f, 0f), Vector3.one * 0.18f, indicador);
             indicator.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
 
             var flash = root.AddComponent<HitFlash>();
             var fso = new SerializedObject(flash);
-            SetArray(fso.FindProperty("renderers"), corpo.GetComponent<Renderer>(), cabeca.GetComponent<Renderer>());
+            SetArray(fso.FindProperty("renderers"), body.Flash.ToArray());
             fso.ApplyModifiedPropertiesWithoutUndo();
 
             var so = new SerializedObject(ai);
-            so.FindProperty("head").objectReferenceValue = cabeca.transform;
-            so.FindProperty("body").objectReferenceValue = corpo.transform;
+            so.FindProperty("head").objectReferenceValue = body.Head;
+            so.FindProperty("body").objectReferenceValue = body.Torso;
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
-            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
+            SetArray(so.FindProperty("wreckParts"), body.Wreck.ToArray());
             SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 1, 1f), (ResourceType.Componente, 1, 0.3f));
             so.ApplyModifiedPropertiesWithoutUndo();
         }
