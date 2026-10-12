@@ -4,6 +4,7 @@ using Apagao.DebugTools;
 using Apagao.AI.Matilha;
 using Apagao.AI.Sentinela;
 using Apagao.Combat;
+using Apagao.Crafting;
 using Apagao.Systems;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -164,6 +165,7 @@ namespace Apagao.EditorTools
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
             so.FindProperty("laser").objectReferenceValue = laser;
             SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
+            SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 2, 1f), (ResourceType.Componente, 1, 0.5f));
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -291,7 +293,21 @@ namespace Apagao.EditorTools
             so.FindProperty("body").objectReferenceValue = corpo.transform;
             so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
             SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform);
+            SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 1, 1f), (ResourceType.Componente, 1, 0.3f));
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Saque da máquina destruída (spec 12 R3).</summary>
+        private static void SetLoot(SerializedProperty array, params (ResourceType type, int amount, float chance)[] entries)
+        {
+            array.arraySize = entries.Length;
+            for (int i = 0; i < entries.Length; i++)
+            {
+                var e = array.GetArrayElementAtIndex(i);
+                e.FindPropertyRelative("type").enumValueIndex = (int)entries[i].type;
+                e.FindPropertyRelative("amount").intValue = entries[i].amount;
+                e.FindPropertyRelative("chance").floatValue = entries[i].chance;
+            }
         }
 
         private static void SetArray(SerializedProperty array, params Object[] values)

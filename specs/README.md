@@ -29,14 +29,14 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 02 | [Câmera](sistemas/02-camera.md) | 1 | Implementada |
 | 03 | [Núcleo de IA (FSM)](sistemas/03-nucleo-ia.md) | 2 | Implementada |
 | 04 | [Percepção: visão](sistemas/04-visao.md) | 3 | Implementada |
-| 05 | [Sentinela](sistemas/05-sentinela.md) | 2–5 | Implementada (sem saque) |
+| 05 | [Sentinela](sistemas/05-sentinela.md) | 2–8 | Implementada |
 | 06 | [Ruído e audição](sistemas/06-ruido.md) | 4 | Implementada |
 | 07 | [Rede da VIGÍLIA (mente coletiva)](sistemas/07-rede-vigilia.md) | 4 | Implementada (HUD provisório) |
-| 08 | [Vida e dano](sistemas/08-vida-dano.md) | 5 | Implementada (sem cura/checkpoint) |
-| 09 | [Facão e takedowns](sistemas/09-facao-takedown.md) | 5 | Implementada (sem afiar) |
+| 08 | [Vida e dano](sistemas/08-vida-dano.md) | 5, 8 | Implementada (sem checkpoint) |
+| 09 | [Facão e takedowns](sistemas/09-facao-takedown.md) | 5, 8 | Implementada |
 | 10 | [Armas de fogo](sistemas/10-armas-fogo.md) | 7 | Implementada |
 | 11 | [PEM](sistemas/11-pem.md) | 7 | Implementada (drones no marco 10) |
-| 12 | [Recursos, inventário e crafting](sistemas/12-crafting.md) | 8 | Aprovada |
+| 12 | [Recursos, inventário e crafting](sistemas/12-crafting.md) | 8 | Implementada (menu em lista) |
 | 13 | [Escalada e telhados](sistemas/13-escalada.md) | 9 | Aprovada |
 | 14 | [Matilha](sistemas/14-matilha.md) | 6 | Implementada (rastro na água pendente) |
 | 15 | [Drones: Olho, Vespa e Brasa](sistemas/15-drones.md) | 10 | Rascunho |

@@ -4,7 +4,7 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 
 **Referências:** The Last of Us (escassez e tensão) + Ghost of Tsushima (telhados e takedowns) + Exterminador do Futuro (ambientação).
 
-> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 7 de 12.
+> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 8 de 12.
 
 ## O que já existe
 
@@ -17,7 +17,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Vida e dano, facão (leve, pesado, durabilidade) e takedown furtivo | Implementado |
 | Matilha: cães robô que farejam o rastro e caçam em grupo | Implementado |
 | Revólver, espingarda de pesca, PEM (paralisa robôs) e esquiva | Implementado |
-| Crafting, escalada, drones, campanha | Planejado |
+| Recursos, saque, crafting, bancada, bomba de ruído, molotov, isca elétrica e kit de cura | Implementado |
+| Escalada, drones, campanha | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -56,6 +57,10 @@ A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perd
 | Botão direito | Mirar (armas e PEM) |
 | Clique esquerdo | Facão: leve (segurar e soltar = pesado) · mirando: disparar |
 | R | Recarregar |
+| Segurar E | Coletar item |
+| Segurar Tab + número | Fabricar (receitas elétricas só perto da bancada) |
+| T / segurar G | Escolher / arremessar (bomba de ruído, molotov, isca) |
+| H | Usar kit de primeiros socorros |
 | E | Takedown (por trás) · segurar perto da antena = sabotar |
 | Esc | Soltar o mouse (clique para prender de novo) |
 

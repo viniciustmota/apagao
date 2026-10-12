@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Apagao.Combat;
+using Apagao.Crafting;
 using Apagao.Player;
 using Apagao.UI;
 using UnityEditor;
@@ -75,6 +76,7 @@ namespace Apagao.EditorTools
 
             CreatePlayerAndCamera(terrain, matCaio);
             InimigosBuilder.Populate(terrain);
+            ItensBuilder.Populate(terrain);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();
@@ -313,6 +315,26 @@ namespace Apagao.EditorTools
             onda.enabled = false;
             var pem = caio.AddComponent<Pem>();
             SetRef(pem, "wave", onda);
+
+            // Recursos, crafting, interação, arremessáveis e cura (spec 12).
+            caio.AddComponent<Inventory>();
+            caio.AddComponent<CraftingSystem>();
+            caio.AddComponent<PlayerInteractor>();
+            caio.AddComponent<PlayerHealing>();
+            var arcoGo = new GameObject("ArcoArremesso");
+            arcoGo.transform.SetParent(caio.transform, false);
+            var arco = arcoGo.AddComponent<LineRenderer>();
+            arco.useWorldSpace = true;
+            arco.startWidth = 0.04f;
+            arco.endWidth = 0.04f;
+            arco.sharedMaterial = UnlitMat("Arco_Arremesso", new Color(1f, 1f, 1f));
+            arco.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            arco.enabled = false;
+            var thrower = caio.AddComponent<Thrower>();
+            var tso = new SerializedObject(thrower);
+            tso.FindProperty("hand").objectReferenceValue = cano;
+            tso.FindProperty("arc").objectReferenceValue = arco;
+            tso.ApplyModifiedPropertiesWithoutUndo();
 
             var holder = caio.AddComponent<WeaponHolder>();
             var hso = new SerializedObject(holder);

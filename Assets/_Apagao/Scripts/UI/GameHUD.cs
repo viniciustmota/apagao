@@ -1,4 +1,5 @@
 using Apagao.Combat;
+using Apagao.Crafting;
 using Apagao.Player;
 using UnityEngine;
 
@@ -17,6 +18,13 @@ namespace Apagao.UI
         private Facao facao;
         private TakedownSystem takedown;
         private WeaponHolder weapons;
+        private Inventory inventory;
+        private CraftingSystem crafting;
+        private PlayerInteractor interactor;
+        private Thrower thrower;
+        private PlayerHealing healing;
+        private string toast = "";
+        private float toastTime = float.NegativeInfinity;
         private PlayerDeath death;
         private Camera cam;
         private float damageFlash;
@@ -34,9 +42,20 @@ namespace Apagao.UI
                 facao = player.GetComponent<Facao>();
                 takedown = player.GetComponent<TakedownSystem>();
                 weapons = player.GetComponent<WeaponHolder>();
+                inventory = player.GetComponent<Inventory>();
+                crafting = player.GetComponent<CraftingSystem>();
+                interactor = player.GetComponent<PlayerInteractor>();
+                thrower = player.GetComponent<Thrower>();
+                healing = player.GetComponent<PlayerHealing>();
                 death = player.GetComponent<PlayerDeath>();
             }
             if (health != null) health.Damaged += (_, _) => damageFlash = 1f;
+            if (inventory != null)
+                inventory.ResourceAdded += (type, amount) =>
+                {
+                    toast = $"+{amount} {CraftingNames.Of(type)}  ({inventory.Get(type)}/{inventory.Limit(type)})";
+                    toastTime = Time.time;
+                };
             cam = Camera.main;
         }
 
@@ -52,6 +71,11 @@ namespace Apagao.UI
             DrawWeapon();
             DrawCrosshair();
             DrawWeaponMessage();
+            DrawItems();
+            DrawInteraction();
+            DrawCraftingPanel();
+            DrawProgress();
+            DrawToasts();
             DrawTakedownPrompt();
             DrawAimMarker();
             DrawDeath();
@@ -150,6 +174,102 @@ namespace Apagao.UI
             GUI.color = new Color(1f, 0.85f, 0.3f, 0.9f);
             GUI.Label(new Rect(screen.x - 10, Screen.height - screen.y - 12, 20, 24), "◆", markerStyle);
             GUI.color = Color.white;
+        }
+
+        // ---------- Itens e crafting (spec 12) ----------
+
+        /// <summary>Arremessável escolhido e kits, logo acima da arma.</summary>
+        private void DrawItems()
+        {
+            if (inventory == null || health.IsDead) return;
+            string throwable = thrower != null
+                ? $"[G] {CraftingNames.Of(thrower.Selected)} ×{inventory.GetItem(thrower.Selected)}  <color=#909090>[T] trocar</color>"
+                : "";
+            GUI.Label(new Rect(24, Screen.height - 76, 600, 22),
+                $"{throwable}    [H] Kit ×{inventory.GetItem(ItemType.Kit)}", smallStyle);
+        }
+
+        private void DrawInteraction()
+        {
+            if (interactor == null || interactor.Current == null || cam == null || health.IsDead) return;
+            Vector3 screen = cam.WorldToScreenPoint(interactor.Current.Position + Vector3.up * 0.8f);
+            if (screen.z <= 0f) return;
+            string progress = interactor.HoldProgress > 0f ? $"  {interactor.HoldProgress:P0}" : "";
+            GUI.Label(new Rect(screen.x - 120, Screen.height - screen.y - 14, 240, 28),
+                $"<b>E</b> — {interactor.Current.Prompt}{progress}", promptStyle);
+        }
+
+        /// <summary>Menu de crafting enquanto Tab está pressionado.</summary>
+        private void DrawCraftingPanel()
+        {
+            if (crafting == null || inventory == null || health.IsDead) return;
+
+            if (!crafting.MenuOpen)
+            {
+                if (crafting.NearBench)
+                    GUI.Label(new Rect(Screen.width * 0.5f - 150, Screen.height - 110, 300, 26), "Bancada — segure <b>Tab</b>", promptStyle);
+                return;
+            }
+
+            var area = new Rect(Screen.width * 0.5f - 260, Screen.height * 0.5f - 170, 520, 340);
+            GUI.Box(area, "");
+            GUILayout.BeginArea(new Rect(area.x + 16, area.y + 12, area.width - 32, area.height - 24));
+
+            string res = "";
+            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+                res += $"{CraftingNames.Of(t)} <b>{inventory.Get(t)}</b>   ";
+            GUILayout.Label(res, smallStyle);
+            GUILayout.Label(crafting.NearBench ? "<color=#80ff80>Bancada por perto</color>" : "<color=#909090>Sem bancada: receitas elétricas indisponíveis</color>", smallStyle);
+            GUILayout.Space(6);
+
+            var recipes = RecipeBook.All;
+            for (int i = 0; i < recipes.Length; i++)
+            {
+                var r = recipes[i];
+                bool ok = crafting.CanCraft(r, out string reason);
+                string cost = "";
+                foreach (var c in r.Cost) cost += $"{c.amount} {CraftingNames.Of(c.type)}  ";
+                string color = ok ? "#ffffff" : "#808080";
+                string extra = ok ? "" : $"  <i>({reason})</i>";
+                GUILayout.Label($"<color={color}><b>{i + 1}</b>  {r.Name} — {cost}{(r.NeedsBench ? "[bancada]" : "")}{extra}</color>", smallStyle);
+            }
+            GUILayout.EndArea();
+        }
+
+        private void DrawProgress()
+        {
+            if (health.IsDead) return;
+            string label = null;
+            float value = 0f;
+            if (crafting != null && crafting.IsCrafting) { label = $"Fabricando: {crafting.CurrentRecipe.Name}"; value = crafting.CraftProgress; }
+            else if (healing != null && healing.IsHealing) { label = "Usando kit…"; value = healing.Progress; }
+            if (label == null) return;
+
+            var bg = new Rect(Screen.width * 0.5f - 120, Screen.height * 0.5f + 70, 240, 10);
+            GUI.Label(new Rect(bg.x, bg.y - 24, 300, 22), label, smallStyle);
+            GUI.color = new Color(0f, 0f, 0f, 0.5f);
+            GUI.DrawTexture(bg, Texture2D.whiteTexture);
+            GUI.color = new Color(0.9f, 0.85f, 0.5f);
+            GUI.DrawTexture(new Rect(bg.x, bg.y, bg.width * value, bg.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
+        /// <summary>Recursos coletados e avisos de crafting, cura e arremesso.</summary>
+        private void DrawToasts()
+        {
+            if (health.IsDead) return;
+            string message = null;
+            float newest = float.NegativeInfinity;
+            void Consider(string text, float time)
+            {
+                if (time > newest && Time.time - time < 2f) { newest = time; message = text; }
+            }
+            Consider(toast, toastTime);
+            if (crafting != null) Consider(crafting.LastMessage, crafting.LastMessageTime);
+            if (healing != null) Consider(healing.LastMessage, healing.LastMessageTime);
+            if (thrower != null) Consider(thrower.LastMessage, thrower.LastMessageTime);
+            if (message != null)
+                GUI.Label(new Rect(24, Screen.height - 104, 600, 22), message, smallStyle);
         }
 
         private void DrawDeath()

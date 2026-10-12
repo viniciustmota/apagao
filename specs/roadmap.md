@@ -42,8 +42,8 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Retorno do acerto: hitstop, brilho, recuo, tremor de câmera e marcador de alvo — spec 09 R5a
 - [~] Takedown furtivo por trás (E) — spec 09
 - [~] HUD mínimo: vida, facão, prompt de takedown, vinheta de dano, tela de morte — spec 20
-- [ ] Cura com kit (depende do crafting, marco 8) — spec 08
-- [ ] Afiar facão (depende do crafting, marco 8) — spec 09
+- [~] Cura com kit (H, 2 s, interrompida por dano) — spec 08
+- [~] Afiar facão (receita no crafting) — spec 09
 
 ## Marco 6 — Matilha (implementado, falta testar)
 - [~] Base `MachineAI` extraída da Sentinela (sentidos, rede, vida, takedown, carcaça, indicador) — arquitetura
@@ -62,11 +62,15 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Esquiva do Caio (Alt) com invulnerabilidade a explosões — spec 01
 - [~] HUD: arma em mãos, munição, cargas do PEM, mira e avisos — spec 20
 
-## Marco 8 — Crafting e saque
-- [ ] Recursos e inventário com limites — spec 12
-- [ ] Coleta (`IInteractable`) e saque de máquinas — spec 12
-- [ ] Menu radial de crafting e bancada — spec 12
-- [ ] Arremessáveis: bomba de ruído, molotov, isca elétrica — spec 12
+## Marco 8 — Crafting e saque (implementado, falta testar)
+- [~] Recursos e inventário com limites — spec 12
+- [~] Interação genérica (`IInteractable` + `PlayerInteractor`) e coleta segurando E — spec 12
+- [~] Saque de máquinas destruídas (`LootEntry` na `MachineAI`) — spec 12
+- [~] Menu de crafting (segurar Tab + número) e bancada — spec 12
+- [~] Arremessáveis: bomba de ruído, molotov (fogo 8 s) e isca elétrica (prende cães) — spec 12
+- [~] Recursos e bancada espalhados pela ilha de teste (`ItensBuilder`)
+- [ ] Menu radial com o mouse (hoje é lista com números) — spec 12
+- [ ] Receitas em ScriptableObject (hoje em `RecipeBook`) — spec 12
 
 ## Marco 9 — Telhados
 - [ ] Detecção de borda e ledge climb — spec 13

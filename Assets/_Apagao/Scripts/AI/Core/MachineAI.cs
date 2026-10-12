@@ -1,5 +1,6 @@
 using Apagao.AI.Hive;
 using Apagao.Combat;
+using Apagao.Crafting;
 using Apagao.Player;
 using UnityEngine;
 using UnityEngine.AI;
@@ -46,6 +47,9 @@ namespace Apagao.AI
         [SerializeField] protected Renderer alertIndicator;
         [Tooltip("Partes que caem como carcaça quando a máquina é destruída.")]
         [SerializeField] protected Transform[] wreckParts;
+
+        [Header("Saque (spec 12 R3)")]
+        [SerializeField] protected LootEntry[] loot;
 
         // ---------- Sentidos e estado comum ----------
         public NavMeshAgent Agent { get; private set; }
@@ -331,8 +335,20 @@ namespace Apagao.AI
             if (IsDead) return;
             IsDead = true;
             if (hive != null) hive.ReportDeath(IsAware);
+            SpawnLoot();
             SpawnWreck();
             Destroy(gameObject);
+        }
+
+        private void SpawnLoot()
+        {
+            if (loot == null) return;
+            foreach (var entry in loot)
+            {
+                if (entry.amount <= 0 || Random.value > entry.chance) continue;
+                Vector2 offset = Random.insideUnitCircle * 0.8f;
+                Apagao.Crafting.Pickup.Spawn(entry.type, entry.amount, transform.position + new Vector3(offset.x, 0f, offset.y));
+            }
         }
 
         private void SpawnWreck()

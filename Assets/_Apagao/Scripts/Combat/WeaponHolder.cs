@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Apagao.Crafting;
 using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
@@ -29,6 +30,7 @@ namespace Apagao.Combat
         [SerializeField] private float tracerTime = 0.05f;
 
         public WeaponSlot Current { get; private set; } = WeaponSlot.Facao;
+        public WeaponData Revolver => revolver;
         public bool IsAiming { get; private set; }
         public bool IsReloading { get; private set; }
         public WeaponData CurrentData => Current == WeaponSlot.Revolver ? revolver : Current == WeaponSlot.Espingarda ? espingarda : null;
@@ -51,12 +53,14 @@ namespace Apagao.Combat
         private ThirdPersonCamera cameraRig;
         private float nextShot;
         private Coroutine reloading;
+        private CraftingSystem crafting;
 
         private void Awake()
         {
             player = GetComponent<PlayerController>();
             health = GetComponent<Health>();
             Pem = GetComponent<Pem>();
+            crafting = GetComponent<CraftingSystem>();
             foreach (var data in new[] { revolver, espingarda })
                 if (data != null) ammo[data] = new Ammo { Loaded = data.StartLoaded, Reserve = data.StartReserve };
         }
@@ -74,7 +78,9 @@ namespace Apagao.Combat
             bool blocked = kb == null || mouse == null || player.InputLocked || (health != null && health.IsDead)
                            || Cursor.lockState != CursorLockMode.Locked;
 
-            if (!blocked)
+            // Com o menu de crafting aberto, os números fabricam em vez de trocar de arma.
+            bool menuOpen = crafting != null && crafting.MenuOpen;
+            if (!blocked && !menuOpen)
             {
                 if (kb.digit1Key.wasPressedThisFrame) Select(WeaponSlot.Facao);
                 if (kb.digit2Key.wasPressedThisFrame && revolver != null) Select(WeaponSlot.Revolver);
@@ -248,6 +254,9 @@ namespace Apagao.Combat
             a.Reserve += added;
             return added;
         }
+
+        public int ReserveRoom(WeaponData data) =>
+            data != null && ammo.TryGetValue(data, out var a) ? data.MaxReserve - a.Reserve : 0;
 
         public bool TryGetAmmo(out int loaded, out int reserve)
         {

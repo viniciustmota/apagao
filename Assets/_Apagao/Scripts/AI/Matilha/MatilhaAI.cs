@@ -8,7 +8,7 @@ namespace Apagao.AI.Matilha
     /// Cão robô (spec 14). Caça em grupo: ouve longe, fareja o rastro do Caio, cerca e dá o bote.
     /// Sentidos, rede, vida e takedown vêm de MachineAI.
     /// </summary>
-    public class MatilhaAI : MachineAI
+    public class MatilhaAI : MachineAI, ILureable
     {
         [Header("Movimento (m/s)")]
         [SerializeField] private float patrolSpeed = 2.2f;
@@ -214,6 +214,9 @@ namespace Apagao.AI.Matilha
 
         protected override void OnFrozen() => Squat(false);
         protected override void OnStunned() => Squat(false);
+
+        /// <summary>A isca elétrica prende o cão (spec 12 R6).</summary>
+        public void Lure(float stunSeconds) => Stun(stunSeconds);
         protected override void ResumeAfterStun() => Fsm.Restart();
 
         protected override void UpdateExtraFeedback()
