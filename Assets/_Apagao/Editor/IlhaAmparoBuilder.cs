@@ -127,6 +127,7 @@ namespace Apagao.EditorTools
             CampanhaBuilder.TagSaveIds();
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();
+            BuildTools.SyncBuildScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("[Apagão] Ilha_Amparo criada. Aperte Play.");
         }

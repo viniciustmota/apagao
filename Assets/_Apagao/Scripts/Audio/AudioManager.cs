@@ -106,12 +106,12 @@ namespace Apagao.Audio
             listener = l != null ? l.transform : null;
         }
 
-        public float VolumeOf(SoundCategory c) => master * c switch
+        public float VolumeOf(SoundCategory c) => master * Apagao.Systems.GameSettings.MasterVolume * c switch
         {
             SoundCategory.Ambiente => ambiente,
             SoundCategory.Inimigos => inimigos,
             SoundCategory.Vozes => vozes,
-            SoundCategory.Musica => musica,
+            SoundCategory.Musica => musica * Apagao.Systems.GameSettings.MusicVolume,
             SoundCategory.Radio => radio,
             _ => efeitos
         };

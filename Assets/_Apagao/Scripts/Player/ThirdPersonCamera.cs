@@ -65,17 +65,21 @@ namespace Apagao.Player
             if (target == null) return;
 
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
 
-            if (kb != null && kb.escapeKey.wasPressedThisFrame) LockCursor(false);
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
-                LockCursor(true);
-
-            if (mouse != null && Cursor.lockState == CursorLockMode.Locked)
+            // Esc é do menu de pausa. Fora da pausa, clicar prende o mouse de novo (ex.: depois de trocar de janela).
+            if (!Apagao.Systems.GamePause.IsPaused)
             {
-                Vector2 delta = mouse.delta.ReadValue();
-                yaw += delta.x * sensitivity;
-                pitch = Mathf.Clamp(pitch - delta.y * sensitivity, minPitch, maxPitch);
+                if (mouse != null && mouse.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
+                    LockCursor(true);
+
+                if (mouse != null && Cursor.lockState == CursorLockMode.Locked)
+                {
+                    Vector2 delta = mouse.delta.ReadValue();
+                    float sens = sensitivity * Apagao.Systems.GameSettings.Sensitivity;
+                    float invert = Apagao.Systems.GameSettings.InvertY ? -1f : 1f;
+                    yaw += delta.x * sens;
+                    pitch = Mathf.Clamp(pitch - delta.y * sens * invert, minPitch, maxPitch);
+                }
             }
 
             float targetPivot = player != null && player.IsCrouching ? pivotCrouched : pivotStanding;

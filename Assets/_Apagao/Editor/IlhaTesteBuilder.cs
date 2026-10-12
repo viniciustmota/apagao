@@ -90,6 +90,7 @@ namespace Apagao.EditorTools
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();
+            BuildTools.SyncBuildScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("[Apagão] Ilha_Teste criada. Aperte Play.");
         }
@@ -343,7 +344,9 @@ namespace Apagao.EditorTools
             hso.FindProperty("tracerMaterial").objectReferenceValue = UnlitMat("Tracer_Caio", new Color(1f, 0.9f, 0.5f));
             hso.ApplyModifiedPropertiesWithoutUndo();
 
-            new GameObject("HUD").AddComponent<GameHUD>();
+            var hud = new GameObject("HUD");
+            hud.AddComponent<GameHUD>();
+            hud.AddComponent<PauseMenu>();
 
             var camGo = new GameObject("Camera Principal") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();

@@ -114,4 +114,12 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Corpo low-poly do Caio com animação procedural (`CaioModelBuilder` + `CaioAnimator`)
 - [~] Corpos articulados dos robôs (Sentinela com rifle, cão de quatro patas, Brutamontes) com animação procedural (`RobotBodyBuilder` + `RobotAnimator`)
 - [ ] Arte final da vila e dos drones
-- [ ] Build para Linux e Windows e teste com outras pessoas
+- [ ] Build para Linux e Windows e teste com outras pessoas (movido para o marco 13)
+
+## Marco 13 — Build e teste com outras pessoas (implementado, falta testar)
+- [~] Menu principal: continuar, jogo novo, laboratório, opções, sair (`MainMenu`, cena `Menu_Principal`) — spec 20
+- [~] Menu de pausa no Esc: continuar, voltar ao checkpoint, opções, menu principal, sair (`PauseMenu`) — spec 20
+- [~] Opções salvas: volume geral, música, sensibilidade e inversão do mouse (`GameSettings`) — spec 20 + 21
+- [~] Painel de debug escondido no build (F3 mostra)
+- [~] Build em um clique: Apagão → Build → Linux / Windows / Linux e Windows, com .zip e guia `TESTE.md` (`BuildTools`)
+- [ ] Rodar o primeiro teste com o irmão e amigos e transformar o retorno em tarefas

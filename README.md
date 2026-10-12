@@ -26,7 +26,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Som: efeitos, assinatura de cada máquina, ambiente, cigarras que calam e música dinâmica (provisórios) | Implementado |
 | Ilha do Amparo (greybox) com campanha do prólogo até a estação | Implementado |
 | Chefe final: o Capataz em 3 fases e o final no rádio | Implementado |
-| Arte final, build para Linux/Windows | Planejado |
+| Menu principal, pausa com opções e build para Linux/Windows em um clique | Implementado |
+| Arte final | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -71,7 +72,16 @@ A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perd
 | H | Usar kit de primeiros socorros |
 | E | Takedown (por trás) · segurar perto da antena = sabotar |
 | F9 | Apagar o save e recomeçar do zero |
-| Esc | Soltar o mouse (clique para prender de novo) |
+| F3 | Painel de debug (no build fica escondido) |
+| Esc | Pausa: continuar, checkpoint, opções, menu, sair |
+
+## Gerar o jogo para outras pessoas
+
+1. Crie as cenas: **Apagão → Criar Ilha do Amparo** e **Apagão → Criar Ilha de Teste** (o menu principal é criado sozinho no build).
+2. **Apagão → Build → Linux**, **Windows** ou **Linux e Windows**.
+3. O resultado sai em `Builds/` (fora de `Assets`): uma pasta por sistema e um `.zip` pronto para mandar, com o guia [`TESTE.md`](TESTE.md) dentro.
+
+Para gerar para Windows a partir do Linux, instale no Unity Hub o módulo **Windows Build Support (Mono)** (Installs → engrenagem da 6000.6 → Add modules).
 
 ## Estrutura
 

@@ -15,9 +15,11 @@ namespace Apagao.DebugTools
         private string lastEvent = "";
         private float lastEventTime;
         private GUIStyle style;
+        private bool visible; // no build fica escondido; F3 mostra
 
         private void Start()
         {
+            visible = Application.isEditor;
             player = FindAnyObjectByType<PlayerController>();
             antenna = FindAnyObjectByType<HiveAntenna>();
 
@@ -38,8 +40,15 @@ namespace Apagao.DebugTools
             lastEventTime = Time.time;
         }
 
+        private void Update()
+        {
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb != null && kb.f3Key.wasPressedThisFrame) visible = !visible;
+        }
+
         private void OnGUI()
         {
+            if (!visible) return;
             style ??= new GUIStyle(GUI.skin.label) { fontSize = 15, richText = true };
             var network = Network();
 
