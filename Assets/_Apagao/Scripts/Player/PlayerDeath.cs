@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 namespace Apagao.Player
 {
     /// <summary>
-    /// Morte do Caio (spec 08 R6): trava o controle, espera a tela escurecer e recomeça.
-    /// Até existir checkpoint (marco 11), recomeça a cena inteira.
+    /// Morte do Caio (spec 08 R6): trava o controle, espera a tela escurecer e recarrega a cena.
+    /// A cena recarregada volta ao último checkpoint (CheckpointManager, spec 18).
     /// </summary>
     [RequireComponent(typeof(Health), typeof(PlayerController))]
     public class PlayerDeath : MonoBehaviour

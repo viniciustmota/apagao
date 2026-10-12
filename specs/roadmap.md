@@ -91,8 +91,11 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [ ] Greybox da ilha inteira com as zonas — spec 22
 - [~] Brutamontes: soco, investida, parede atordoa, blindagem frontal, PEM curto, takedown fraco, tremor dos passos — spec 16
 - [~] Quintal de teste atrás da fileira sul com muro para a investida
-- [ ] Campanha: atos, objetivos e checkpoints — spec 18
-- [ ] Rádio da Lia e falas do Capataz — spec 19
+- [~] Checkpoints em JSON, `SaveId` dos objetos, morte volta ao checkpoint, F9 recomeça — spec 18
+- [~] Objetivos em sequência e demo da vila: bancada → antena → rádio da estação → fim — spec 18
+- [~] Rádio da Lia: legendas, sinal que piora, final com a voz falsa — spec 19
+- [ ] Atos completos (`ActDefinition`) na ilha inteira — spec 18
+- [ ] Falas do Capataz nos alto-falantes e áudio do rádio — spec 19
 - [ ] HUD completo — spec 20
 
 ## Marco 12 — Chefe e polimento

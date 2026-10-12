@@ -31,6 +31,7 @@ namespace Apagao.Combat
 
         public WeaponSlot Current { get; private set; } = WeaponSlot.Facao;
         public WeaponData Revolver => revolver;
+        public WeaponData Espingarda => espingarda;
         public bool IsAiming { get; private set; }
         public bool IsReloading { get; private set; }
         public WeaponData CurrentData => Current == WeaponSlot.Revolver ? revolver : Current == WeaponSlot.Espingarda ? espingarda : null;
@@ -257,6 +258,23 @@ namespace Apagao.Combat
 
         public int ReserveRoom(WeaponData data) =>
             data != null && ammo.TryGetValue(data, out var a) ? data.MaxReserve - a.Reserve : 0;
+
+        public bool TryGetAmmo(WeaponData data, out int loaded, out int reserve)
+        {
+            loaded = reserve = 0;
+            if (data == null || !ammo.TryGetValue(data, out var a)) return false;
+            loaded = a.Loaded;
+            reserve = a.Reserve;
+            return true;
+        }
+
+        /// <summary>Restaura a munição de uma arma (checkpoint).</summary>
+        public void SetAmmo(WeaponData data, int loaded, int reserve)
+        {
+            if (data == null || !ammo.TryGetValue(data, out var a)) return;
+            a.Loaded = Mathf.Clamp(loaded, 0, data.Magazine);
+            a.Reserve = Mathf.Clamp(reserve, 0, data.MaxReserve);
+        }
 
         public bool TryGetAmmo(out int loaded, out int reserve)
         {

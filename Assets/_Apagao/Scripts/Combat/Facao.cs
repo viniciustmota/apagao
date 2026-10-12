@@ -288,6 +288,8 @@ namespace Apagao.Combat
         }
 
         /// <summary>Afiar (crafting, marco 8).</summary>
+        public void SetDurability(float value) => Durability = Mathf.Clamp(value, 0f, maxDurability);
+
         public void Sharpen(float amount) => Durability = Mathf.Min(maxDurability, Durability + amount);
 
         private void Wear(float amount) => Durability = Mathf.Max(0f, Durability - amount);

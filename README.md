@@ -21,7 +21,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Escalada de bordas, telhados, borda segura agachado e dano de queda | Implementado |
 | Drones: Olho (busca de cima), Vespa (kamikaze) e Brasa (fogo) | Implementado |
 | Brutamontes: mini-chefe blindado com soco e investida | Implementado |
-| Campanha, ilha completa, chefe final | Planejado |
+| Checkpoints, objetivos e rádio da Lia (demo da vila) | Implementado |
+| Ilha completa com os 5 atos, chefe final, áudio | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -65,6 +66,7 @@ A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perd
 | T / segurar G | Escolher / arremessar (bomba de ruído, molotov, isca) |
 | H | Usar kit de primeiros socorros |
 | E | Takedown (por trás) · segurar perto da antena = sabotar |
+| F9 | Apagar o save e recomeçar do zero |
 | Esc | Soltar o mouse (clique para prender de novo) |
 
 ## Estrutura
@@ -82,6 +84,7 @@ Assets/_Apagao/
     AI/Drones/    Motor de voo, base dos drones, Olho, Vespa e Brasa
     Combat/       Vida, dano, facão, takedown
     Systems/      Ruído e NavMesh em runtime
+    Game/         Campanha, checkpoints e rádio
     UI/           HUD
     DebugTools/   Painel de teste da rede
   Editor/         Builders da cena de teste (menu Apagão)

@@ -39,6 +39,8 @@ namespace Apagao.Combat
 
         private void Awake() => Charges = Mathf.Clamp(startCharges, 0, maxCharges);
 
+        public void SetCharges(int value) => Charges = Mathf.Clamp(value, 0, maxCharges);
+
         public bool AddCharge()
         {
             if (Charges >= maxCharges) return false;

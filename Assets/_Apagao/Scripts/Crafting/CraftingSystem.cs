@@ -58,6 +58,9 @@ namespace Apagao.Crafting
         public string LastMessage { get; private set; } = "";
         public float LastMessageTime { get; private set; } = float.NegativeInfinity;
 
+        /// <summary>(receita, feita perto de bancada). O checkpoint usa para salvar ao usar a bancada (spec 18 R4).</summary>
+        public event System.Action<Recipe, bool> Crafted;
+
         private Inventory inventory;
         private PlayerController player;
         private Health health;
@@ -132,6 +135,7 @@ namespace Apagao.Crafting
 
             Apply(recipe.Result);
             Message($"Fabricado: {recipe.Name}");
+            Crafted?.Invoke(recipe, NearBench);
             CraftProgress = 0f;
             CurrentRecipe = null;
             IsCrafting = false;

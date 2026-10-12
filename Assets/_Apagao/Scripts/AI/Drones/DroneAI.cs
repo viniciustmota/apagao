@@ -168,6 +168,7 @@ namespace Apagao.AI.Drones
             if (IsDead) return;
             IsDead = true;
             if (hive != null) hive.ReportDeath(IsAware);
+            Apagao.Systems.SaveId.ReportGone(gameObject);
             SpawnLoot();
 
             Motor.enabled = false;
@@ -192,6 +193,7 @@ namespace Apagao.AI.Drones
                 if (reportAsMissing) hive.ReportDeath(true);
                 else hive.Leave();
             }
+            Apagao.Systems.SaveId.ReportGone(gameObject);
             Destroy(gameObject);
         }
 

@@ -86,6 +86,7 @@ namespace Apagao.EditorTools
             InimigosBuilder.Populate(terrain);
             DronesBuilder.Populate(terrain);
             ItensBuilder.Populate(terrain);
+            CampanhaBuilder.Populate(terrain); // por último: usa a bancada, a antena e grava os SaveIds
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();

@@ -88,6 +88,20 @@ namespace Apagao.Crafting
             items[(int)ItemType.BombaRuido] = startBombas;
         }
 
+        // ---------- Checkpoint (spec 18 R5) ----------
+
+        public int[] SnapshotResources() => (int[])resources.Clone();
+        public int[] SnapshotItems() => (int[])items.Clone();
+
+        public void Restore(int[] savedResources, int[] savedItems)
+        {
+            if (savedResources != null)
+                for (int i = 0; i < resources.Length && i < savedResources.Length; i++) resources[i] = savedResources[i];
+            if (savedItems != null)
+                for (int i = 0; i < items.Length && i < savedItems.Length; i++) items[i] = savedItems[i];
+            Changed?.Invoke();
+        }
+
         // ---------- Recursos ----------
 
         public int Get(ResourceType t) => resources[(int)t];

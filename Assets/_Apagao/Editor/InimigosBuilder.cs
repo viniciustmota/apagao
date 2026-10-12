@@ -32,6 +32,7 @@ namespace Apagao.EditorTools
             }
             Populate(terrain);
             DronesBuilder.Populate(terrain);
+            CampanhaBuilder.TagSaveIds();
             var scene = EditorSceneManager.GetActiveScene();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

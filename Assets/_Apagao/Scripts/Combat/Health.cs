@@ -63,6 +63,13 @@ namespace Apagao.Combat
             }
         }
 
+        /// <summary>Define a vida ao carregar um checkpoint (mínimo 1).</summary>
+        public void Restore(float value)
+        {
+            Current = Mathf.Clamp(value, 1f, maxHealth);
+            IsDead = false;
+        }
+
         public void Heal(float amount)
         {
             if (IsDead || amount <= 0f) return;

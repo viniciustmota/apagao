@@ -64,7 +64,8 @@ namespace Apagao.AI.Hive
         /// <summary>Uma descarga de PEM derruba a antena (spec 07 R9).</summary>
         public void Stun(float seconds) => Sabotage();
 
-        public void Sabotage()
+        /// <summary>Derruba a antena. <paramref name="silent"/> = sem barulho (restaurando um checkpoint).</summary>
+        public void Sabotage(bool silent = false)
         {
             if (Sabotaged) return;
             Sabotaged = true;
@@ -72,7 +73,8 @@ namespace Apagao.AI.Hive
             PlayerInRange = false;
 
             if (network != null) network.SetOnline(false);
-            NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Impacto, gameObject);
+            if (!silent) NoiseSystem.Emit(transform.position, noiseRadius, noiseIntensity, NoiseType.Impacto, gameObject);
+            SaveId.ReportGone(gameObject);
 
             if (beacon != null) beacon.enabled = false;
             if (beaconLight != null) beaconLight.enabled = false;

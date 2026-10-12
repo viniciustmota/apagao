@@ -53,7 +53,11 @@ namespace Apagao.Crafting
             var inv = who.GetComponent<Inventory>();
             if (inv == null) return;
             amount -= inv.Add(resource, amount);
-            if (amount <= 0) Destroy(gameObject);
+            if (amount <= 0)
+            {
+                SaveId.ReportGone(gameObject);
+                Destroy(gameObject);
+            }
         }
 
         private void BuildVisual()

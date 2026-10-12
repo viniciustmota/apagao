@@ -337,6 +337,7 @@ namespace Apagao.AI
             if (IsDead) return;
             IsDead = true;
             if (hive != null) hive.ReportDeath(IsAware);
+            Apagao.Systems.SaveId.ReportGone(gameObject);
             SpawnLoot();
             SpawnWreck();
             Destroy(gameObject);
