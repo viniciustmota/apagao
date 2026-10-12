@@ -20,7 +20,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Recursos, saque, crafting, bancada, bomba de ruído, molotov, isca elétrica e kit de cura | Implementado |
 | Escalada de bordas, telhados, borda segura agachado e dano de queda | Implementado |
 | Drones: Olho (busca de cima), Vespa (kamikaze) e Brasa (fogo) | Implementado |
-| Brutamontes, campanha, ilha completa | Planejado |
+| Brutamontes: mini-chefe blindado com soco e investida | Implementado |
+| Campanha, ilha completa, chefe final | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -77,6 +78,7 @@ Assets/_Apagao/
     AI/Hive/      Rede da VIGÍLIA: rede, membros e antena
     AI/Sentinela/ Robô humanoide e seus estados
     AI/Matilha/   Cães robô, grupo e estados
+    AI/Brutamontes/ Mini-chefe e seus estados
     AI/Drones/    Motor de voo, base dos drones, Olho, Vespa e Brasa
     Combat/       Vida, dano, facão, takedown
     Systems/      Ruído e NavMesh em runtime

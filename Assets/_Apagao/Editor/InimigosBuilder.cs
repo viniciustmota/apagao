@@ -1,6 +1,7 @@
 using Apagao.AI;
 using Apagao.AI.Hive;
 using Apagao.DebugTools;
+using Apagao.AI.Brutamontes;
 using Apagao.AI.Matilha;
 using Apagao.AI.Sentinela;
 using Apagao.Combat;
@@ -80,6 +81,97 @@ namespace Apagao.EditorTools
             {
                 new Vector2(-18f, 17f), new Vector2(14f, 17f), new Vector2(14f, 25f), new Vector2(-18f, 25f)
             }, 3, matRobo, matVisor, matIndicador);
+
+            // Brutamontes: ronda o quintal atrás da fileira sul (spec 16). O muro serve para atraí-lo numa investida.
+            var rotaBruto = Route(t, inimigos, "Rota_Brutamontes", new[] { new Vector2(-16f, -19f), new Vector2(16f, -19f) });
+            CreateBrutamontes("Brutamontes", inimigos, IlhaTesteBuilder.Ground(t, -16f, -19f), 90f, rotaBruto, matRobo, matVisor, matIndicador);
+            var muro = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            muro.name = "Muro_Quintal";
+            muro.transform.SetParent(inimigos);
+            muro.transform.position = IlhaTesteBuilder.Ground(t, 6f, -25f) + Vector3.up * 1f;
+            muro.transform.localScale = new Vector3(7f, 3f, 0.6f);
+            muro.GetComponent<MeshRenderer>().sharedMaterial = IlhaTesteBuilder.Mat("Parede", new Color(0.93f, 0.86f, 0.70f));
+            muro.isStatic = true;
+        }
+
+        private static void CreateBrutamontes(string name, Transform parent, Vector3 position, float yaw, Transform[] route,
+            Material robo, Material visor, Material indicador)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            root.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+
+            var col = root.AddComponent<CapsuleCollider>();
+            col.height = 2.8f;
+            col.radius = 0.7f;
+            col.center = new Vector3(0f, 1.4f, 0f);
+
+            var agent = root.AddComponent<NavMeshAgent>();
+            agent.radius = 0.7f;
+            agent.height = 2.8f;
+            agent.angularSpeed = 90f; // R2: vira devagar
+            agent.acceleration = 6f;
+            agent.stoppingDistance = 0.5f;
+            agent.enabled = false;
+
+            var vision = root.AddComponent<VisionSensor>();
+            var vso = new SerializedObject(vision);
+            vso.FindProperty("viewDistance").floatValue = 18f;
+            vso.FindProperty("viewAngle").floatValue = 70f;
+            vso.FindProperty("eyeHeight").floatValue = 2.5f;
+            vso.ApplyModifiedPropertiesWithoutUndo();
+
+            root.AddComponent<HearingSensor>();
+            root.AddComponent<HiveMember>();
+
+            // Vida (spec 16): 400; frente ×0,25, costas ×1,5; fogo nas juntas ×3; elétrico só paralisa.
+            var health = root.AddComponent<Health>();
+            var hso = new SerializedObject(health);
+            hso.FindProperty("maxHealth").floatValue = 400f;
+            hso.FindProperty("multipliers.fogo").floatValue = 3f;
+            hso.FindProperty("multipliers.eletrico").floatValue = 0f;
+            hso.FindProperty("backMultiplier").floatValue = 1.5f;
+            hso.FindProperty("frontMultiplier").floatValue = 0.25f;
+            hso.ApplyModifiedPropertiesWithoutUndo();
+
+            var ai = root.AddComponent<BrutamontesAI>();
+
+            var armadura = IlhaTesteBuilder.Mat("Brutamontes_Blindagem", new Color(0.55f, 0.48f, 0.2f), 0.5f);
+            var juntas = Emissive("Brutamontes_Juntas", new Color(1f, 0.45f, 0.1f), 1.2f);
+            var corpo = Part(PrimitiveType.Cube, "Corpo", root.transform, new Vector3(0f, 1.75f, 0f), new Vector3(1.4f, 1.3f, 0.9f), robo);
+            var placa = Part(PrimitiveType.Cube, "Blindagem", root.transform, new Vector3(0f, 1.8f, 0.48f), new Vector3(1.3f, 1.1f, 0.12f), armadura);
+            var cabeca = Part(PrimitiveType.Cube, "Cabeca", root.transform, new Vector3(0f, 2.6f, 0.1f), new Vector3(0.55f, 0.4f, 0.55f), robo);
+            Part(PrimitiveType.Cube, "Visor", cabeca.transform, new Vector3(0f, 0.05f, 0.51f), new Vector3(0.8f, 0.15f, 0.05f), visor);
+            foreach (float x in new[] { -0.4f, 0.4f })
+            {
+                Part(PrimitiveType.Cube, "Perna", root.transform, new Vector3(x, 0.55f, 0f), new Vector3(0.4f, 1.1f, 0.45f), robo);
+                Part(PrimitiveType.Sphere, "Junta", root.transform, new Vector3(x, 0.6f, -0.2f), Vector3.one * 0.3f, juntas); // ponto fraco
+            }
+            Part(PrimitiveType.Cube, "Braco_E", root.transform, new Vector3(-0.95f, 1.6f, 0f), new Vector3(0.45f, 1.4f, 0.5f), robo);
+
+            // Braço direito num pivô no ombro, para erguer no soco.
+            var ombro = new GameObject("Ombro_D").transform;
+            ombro.SetParent(root.transform, false);
+            ombro.localPosition = new Vector3(0.95f, 2.25f, 0f);
+            Part(PrimitiveType.Cube, "Braco_D", ombro, new Vector3(0f, -0.65f, 0f), new Vector3(0.5f, 1.4f, 0.55f), robo);
+
+            var indicator = Part(PrimitiveType.Sphere, "Indicador", root.transform, new Vector3(0f, 3.3f, 0f), Vector3.one * 0.25f, indicador);
+            indicator.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+
+            var flash = root.AddComponent<HitFlash>();
+            var fso = new SerializedObject(flash);
+            SetArray(fso.FindProperty("renderers"), corpo.GetComponent<Renderer>(), cabeca.GetComponent<Renderer>(), placa.GetComponent<Renderer>());
+            fso.ApplyModifiedPropertiesWithoutUndo();
+
+            var so = new SerializedObject(ai);
+            SetArray(so.FindProperty("waypoints"), route);
+            so.FindProperty("rightArm").objectReferenceValue = ombro;
+            so.FindProperty("alertIndicator").objectReferenceValue = indicator.GetComponent<Renderer>();
+            so.FindProperty("stunDurationMultiplier").floatValue = 0.5f; // R5: PEM paralisa 1,5 s
+            so.FindProperty("knockbackScale").floatValue = 0.2f;
+            SetArray(so.FindProperty("wreckParts"), corpo.transform, cabeca.transform, placa.transform);
+            SetLoot(so.FindProperty("loot"), (ResourceType.Sucata, 3, 1f), (ResourceType.Componente, 2, 1f));
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateSentinela(string name, Transform parent, Vector3 position, float yaw, Transform[] route,

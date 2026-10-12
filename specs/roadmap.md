@@ -89,7 +89,8 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 
 ## Marco 11 — Ilha e campanha
 - [ ] Greybox da ilha inteira com as zonas — spec 22
-- [ ] Brutamontes — spec 16
+- [~] Brutamontes: soco, investida, parede atordoa, blindagem frontal, PEM curto, takedown fraco, tremor dos passos — spec 16
+- [~] Quintal de teste atrás da fileira sul com muro para a investida
 - [ ] Campanha: atos, objetivos e checkpoints — spec 18
 - [ ] Rádio da Lia e falas do Capataz — spec 19
 - [ ] HUD completo — spec 20

@@ -45,6 +45,8 @@ namespace Apagao.AI
 
         [Header("Feedback e carcaça")]
         [SerializeField] protected Renderer alertIndicator;
+        [Tooltip("Quanto o golpe empurra a máquina (Brutamontes: 0,2).")]
+        [SerializeField] protected float knockbackScale = 1f;
         [Tooltip("Partes que caem como carcaça quando a máquina é destruída.")]
         [SerializeField] protected Transform[] wreckParts;
 
@@ -300,8 +302,8 @@ namespace Apagao.AI
 
             Vector3 push = info.Direction;
             push.y = 0f;
-            if (Agent.isOnNavMesh && push.sqrMagnitude > 0.0001f)
-                Agent.Move(push.normalized * Mathf.Clamp(amount * 0.01f, 0.15f, 0.5f));
+            if (Agent.isOnNavMesh && push.sqrMagnitude > 0.0001f && knockbackScale > 0f)
+                Agent.Move(push.normalized * Mathf.Clamp(amount * 0.01f, 0.15f, 0.5f) * knockbackScale);
 
             EnterCombat();
         }

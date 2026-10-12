@@ -18,6 +18,11 @@ namespace Apagao.Combat
         [Tooltip("Abertura do cone traseiro, em graus.")]
         [SerializeField] private float backAngle = 120f;
 
+        [Header("Blindagem frontal")]
+        [Tooltip("Multiplicador para golpes vindos da frente (Brutamontes: 0,25). 1 = sem blindagem.")]
+        [SerializeField] private float frontMultiplier = 1f;
+        [SerializeField] private float frontAngle = 100f;
+
         public float Current { get; private set; }
         public float Max => maxHealth;
         public float Normalized => maxHealth > 0f ? Current / maxHealth : 0f;
@@ -44,6 +49,7 @@ namespace Apagao.Combat
 
             float amount = info.Amount * multipliers.For(info.Type);
             if (backMultiplier != 1f && IsFromBehind(info.Direction)) amount *= backMultiplier;
+            if (frontMultiplier != 1f && IsFromFront(info.Direction)) amount *= frontMultiplier;
             if (amount <= 0f) return;
 
             Current = Mathf.Max(0f, Current - amount);
@@ -72,6 +78,16 @@ namespace Apagao.Combat
             Vector3 forward = transform.forward;
             forward.y = 0f;
             return Vector3.Angle(forward, direction) <= backAngle * 0.5f;
+        }
+
+        /// <summary>Atacante na frente = o golpe viaja contra a direção para onde o alvo olha.</summary>
+        public bool IsFromFront(Vector3 direction)
+        {
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.0001f) return false; // fogo e explosão sem direção ignoram a blindagem
+            Vector3 forward = transform.forward;
+            forward.y = 0f;
+            return Vector3.Angle(forward, -direction) <= frontAngle * 0.5f;
         }
     }
 }

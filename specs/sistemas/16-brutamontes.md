@@ -1,6 +1,6 @@
 # 16 — Brutamontes
 
-**Status:** Rascunho · **Marco:** 11
+**Status:** Implementada (falta testar) · **Marco:** 11
 
 ## Objetivo
 Um mini-chefe que o jogador aprende a evitar. Enfrentar de frente é quase suicídio; derrubar exige preparo.
@@ -18,5 +18,15 @@ Um mini-chefe que o jogador aprende a evitar. Enfrentar de frente é quase suic�
 - [ ] É possível atravessar a área dele sem lutar.
 - [ ] Investida + parede + molotov + PEM + takedown derruba o Brutamontes com os recursos de uma área.
 
-## Questões abertas
-- Ele pode quebrar paredes de madeira na investida (abrindo novas rotas)?
+## Design técnico
+- `BrutamontesAI : MachineAI` com estados próprios em `States/`: Patrulha, Suspeito, Investigando, Combate, Atordoado, Procurando.
+- `CombateBrutoState` tem fases internas: Perseguindo → Soco (braço sobe por 0,8 s) ou PreparandoInvestida (1,2 s; a direção trava nos últimos 0,35 s) → Investida.
+- Investida anda com `NavMeshAgent.Move`; parede detectada por SphereCast à frente → `AtordoadoState` (2 s). Recarga de 6 s entre investidas.
+- Blindagem: `Health.frontMultiplier` 0,25 (golpes sem direção, como fogo, ignoram). Costas ×1,5. Fogo ×3 (o fogo do molotov pega nas pernas).
+- PEM: `stunDurationMultiplier` 0,5 (3 s → 1,5 s). Takedown: `CanBeTakenDown` exige paralisado e vida < 30%.
+- Passos: tremor de câmera proporcional à distância, até 15 m. Recuo de golpes ×0,2.
+- Novo `DamageType.Impacto` para soco e investida.
+
+### Decisões fechadas
+- A investida **não** quebra paredes no MVP (ficaria para quando houver paredes de madeira destrutíveis no mapa).
+- Atordoado (parede) não libera takedown sozinho: é a janela para PEM e molotov.
