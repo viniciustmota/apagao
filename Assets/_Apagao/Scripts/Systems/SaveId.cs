@@ -7,6 +7,15 @@ namespace Apagao.Systems
     /// Identidade estável de um objeto da cena para o checkpoint (spec 18 R5): inimigos, itens e antenas.
     /// O id é gravado pelo builder. Quem some de vez (destruído, coletado, sabotado) chama <see cref="ReportGone"/>.
     /// </summary>
+    /// <summary>
+    /// Objeto que, ao "sumir", continua na cena em outro estado (antena sabotada, gerador desligado).
+    /// O checkpoint chama RestoreGone em vez de destruí-lo.
+    /// </summary>
+    public interface ISaveGone
+    {
+        void RestoreGone();
+    }
+
     [DisallowMultipleComponent]
     public class SaveId : MonoBehaviour
     {

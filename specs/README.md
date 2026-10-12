@@ -41,7 +41,7 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 14 | [Matilha](sistemas/14-matilha.md) | 6 | Implementada (rastro na água pendente) |
 | 15 | [Drones: Olho, Vespa e Brasa](sistemas/15-drones.md) | 10 | Implementada (queima de mato no marco 11) |
 | 16 | [Brutamontes](sistemas/16-brutamontes.md) | 11 | Implementada |
-| 17 | [Capataz (chefe final)](sistemas/17-capataz.md) | 12 | Rascunho |
+| 17 | [Capataz (chefe final)](sistemas/17-capataz.md) | 12 | Implementada |
 | 18 | [Campanha, objetivos e checkpoints](sistemas/18-campanha.md) | 11 | Implementada (até a estação) |
 | 19 | [Rádio e narrativa](sistemas/19-radio-narrativa.md) | 11 | Parcial (legendas) |
 | 20 | [Interface (HUD)](sistemas/20-hud.md) | 5–11 | Parcial (IMGUI provisório) |

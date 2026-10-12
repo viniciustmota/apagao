@@ -4,7 +4,7 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 
 **Referências:** The Last of Us (escassez e tensão) + Ghost of Tsushima (telhados e takedowns) + Exterminador do Futuro (ambientação).
 
-> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 11 de 12.
+> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 12 de 12.
 
 ## O que já existe
 
@@ -25,7 +25,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Checkpoints, objetivos e rádio da Lia (demo da vila) | Implementado |
 | Som: efeitos, assinatura de cada máquina, ambiente, cigarras que calam e música dinâmica (provisórios) | Implementado |
 | Ilha do Amparo (greybox) com campanha do prólogo até a estação | Implementado |
-| Chefe final (Capataz) e arte final | Planejado |
+| Chefe final: o Capataz em 3 fases e o final no rádio | Implementado |
+| Arte final, build para Linux/Windows | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 

@@ -51,7 +51,7 @@ namespace Apagao.Game
         public float LastSaveTime { get; private set; } = float.NegativeInfinity;
 
         private readonly HashSet<string> gone = new HashSet<string>();
-        private readonly List<HiveAntenna> antennasToRestore = new List<HiveAntenna>();
+        private readonly List<ISaveGone> toRestore = new List<ISaveGone>();
         private PlayerController player;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -76,10 +76,10 @@ namespace Apagao.Game
             foreach (var s in Resources.FindObjectsOfTypeAll<SaveId>())
             {
                 if (!s.gameObject.scene.IsValid() || !gone.Contains(s.Id)) continue; // ignora prefabs e assets
-                var antenna = s.GetComponent<HiveAntenna>();
-                if (antenna != null)
+                var restorable = s.GetComponent<ISaveGone>();
+                if (restorable != null)
                 {
-                    antennasToRestore.Add(antenna); // a antena só acha a rede no Start dela
+                    toRestore.Add(restorable); // antena, gerador: ficam na cena, desligados (depois do Start deles)
                     continue;
                 }
                 s.gameObject.SetActive(false);
@@ -100,9 +100,9 @@ namespace Apagao.Game
             if (player != null && player.TryGetComponent(out CraftingSystem crafting)) crafting.Crafted += OnCrafted;
             if (Loaded != null && player != null) ApplyPlayer(Loaded);
 
-            yield return null; // espera o Start das antenas
-            foreach (var a in antennasToRestore)
-                if (a != null) a.Sabotage(silent: true);
+            yield return null; // espera o Start das antenas e geradores
+            foreach (var r in toRestore)
+                if (r is UnityEngine.Object o && o != null) r.RestoreGone();
         }
 
         private void Update()

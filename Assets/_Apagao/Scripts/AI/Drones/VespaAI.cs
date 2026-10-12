@@ -107,6 +107,12 @@ namespace Apagao.AI.Drones
             UpdateFeedback();
         }
 
+        /// <summary>Decola na hora contra o alvo (o Capataz solta as Vespas na fase 3).</summary>
+        public void ForceLaunch(Vector3 target)
+        {
+            if (state == State.Pousada) Launch(target);
+        }
+
         private void Launch(Vector3 target)
         {
             LastKnownPosition = target;

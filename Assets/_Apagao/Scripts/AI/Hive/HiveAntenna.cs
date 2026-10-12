@@ -11,8 +11,10 @@ namespace Apagao.AI.Hive
     /// Antena da área (spec 07). Segurar E perto dela por 2 s (interação comum, com aviso e barra no HUD)
     /// ou acertar com o PEM derruba a rede: os robôs passam a agir sozinhos.
     /// </summary>
-    public class HiveAntenna : MonoBehaviour, IStunnable, IInteractable
+    public class HiveAntenna : MonoBehaviour, IStunnable, IInteractable, ISaveGone
     {
+        public void RestoreGone() => Sabotage(silent: true);
+
         [Tooltip("Vazio = usa a rede cuja área contém a antena.")]
         [SerializeField] private HiveNetwork network;
         [SerializeField] private float sabotageTime = 2f;

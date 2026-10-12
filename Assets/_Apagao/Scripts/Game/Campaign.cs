@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Apagao.Game
 {
-    public enum ObjectiveKind { Chegar, Usar, SabotarAntena, Destruir }
+    public enum ObjectiveKind { Chegar, Usar, SabotarAntena, Destruir, Concluir }
 
     /// <summary>Um objetivo (spec 18 R3): texto, condição, falas e se abre com checkpoint.</summary>
     [Serializable]
@@ -21,6 +21,8 @@ namespace Apagao.Game
         [Range(0f, 1f)] public float signal = 1f;
         [Tooltip("Ato a que pertence (spec 18). -1 = continua no ato atual.")]
         public int act = -1;
+        [Tooltip("Marca livre lida por outros sistemas (ex.: \"capataz1\" liga a fase 1 do chefe).")]
+        public string tag;
         public DialogueLine[] onStart;
         public DialogueLine[] onComplete;
     }
@@ -40,6 +42,9 @@ namespace Apagao.Game
 
         public static Campaign Instance { get; private set; }
 
+        /// <summary>(objetivo, veio de checkpoint). Disparado ao começar cada objetivo, inclusive ao carregar.</summary>
+        public static event Action<Objective, bool> ObjectiveStarted;
+
         public int CurrentIndex { get; private set; }
         public int Count => objectives != null ? objectives.Length : 0;
         public Objective Current => objectives != null && CurrentIndex < objectives.Length ? objectives[CurrentIndex] : null;
@@ -49,7 +54,11 @@ namespace Apagao.Game
         private Transform player;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => Instance = null;
+        private static void ResetStatics()
+        {
+            Instance = null;
+            ObjectiveStarted = null;
+        }
 
         private void Awake()
         {
@@ -87,6 +96,7 @@ namespace Apagao.Game
                 RadioSystem.Instance.SetSignal(o.signal);
                 if (!fromCheckpoint) RadioSystem.Instance.Play(o.onStart);
             }
+            ObjectiveStarted?.Invoke(o, fromCheckpoint);
             if (o.checkpoint && !fromCheckpoint && CheckpointManager.Instance != null)
                 CheckpointManager.Instance.Save();
         }
@@ -128,6 +138,10 @@ namespace Apagao.Game
 
                 case ObjectiveKind.Destruir:
                     return o.target == null; // Unity: objeto destruído compara com null
+
+                case ObjectiveKind.Concluir:
+                    var flag = o.target != null ? o.target.GetComponent<ObjectiveFlag>() : null;
+                    return flag != null && flag.Done;
 
                 default:
                     return false;

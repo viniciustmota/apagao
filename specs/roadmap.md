@@ -109,7 +109,8 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [ ] HUD completo — spec 20
 
 ## Marco 12 — Chefe e polimento
-- [ ] Capataz em 3 fases — spec 17
+- [~] Capataz em 3 fases na Sala do Núcleo: geradores e reforços, lasers e PEM, fogo e Vespas com relógio — spec 17
+- [~] Final: a VIGÍLIA cai e o Caio usa o rádio — spec 17 + 19
 - [~] Corpo low-poly do Caio com animação procedural (`CaioModelBuilder` + `CaioAnimator`)
 - [~] Corpos articulados dos robôs (Sentinela com rifle, cão de quatro patas, Brutamontes) com animação procedural (`RobotBodyBuilder` + `RobotAnimator`)
 - [ ] Arte final da vila e dos drones

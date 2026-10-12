@@ -139,6 +139,12 @@ namespace Apagao.AI.Hive
             else RaiseMissing(position);
         }
 
+        /// <summary>Liga ou derruba todas as redes da cena (o Núcleo destruído derruba a VIGÍLIA).</summary>
+        public static void SetAllOnline(bool online)
+        {
+            foreach (var n in all.ToArray()) n.SetOnline(online);
+        }
+
         public void SetOnline(bool online)
         {
             if (Online == online) return;

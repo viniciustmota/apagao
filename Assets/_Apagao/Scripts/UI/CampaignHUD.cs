@@ -42,6 +42,7 @@ namespace Apagao.UI
                 if (showWaypoint && target.HasValue) DrawWaypoint(target.Value);
             }
             DrawActTitle();
+            DrawBoss();
             if (radio != null && radio.HasLine) DrawSubtitle(radio);
             if (checkpoints != null && Time.time - checkpoints.LastSaveTime < checkpointToast) DrawCheckpoint();
             if (campaign != null && campaign.Finished && campaign.Count > 0 && (radio == null || !radio.Busy)) DrawEnd(campaign);
@@ -159,6 +160,32 @@ namespace Apagao.UI
             GUI.color = Color.white;
         }
 
+        // ---------- Chefe ----------
+
+        /// <summary>Barra do Núcleo e o estado da fase (escudo, geradores, tempo até a sala queimar).</summary>
+        private void DrawBoss()
+        {
+            var boss = CapatazBoss.Instance;
+            if (boss == null || boss.Phase == 0 || boss.Defeated || boss.Core == null) return;
+            var hp = boss.Core.Health;
+            if (hp == null) return;
+
+            float w = Mathf.Min(420f, Screen.width - 80f), x = (Screen.width - w) * 0.5f, y = 86f;
+            GUI.color = new Color(0f, 0f, 0f, 0.55f);
+            GUI.DrawTexture(new Rect(x, y, w, 10f), Texture2D.whiteTexture);
+            GUI.color = boss.Core.ShieldUp ? new Color(0.35f, 0.75f, 1f) : new Color(1f, 0.3f, 0.15f);
+            GUI.DrawTexture(new Rect(x, y, w * hp.Normalized, 10f), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            string state = boss.Phase switch
+            {
+                1 => $"<b>NÚCLEO</b> — escudo ligado · geradores: {boss.GeneratorsLeft}",
+                2 => boss.Core.ShieldUp ? "<b>NÚCLEO</b> — escudo ligado · use o PEM (4)" : $"<color=#ffb060><b>ESCUDO CAÍDO</b> {boss.Core.ShieldDownLeft:0.0}s — golpeie o Núcleo!</color>",
+                _ => $"<color=#ff7050><b>A SALA QUEIMA EM {Mathf.FloorToInt(boss.BurnLeft / 60f)}:{Mathf.FloorToInt(boss.BurnLeft % 60f):00}</b></color>"
+            };
+            Shadowed(new Rect(0, y + 12f, Screen.width, 24f), state, objectiveStyle);
+        }
+
         /// <summary>Cartela do ato ("Ato 1 — A Roça") ao entrar num ato novo.</summary>
         private void DrawActTitle()
         {
@@ -174,7 +201,8 @@ namespace Apagao.UI
 
         private void DrawSubtitle(RadioSystem radio)
         {
-            string speakerColor = radio.CurrentSpeaker == RadioSystem.Caio ? "#f0a050" : "#7fd0ff";
+            string speakerColor = radio.CurrentSpeaker == RadioSystem.Caio ? "#f0a050"
+                : radio.CurrentSpeaker == "Capataz" ? "#ff6a5a" : "#7fd0ff";
             string tag = radio.CurrentSpeaker == RadioSystem.Lia ? $"  <color=#8a8a8a>[rádio {radio.Signal:P0}]</color>" : "";
             string text = $"<color={speakerColor}><b>{radio.CurrentSpeaker}</b></color>{tag}\n{radio.CurrentText}";
 

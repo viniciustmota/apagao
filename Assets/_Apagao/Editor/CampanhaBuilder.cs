@@ -89,7 +89,7 @@ namespace Apagao.EditorTools
                 if (!go.scene.IsValid() || EditorUtility.IsPersistent(go)) continue; // só objetos da cena
                 bool tracked = go.GetComponent<MachineAI>() || go.GetComponent<DroneAI>() ||
                                go.GetComponent<Apagao.Crafting.Pickup>() || go.GetComponent<HiveAntenna>() ||
-                               go.GetComponent<Apagao.Combat.WeaponPickup>();
+                               go.GetComponent<Apagao.Combat.WeaponPickup>() || go.GetComponent<Generator>();
                 if (!tracked) continue;
 
                 var id = go.GetComponent<SaveId>();

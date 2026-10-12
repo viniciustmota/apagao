@@ -99,7 +99,7 @@ namespace Apagao.EditorTools
             BuildMangue(cenario, atos[2]);
             var pem = BuildAlmoxarifado(cenario, atos[2], out var antenaAlmox);
             BuildRua(cenario, atos[3]);
-            BuildEstacao(cenario, atos[4]);
+            BuildEstacao(cenario, atos[4], out var radio, out var flags);
 
             var caio = IlhaTesteBuilder.CreatePlayerAndCamera(terrain, IlhaTesteBuilder.Mat("Caio", new Color(0.90f, 0.45f, 0.10f)), new Vector2(-52f, -150f), 90f);
             var loadout = caio.AddComponent<PlayerLoadout>();
@@ -119,7 +119,7 @@ namespace Apagao.EditorTools
             var sistemas = new GameObject("Sistemas");
             sistemas.AddComponent<DebugHUD>();
 
-            BuildCampaign(sun, atos, facao, antenaSitio, pem, antenaAlmox);
+            BuildCampaign(sun, atos, facao, antenaSitio, pem, antenaAlmox, radio, flags);
 
             // Atos futuros começam desligados (o ActManager liga na hora certa).
             for (int i = 1; i < atos.Length; i++) atos[i].gameObject.SetActive(false);
@@ -475,7 +475,8 @@ namespace Apagao.EditorTools
         }
 
         /// <summary>Ato 4 — estação de cabos no morro: muro com portão, prédio oco e o rádio.</summary>
-        private static void BuildEstacao(Transform cenario, Transform ato)
+        /// <summary>Ato 4 — estação de cabos no morro: muro com portão e a Sala do Núcleo, onde está o Capataz (spec 17).</summary>
+        private static void BuildEstacao(Transform cenario, Transform ato, out Transform radio, out ObjectiveFlag[] flags)
         {
             off = EstacaoOff;
             var est = Group(cenario, "Estacao");
@@ -486,8 +487,6 @@ namespace Apagao.EditorTools
             IlhaTesteBuilder.Box("Muro_O", est, G(-30f, 320f), new Vector3(0.5f, 2.5f, 50f), concreto);
             IlhaTesteBuilder.Box("Muro_S_O", est, G(-17.5f, 295f), new Vector3(25f, 2.5f, 0.5f), concreto);
             IlhaTesteBuilder.Box("Muro_S_L", est, G(17.5f, 295f), new Vector3(25f, 2.5f, 0.5f), concreto);
-            Shed(est, "Predio_Estacao", c, new Vector3(24f, 8f, 16f), concreto, openSouth: true);
-            IlhaTesteBuilder.Box("Mesa_Radio", est, G(0f, 324f), new Vector3(1.6f, 0.9f, 0.8f), madeira);
             IlhaTesteBuilder.Box("Caixote_E1", est, G(-12f, 293f), new Vector3(1f, 1.4f, 1f), madeira);
             foreach (var x in new[] { -20f, 20f }) Lamp(est, x, 300f);
 
@@ -496,16 +495,220 @@ namespace Apagao.EditorTools
             InimigosBuilder.CreateBrutamontes("Brutamontes_Portao", ato, G(-12f, 290f), 90f,
                 Rt(ato, "Rota_Bruto_Portao", new Vector2(-12f, 290f), new Vector2(12f, 290f)), robo, visor, indicador);
             Sentinela(ato, "Sentinela_Estacao_1", new[] { new Vector2(-25f, 300f), new Vector2(-25f, 340f), new Vector2(25f, 340f), new Vector2(25f, 300f) });
-            Sentinela(ato, "Sentinela_Estacao_2", new[] { new Vector2(-8f, 318f), new Vector2(8f, 318f) });
+            Sentinela(ato, "Sentinela_Estacao_2", new[] { new Vector2(-8f, 302f), new Vector2(8f, 302f) });
             DronesBuilder.CreateOlho(ato, G(-30f, 280f) + Vector3.up * 14f, Rt(ato, "Rota_Olho_Estacao", new Vector2(-30f, 280f), new Vector2(30f, 280f), new Vector2(30f, 350f), new Vector2(-30f, 350f)));
             Item(ato, ResourceType.Componente, 1, -20f, 335f);
             Item(ato, ResourceType.Sucata, 2, 20f, 285f);
+
+            BuildArena(est, ato, out radio, out flags);
             Baker(ato, "NavMesh_Estacao", c, 120f);
+        }
+
+        /// <summary>Sala do Núcleo (spec 17 R1): 3 geradores, cobertura baixa, passarelas, o Núcleo com escudo e os reforços.</summary>
+        private static void BuildArena(Transform est, Transform ato, out Transform radio, out ObjectiveFlag[] flags)
+        {
+            Vector3 floor = G(0f, 322f);
+            Shed(est, "Sala_do_Nucleo", floor, new Vector3(34f, 9f, 26f), concreto, openSouth: true);
+
+            // Cobertura baixa e passarelas a 3,6 m (subida por caixotes nos cantos do sul).
+            foreach (var p in new[] { new Vector2(-6f, 316f), new Vector2(6f, 316f), new Vector2(-9f, 328f), new Vector2(9f, 328f), new Vector2(0f, 313f) })
+                IlhaTesteBuilder.Box("Cobertura", est, G(p.x, p.y), new Vector3(2.2f, 1.1f, 0.9f), madeira);
+            foreach (var side in new[] { -1f, 1f })
+            {
+                IlhaTesteBuilder.Box("Passarela", est, G(15.5f * side, 322f) + Vector3.up * 3.6f, new Vector3(2f, 0.3f, 20f), metal, bury: false);
+                IlhaTesteBuilder.Box("Caixote_1m", est, G(12.2f * side, 311f), new Vector3(1f, 1f, 1f), madeira);
+                IlhaTesteBuilder.Box("Caixote_2m", est, G(13.6f * side, 311.6f), new Vector3(1.2f, 2f, 1.2f), madeira);
+            }
+            foreach (var p in new[] { new Vector2(-9f, 316f), new Vector2(9f, 316f), new Vector2(-9f, 330f), new Vector2(9f, 330f) })
+            {
+                var l = new GameObject("Luz_Sala").AddComponent<Light>();
+                l.transform.SetParent(est);
+                l.transform.position = G(p.x, p.y) + Vector3.up * 7.5f;
+                l.type = LightType.Point;
+                l.range = 13f;
+                l.intensity = 2.5f;
+                l.color = new Color(0.8f, 0.85f, 1f);
+            }
+
+            // Bancada, rádio e recursos para a luta (critério: dá para vencer com o que tem na estação).
+            Bench(ato, "Bancada_Estacao", G(-11f, 333f));
+            IlhaTesteBuilder.Box("Mesa_Radio", est, G(11f, 333.5f), new Vector3(1.6f, 0.9f, 0.8f), madeira);
+            radio = Radio(ato, G(11f, 333.5f) + Vector3.up * 0.9f);
+            Item(ato, ResourceType.Componente, 1, -14f, 326f);
+            Item(ato, ResourceType.Componente, 1, 14f, 326f);
+            Item(ato, ResourceType.Alcool, 1, 12f, 312f);
+            Item(ato, ResourceType.Pano, 1, -12f, 314f);
+
+            // O Núcleo: pedestal, cilindro brilhante, anéis e o escudo.
+            var nucleo = new GameObject("Nucleo");
+            nucleo.transform.SetParent(ato);
+            nucleo.transform.position = G(0f, 324f);
+            var col = nucleo.AddComponent<CapsuleCollider>();
+            col.radius = 1f;
+            col.height = 4f;
+            col.center = new Vector3(0f, 2f, 0f);
+            InimigosBuilder.Part(PrimitiveType.Cube, "Pedestal", nucleo.transform, new Vector3(0f, 0.4f, 0f), new Vector3(3f, 0.8f, 3f), metal);
+            var coreMat = InimigosBuilder.Emissive("Nucleo", new Color(1f, 0.1f, 0.05f), 3f);
+            var corpo = InimigosBuilder.Part(PrimitiveType.Cylinder, "Corpo", nucleo.transform, new Vector3(0f, 2.1f, 0f), new Vector3(1.5f, 1.3f, 1.5f), coreMat);
+            foreach (var hgt in new[] { 1.3f, 2.9f })
+                InimigosBuilder.Part(PrimitiveType.Cylinder, "Anel", nucleo.transform, new Vector3(0f, hgt, 0f), new Vector3(2f, 0.08f, 2f), metal);
+            var escudo = InimigosBuilder.Part(PrimitiveType.Sphere, "Escudo", nucleo.transform, new Vector3(0f, 2f, 0f), Vector3.one * 5f, ShieldMaterial());
+            escudo.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+            var luz = new GameObject("Luz_Nucleo").AddComponent<Light>();
+            luz.transform.SetParent(nucleo.transform, false);
+            luz.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+            luz.type = LightType.Point;
+            luz.range = 16f;
+            luz.color = new Color(1f, 0.25f, 0.15f);
+
+            var health = nucleo.AddComponent<Health>();
+            var hso = new SerializedObject(health);
+            hso.FindProperty("maxHealth").floatValue = 600f;
+            hso.FindProperty("multipliers.eletrico").floatValue = 0f;
+            hso.ApplyModifiedPropertiesWithoutUndo();
+            var core = nucleo.AddComponent<NucleoCore>();
+            var cso = new SerializedObject(core);
+            cso.FindProperty("shield").objectReferenceValue = escudo.GetComponent<Renderer>();
+            cso.FindProperty("core").objectReferenceValue = corpo.GetComponent<Renderer>();
+            cso.FindProperty("coreLight").objectReferenceValue = luz;
+            cso.ApplyModifiedPropertiesWithoutUndo();
+            var flash = nucleo.AddComponent<HitFlash>();
+            var fso = new SerializedObject(flash);
+            InimigosBuilder.SetArray(fso.FindProperty("renderers"), corpo.GetComponent<Renderer>());
+            fso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Geradores (fase 1).
+            var gens = new List<Generator>();
+            foreach (var p in new[] { new Vector2(-14f, 316f), new Vector2(14f, 316f), new Vector2(0f, 333.3f) })
+            {
+                var g = new GameObject("Gerador");
+                g.transform.SetParent(ato);
+                g.transform.position = G(p.x, p.y);
+                IlhaTesteBuilder.Box("Corpo", g.transform, g.transform.position, new Vector3(1.6f, 2.2f, 1.2f), metal);
+                var painel = InimigosBuilder.Part(PrimitiveType.Cube, "Painel", g.transform, new Vector3(0f, 1.4f, 0f), new Vector3(1.65f, 0.4f, 1.25f),
+                    InimigosBuilder.Emissive("Gerador_Painel", new Color(0.3f, 0.8f, 1f), 2.5f));
+                var gl = new GameObject("Luz").AddComponent<Light>();
+                gl.transform.SetParent(g.transform, false);
+                gl.transform.localPosition = new Vector3(0f, 2.6f, 0f);
+                gl.type = LightType.Point;
+                gl.range = 6f;
+                gl.color = new Color(0.3f, 0.8f, 1f);
+                var gen = g.AddComponent<Generator>();
+                var gso = new SerializedObject(gen);
+                gso.FindProperty("panel").objectReferenceValue = painel.GetComponent<Renderer>();
+                gso.FindProperty("glow").objectReferenceValue = gl;
+                gso.ApplyModifiedPropertiesWithoutUndo();
+                gens.Add(gen);
+            }
+
+            // Reforços (desligados até o Capataz chamar) e Vespas nas passarelas (fase 3).
+            var reforcos = new List<GameObject>();
+            var spots = new[] { new Vector2(-4f, 304f), new Vector2(4f, 304f), new Vector2(-10f, 306f), new Vector2(10f, 306f), new Vector2(-6f, 299f), new Vector2(6f, 299f) };
+            for (int i = 0; i < spots.Length; i++)
+            {
+                string name = $"Reforco_{i + 1}";
+                Sentinela(ato, name, new[] { spots[i], new Vector2(spots[i].x * 0.5f, 318f) });
+                var r = ato.Find(name).gameObject;
+                r.SetActive(false);
+                reforcos.Add(r);
+            }
+            var vespas = new List<GameObject>();
+            float catwalkTop = floor.y + 3.9f + 0.4f;
+            foreach (var (name, x, z) in new[] { ("Vespa_Nucleo_1", -15.5f, 330f), ("Vespa_Nucleo_2", 15.5f, 330f), ("Vespa_Nucleo_3", -15.5f, 314f) })
+            {
+                Vector3 g = G(x, z);
+                DronesBuilder.CreateVespa(ato, name, new Vector3(g.x, catwalkTop, g.z), 180f);
+                var v = ato.Find(name).gameObject;
+                v.SetActive(false);
+                vespas.Add(v);
+            }
+
+            // Capataz: orquestra as fases.
+            var bossGo = new GameObject("Capataz");
+            bossGo.transform.SetParent(ato);
+            bossGo.transform.position = floor;
+            flags = new ObjectiveFlag[3];
+            for (int i = 0; i < 3; i++)
+            {
+                var f = new GameObject($"Fase_{i + 1}_Concluida");
+                f.transform.SetParent(bossGo.transform, false);
+                flags[i] = f.AddComponent<ObjectiveFlag>();
+            }
+            var fogo = new List<Transform>();
+            for (int i = 0; i < 8; i++)
+            {
+                float a = i * Mathf.PI * 2f / 8f;
+                var spot = new GameObject("Fogo_" + i).transform;
+                spot.SetParent(bossGo.transform);
+                spot.position = G(Mathf.Sin(a) * 10f, 322f + Mathf.Cos(a) * 8f);
+                fogo.Add(spot);
+            }
+            var laserMat = InimigosBuilder.Unlit("Laser_Capataz", Color.white);
+            var lasers = new List<LineRenderer>();
+            for (int i = 0; i < 2; i++)
+            {
+                var lgo = new GameObject("Laser_" + i);
+                lgo.transform.SetParent(bossGo.transform, false);
+                var lr = lgo.AddComponent<LineRenderer>();
+                lr.positionCount = 2;
+                lr.useWorldSpace = true;
+                lr.startWidth = lr.endWidth = 0.12f;
+                lr.sharedMaterial = laserMat;
+                lr.shadowCastingMode = ShadowCastingMode.Off;
+                lr.enabled = false;
+                lasers.Add(lr);
+            }
+            var boss = bossGo.AddComponent<CapatazBoss>();
+            var bso = new SerializedObject(boss);
+            bso.FindProperty("core").objectReferenceValue = core;
+            InimigosBuilder.SetArray(bso.FindProperty("generators"), gens.ToArray());
+            bso.FindProperty("phase1Done").objectReferenceValue = flags[0];
+            bso.FindProperty("phase2Done").objectReferenceValue = flags[1];
+            bso.FindProperty("phase3Done").objectReferenceValue = flags[2];
+            InimigosBuilder.SetArray(bso.FindProperty("reinforcements"), reforcos.ToArray());
+            InimigosBuilder.SetArray(bso.FindProperty("vespas"), vespas.ToArray());
+            InimigosBuilder.SetArray(bso.FindProperty("fireSpots"), fogo.ToArray());
+            InimigosBuilder.SetArray(bso.FindProperty("lasers"), lasers.ToArray());
+            bso.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static Transform Radio(Transform parent, Vector3 position)
+        {
+            var go = new GameObject("Radio_Estacao");
+            go.transform.SetParent(parent);
+            go.transform.position = position;
+            InimigosBuilder.Part(PrimitiveType.Cube, "Aparelho", go.transform, new Vector3(0f, 0.2f, 0f), new Vector3(0.8f, 0.4f, 0.45f), metal);
+            InimigosBuilder.Part(PrimitiveType.Cube, "Painel", go.transform, new Vector3(0f, 0.22f, 0.23f), new Vector3(0.6f, 0.15f, 0.02f), InimigosBuilder.Emissive("Radio_Luz", new Color(0.3f, 1f, 0.4f), 2f));
+            var usable = go.AddComponent<UsableObject>();
+            var so = new SerializedObject(usable);
+            so.FindProperty("prompt").stringValue = "Usar o rádio";
+            so.FindProperty("holdTime").floatValue = 1.5f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return go.transform;
+        }
+
+        /// <summary>Material translúcido azul do escudo (URP Unlit transparente).</summary>
+        private static Material ShieldMaterial()
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Transparent");
+            var m = new Material(shader);
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_Blend", 0f);
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            m.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            m.SetInt("_ZWrite", 0);
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.renderQueue = (int)RenderQueue.Transparent;
+            m.SetColor("_BaseColor", new Color(0.35f, 0.75f, 1f, 0.22f));
+            IlhaTesteBuilder.ReplaceAsset(m, IlhaTesteBuilder.Root + "/Materials/Escudo_Nucleo.mat");
+            return m;
         }
 
         // ---------- Campanha ----------
 
-        private static void BuildCampaign(Light sun, Transform[] atos, Transform facao, Transform antenaSitio, Transform pem, Transform antenaAlmox)
+        private static void BuildCampaign(Light sun, Transform[] atos, Transform facao, Transform antenaSitio, Transform pem, Transform antenaAlmox,
+            Transform radio, ObjectiveFlag[] flags)
         {
             CheckpointManager.DeleteSave(SceneName);
             var root = new GameObject("Campanha");
@@ -538,10 +741,10 @@ namespace Apagao.EditorTools
 
             const string Lia = RadioSystem.Lia, Caio = RadioSystem.Caio;
             var cso = new SerializedObject(campaign);
-            cso.FindProperty("endTitle").stringValue = "Fim do conteúdo atual";
-            cso.FindProperty("endSubtitle").stringValue = "O Núcleo e o Capataz chegam no marco 12 · F9 recomeça";
+            cso.FindProperty("endTitle").stringValue = "Fim";
+            cso.FindProperty("endSubtitle").stringValue = "Obrigado por jogar Apagão: Ilha do Amparo · F9 recomeça";
             var obj = cso.FindProperty("objectives");
-            obj.arraySize = 9;
+            obj.arraySize = 13;
             int k = 0;
 
             void O(int act, string text, ObjectiveKind kind, Transform target, float radius, bool checkpoint, float signal,
@@ -577,9 +780,29 @@ namespace Apagao.EditorTools
             O(3, "Atravesse a rua principal pelos telhados", ObjectiveKind.Chegar, Marker("Fim_da_Rua", 72f, 200f, RuaOff), 10f, true, 0.5f,
                 new[] { L(Lia, "Tem drone nessa rua. Telhado esconde da câmera de calor, mas não do olho.", 4.5f) },
                 new[] { L(Caio, "Tô vendo a estação.") });
-            O(4, "Entre na estação de cabos", ObjectiveKind.Chegar, Marker("Estacao", 0f, 324f, EstacaoOff), 5f, true, 0.3f,
-                new[] { L(Lia, "Caio… o sinal tá… quase indo. Chega no rádio. Por favor.", 4.5f) },
-                new[] { L(Caio, "Tô dentro. O rádio tá aqui… e tem alguma coisa ligada lá embaixo.", 4.5f) });
+            const string Capataz = CapatazBoss.Speaker;
+            O(4, "Entre na estação de cabos", ObjectiveKind.Chegar, Marker("Estacao", 0f, 312f, EstacaoOff), 5f, true, 0.3f,
+                new[] { L(Lia, "Caio… o sinal tá… quase indo. Chega no rádio da estação. Por favor.", 4.5f) },
+                new[] { L(Caio, "O que é aquilo no meio da sala?") });
+            O(4, "Corte os cabos dos 3 geradores (segure E com o facão)", ObjectiveKind.Concluir, flags[0].transform, 0f, true, 0.25f,
+                new[] { L(Capataz, "Bem-vindo à estação, Caio. Quem fala é o prefeito. Ou o que sobrou da voz dele.", 5f),
+                        L(Capataz, "Os geradores me protegem. E os meus guardas protegem os geradores.", 4.5f) },
+                new DialogueLine[0]);
+            O(4, "Derrube o escudo com o PEM e golpeie o Núcleo", ObjectiveKind.Concluir, flags[1].transform, 0f, true, 0.25f,
+                new[] { L(Capataz, "Paciência. Eu aprendi com vocês."), L(Lia, "Caio… laser baixo, pula… laser alto, agacha…", 4.5f) },
+                new DialogueLine[0]);
+            O(4, "Destrua o Núcleo antes que a sala queime", ObjectiveKind.Concluir, flags[2].transform, 0f, true, 0.25f,
+                new[] { L(Capataz, "Se a ilha não é minha, não é de ninguém.", 4f) },
+                new[] { L(Caio, "Acabou… o zumbido parou.") });
+            O(4, "Use o rádio da estação", ObjectiveKind.Usar, radio, 0f, false, 0.6f,
+                new[] { L(Caio, "O rádio ainda tem bateria.") },
+                new[] { L(Caio, "Continente, aqui é o Caio, da Ilha do Amparo. Alguém na escuta?", 4.5f),
+                        L(Lia, "Caio? Caio, é você? Tô ouvindo! Tô ouvindo você!", 4.5f),
+                        L(Lia, "Fica onde você está. O barco sai ao amanhecer.", 4.5f) });
+            // As fases do Capataz são ligadas por estas marcas (e o checkpoint volta na fase certa).
+            obj.GetArrayElementAtIndex(9).FindPropertyRelative("tag").stringValue = "capataz1";
+            obj.GetArrayElementAtIndex(10).FindPropertyRelative("tag").stringValue = "capataz2";
+            obj.GetArrayElementAtIndex(11).FindPropertyRelative("tag").stringValue = "capataz3";
             cso.ApplyModifiedPropertiesWithoutUndo();
         }
 
