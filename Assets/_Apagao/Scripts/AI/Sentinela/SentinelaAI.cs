@@ -169,6 +169,9 @@ namespace Apagao.AI.Sentinela
             if (gun != null) gun.ResetAim();
         }
 
+        protected override void OnStunned() => OnFrozen();
+        protected override void ResumeAfterStun() => Fsm.Restart();
+
         protected override void OnFrozen()
         {
             ResetGun();

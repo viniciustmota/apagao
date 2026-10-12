@@ -1,6 +1,6 @@
 # 10 — Armas de fogo
 
-**Status:** Aprovada · **Marco:** 7
+**Status:** Implementada · **Marco:** 7 · **Código:** `Combat/WeaponData.cs`, `Combat/WeaponHolder.cs`, `Data/Armas/`
 
 ## Objetivo
 Armas fortes e barulhentas, com munição tão rara que cada tiro é uma decisão.
@@ -28,5 +28,7 @@ Armas fortes e barulhentas, com munição tão rara que cada tiro é uma decisã
 public abstract class BaseWeapon : MonoBehaviour { WeaponData data; abstract void Fire(Ray aim); }
 public class HitscanWeapon : BaseWeapon { }  // revólver e espingarda
 ```
-- `WeaponHolder` no Caio controla equipada, munição e recarga.
+- `WeaponHolder` no Caio controla equipada, munição e recarga. A mira usa o centro da tela: um raio da câmera acha o ponto mirado e o disparo sai do cano em direção a ele (ignorando o próprio Caio).
+- Só dispara mirando (segurar o botão direito); sem mira o clique não faz nada, para evitar tiros acidentais que acordam a ilha.
+- Munição inicial: revólver 6 + 6, espingarda 2 + 4.
 - Rastro de bala: `LineRenderer` por 0,05 s.

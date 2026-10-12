@@ -53,13 +53,14 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Bote com aviso de 0,4 s e mordida de 20 — spec 14
 - [ ] Água apaga o rastro (depende da água caminhável, spec 22) — spec 14
 
-## Marco 7 — Armas e PEM
-- [ ] `WeaponData` (ScriptableObject) + mira — spec 10
-- [ ] Revólver e espingarda de pesca — spec 10
-- [ ] PEM: cone, paralisia, cargas — spec 11
-- [ ] `IStunnable` e estado Paralisado na Sentinela e na Matilha — spec 11
-- [ ] Takedown frontal em robô paralisado — spec 09 + 11
-- [ ] Esquiva do Caio — spec 01
+## Marco 7 — Armas e PEM (implementado, falta testar)
+- [~] `WeaponData` (ScriptableObject em `Data/Armas`) + mira com botão direito e câmera aproximada — spec 10
+- [~] Revólver e espingarda de pesca: hitscan pelo centro da tela, dispersão, recarga, ruído — spec 10
+- [~] PEM: cone de 30°, 10 m, paralisia de 3 s, 2 cargas — spec 11
+- [~] `IStunnable` na base `MachineAI` (paralisia, offline na rede, imunidade de 5 s) e na antena — spec 11
+- [~] Takedown frontal em robô paralisado — spec 09 + 11
+- [~] Esquiva do Caio (Alt) com invulnerabilidade a explosões — spec 01
+- [~] HUD: arma em mãos, munição, cargas do PEM, mira e avisos — spec 20
 
 ## Marco 8 — Crafting e saque
 - [ ] Recursos e inventário com limites — spec 12

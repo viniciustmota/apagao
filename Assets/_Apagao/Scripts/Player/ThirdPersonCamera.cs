@@ -19,6 +19,13 @@ namespace Apagao.Player
         [SerializeField] private float pivotCrouched = 1.0f;
         [SerializeField] private float pivotSmooth = 10f;
 
+        [Header("Mira")]
+        [SerializeField] private float aimDistance = 1.8f;
+        [SerializeField] private float aimShoulderOffset = 0.75f;
+        [SerializeField] private float normalFov = 60f;
+        [SerializeField] private float aimFov = 50f;
+        [SerializeField] private float aimSmooth = 12f;
+
         [Header("Mouse")]
         [SerializeField] private float sensitivity = 0.12f;
         [SerializeField] private float minPitch = -35f;
@@ -35,6 +42,11 @@ namespace Apagao.Player
         private float yaw;
         private float pitch = 15f;
         private float pivotHeight;
+        private float aimBlend;
+        private Camera cam;
+
+        /// <summary>Ligado pelo WeaponHolder enquanto o botão direito está segurando a mira.</summary>
+        public bool Aiming { get; set; }
 
         private void Start()
         {
@@ -44,6 +56,7 @@ namespace Apagao.Player
                 yaw = target.eulerAngles.y;
             }
             pivotHeight = pivotStanding;
+            cam = GetComponent<Camera>();
             LockCursor(true);
         }
 
@@ -68,14 +81,19 @@ namespace Apagao.Player
             float targetPivot = player != null && player.IsCrouching ? pivotCrouched : pivotStanding;
             pivotHeight = Mathf.Lerp(pivotHeight, targetPivot, 1f - Mathf.Exp(-pivotSmooth * Time.deltaTime));
 
+            aimBlend = Mathf.MoveTowards(aimBlend, Aiming ? 1f : 0f, Time.deltaTime * aimSmooth * 0.5f);
+            float currentDistance = Mathf.Lerp(distance, aimDistance, aimBlend);
+            float currentShoulder = Mathf.Lerp(shoulderOffset, aimShoulderOffset, aimBlend);
+            if (cam != null) cam.fieldOfView = Mathf.Lerp(normalFov, aimFov, aimBlend);
+
             Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
             Vector3 pivot = target.position + Vector3.up * pivotHeight;
-            Vector3 shoulder = pivot + rot * Vector3.right * shoulderOffset;
+            Vector3 shoulder = pivot + rot * Vector3.right * currentShoulder;
             Vector3 back = rot * Vector3.back;
 
             // Aproxima a câmera se houver algo entre o ombro e a posição ideal (ignora o próprio Caio).
-            float dist = distance;
-            int count = Physics.SphereCastNonAlloc(shoulder, collisionRadius, back, hits, distance, ~0, QueryTriggerInteraction.Ignore);
+            float dist = currentDistance;
+            int count = Physics.SphereCastNonAlloc(shoulder, collisionRadius, back, hits, currentDistance, ~0, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < count; i++)
             {
                 RaycastHit hit = hits[i];

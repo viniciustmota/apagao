@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d2d81f0355ca4eb6b7d37f6589176f4, type: 3}
+  m_Name: Espingarda
+  m_EditorClassIdentifier: Assembly-CSharp::Apagao.Combat.WeaponData
+  displayName: Espingarda de pesca
+  damage: 12
+  pellets: 8
+  range: 15
+  spread: 6
+  fireInterval: 0.9
+  magazine: 2
+  reloadTime: 3
+  maxReserve: 6
+  startLoaded: 2
+  startReserve: 4
+  noiseRadius: 35
+  noiseIntensity: 1

@@ -1,3 +1,4 @@
+using Apagao.Combat;
 using Apagao.Player;
 using Apagao.Systems;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Apagao.AI.Hive
     /// Antena da área (spec 07). Segurar E perto dela por 2 s derruba a rede: os robôs passam a agir sozinhos.
     /// No marco 7 o PEM também vai sabotar a antena.
     /// </summary>
-    public class HiveAntenna : MonoBehaviour
+    public class HiveAntenna : MonoBehaviour, IStunnable
     {
         [Tooltip("Vazio = usa a rede cuja área contém a antena.")]
         [SerializeField] private HiveNetwork network;
@@ -57,6 +58,11 @@ namespace Apagao.AI.Hive
             Progress = holding ? Progress + Time.deltaTime / sabotageTime : 0f;
             if (Progress >= 1f) Sabotage();
         }
+
+        public bool IsStunned => Sabotaged;
+
+        /// <summary>Uma descarga de PEM derruba a antena (spec 07 R9).</summary>
+        public void Stun(float seconds) => Sabotage();
 
         public void Sabotage()
         {

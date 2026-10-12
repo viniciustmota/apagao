@@ -1,3 +1,5 @@
+using Apagao.Combat;
+using Apagao.Systems;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,11 +9,11 @@ namespace Apagao.Player
     public enum MoveMode { Parado, Andando, Correndo, Agachado }
 
     /// <summary>
-    /// Movimento do Caio: andar (WASD), correr (Shift), agachar (C ou Ctrl) e pular (Espaço).
+    /// Movimento do Caio: andar (WASD), correr (Shift), agachar (C ou Ctrl), pular (Espaço) e esquivar (Alt).
     /// A direção do movimento é relativa à câmera.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, IDamageFilter
     {
         [Header("Velocidades (m/s)")]
         [SerializeField] private float walkSpeed = 3f;
@@ -28,6 +30,19 @@ namespace Apagao.Player
         [SerializeField] private float standHeight = 1.8f;
         [SerializeField] private float crouchHeight = 1.1f;
 
+        [Header("Esquiva (spec 01 R8)")]
+        [SerializeField] private float dodgeDistance = 3f;
+        [SerializeField] private float dodgeDuration = 0.4f;
+        [Tooltip("Primeiros segundos da esquiva em que explosões não causam dano.")]
+        [SerializeField] private float dodgeInvulnerable = 0.25f;
+        [SerializeField] private float dodgeCooldown = 0.8f;
+        [SerializeField] private float dodgeNoiseRadius = 5f;
+        [SerializeField] private float dodgeNoiseIntensity = 0.4f;
+
+        [Header("Mirando")]
+        [Tooltip("Velocidade máxima enquanto mira uma arma.")]
+        [SerializeField] private float aimSpeed = 2.2f;
+
         [Header("Referências")]
         [SerializeField] private Transform cameraTransform;
         [Tooltip("Modelo visual, achatado ao agachar. Opcional.")]
@@ -39,6 +54,10 @@ namespace Apagao.Player
         /// <summary>Impede que o movimento gire o Caio (ex.: durante um golpe, quem decide a direção é o ataque).</summary>
         public bool RotationLocked { get; set; }
 
+        /// <summary>Mirando uma arma: anda devagar e não corre.</summary>
+        public bool Aiming { get; set; }
+        public bool IsDodging { get; private set; }
+
         public MoveMode Mode { get; private set; }
         public bool IsCrouching { get; private set; }
         public bool IsGrounded => controller.isGrounded;
@@ -47,6 +66,10 @@ namespace Apagao.Player
         private CharacterController controller;
         private Vector3 horizontalVelocity;
         private float verticalVelocity;
+        private Vector3 dodgeDir;
+        private float dodgeEnd;
+        private float dodgeInvulnerableUntil = float.NegativeInfinity;
+        private float nextDodge;
 
         private void Awake()
         {
@@ -71,13 +94,6 @@ namespace Apagao.Player
             if (!locked && (kb.cKey.wasPressedThisFrame || kb.leftCtrlKey.wasPressedThisFrame))
                 ToggleCrouch();
 
-            // Correr levanta o Caio, se houver espaço acima dele.
-            bool running = moving && kb.leftShiftKey.isPressed;
-            if (running && IsCrouching && !TryStand())
-                running = false;
-
-            float targetSpeed = IsCrouching ? crouchSpeed : running ? runSpeed : walkSpeed;
-
             Vector3 forward = Vector3.forward;
             Vector3 right = Vector3.right;
             if (cameraTransform != null)
@@ -85,6 +101,25 @@ namespace Apagao.Player
                 forward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
                 right = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
             }
+
+            if (!locked && !IsDodging && kb.leftAltKey.wasPressedThisFrame && controller.isGrounded && Time.time >= nextDodge)
+            {
+                Vector3 dir = moving ? forward * input.y + right * input.x : -transform.forward;
+                StartDodge(dir);
+            }
+            if (IsDodging)
+            {
+                TickDodge();
+                return;
+            }
+
+            // Correr levanta o Caio, se houver espaço acima dele. Mirando não dá para correr.
+            bool running = moving && kb.leftShiftKey.isPressed && !Aiming;
+            if (running && IsCrouching && !TryStand())
+                running = false;
+
+            float targetSpeed = IsCrouching ? crouchSpeed : running ? runSpeed : walkSpeed;
+            if (Aiming) targetSpeed = Mathf.Min(targetSpeed, aimSpeed);
 
             Vector3 desired = (forward * input.y + right * input.x) * targetSpeed;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desired, acceleration * Time.deltaTime);
@@ -112,6 +147,37 @@ namespace Apagao.Player
                  : running ? MoveMode.Correndo
                  : MoveMode.Andando;
         }
+
+        // ---------- Esquiva ----------
+
+        private void StartDodge(Vector3 direction)
+        {
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.0001f) direction = -transform.forward;
+            if (IsCrouching && !TryStand()) return;
+
+            dodgeDir = direction.normalized;
+            IsDodging = true;
+            dodgeEnd = Time.time + dodgeDuration;
+            dodgeInvulnerableUntil = Time.time + dodgeInvulnerable;
+            nextDodge = dodgeEnd + dodgeCooldown;
+            horizontalVelocity = Vector3.zero;
+            NoiseSystem.Emit(transform.position, dodgeNoiseRadius, dodgeNoiseIntensity, NoiseType.Passo, gameObject);
+        }
+
+        private void TickDodge()
+        {
+            if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -2f;
+            verticalVelocity += gravity * Time.deltaTime;
+            float speed = dodgeDistance / dodgeDuration;
+            controller.Move((dodgeDir * speed + Vector3.up * verticalVelocity) * Time.deltaTime);
+            Mode = MoveMode.Correndo;
+            if (Time.time >= dodgeEnd) IsDodging = false;
+        }
+
+        /// <summary>Esquiva no tempo certo anula o dano de explosão (Vespa).</summary>
+        public bool Ignores(in DamageInfo info) =>
+            info.Type == DamageType.Explosao && Time.time < dodgeInvulnerableUntil;
 
         /// <summary>Vira o Caio na hora para uma direção no plano horizontal.</summary>
         public void SnapFacing(Vector3 direction)

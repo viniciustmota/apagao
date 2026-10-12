@@ -213,6 +213,8 @@ namespace Apagao.AI.Matilha
         public void Squat(bool on) => squatting = on;
 
         protected override void OnFrozen() => Squat(false);
+        protected override void OnStunned() => Squat(false);
+        protected override void ResumeAfterStun() => Fsm.Restart();
 
         protected override void UpdateExtraFeedback()
         {

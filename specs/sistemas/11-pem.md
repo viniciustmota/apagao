@@ -1,6 +1,6 @@
 # 11 — PEM (bloqueador de drones adaptado)
 
-**Status:** Aprovada · **Marco:** 7
+**Status:** Implementada (efeito em drones no marco 10) · **Marco:** 7 · **Código:** `Combat/Pem.cs`, `AI/Core/MachineAI.cs`
 
 ## Objetivo
 A arma assinatura do Caio. Não mata: abre janelas. O combo PEM + facão é o coração do combate.
@@ -32,5 +32,7 @@ A arma assinatura do Caio. Não mata: abre janelas. O combo PEM + facão é o co
 
 ## Design técnico
 - `PEM : BaseWeapon` usa `OverlapSphereNonAlloc` + filtro por ângulo (`Vector3.Dot`) + linha de visão.
-- `ParalisadoState<T>` genérico, reaproveitado por todos os robôs, volta para `Fsm.Previous`.
+- ~~`ParalisadoState<T>` genérico~~ Decidido: a paralisia fica na base `MachineAI` como um estado de pausa (não passa pela FSM). Ao acordar, a máquina reinicia o estado em que estava (`Fsm.Restart`) e fica em alerta elevado. Mais simples e vale para qualquer inimigo terrestre.
+- A antena implementa `IStunnable`: uma descarga a sabota.
+- Indicador de alerta fica azul piscando enquanto o robô está paralisado; o label de debug mostra PARALISADO.
 - Visual: onda azul (partículas) e som elétrico.

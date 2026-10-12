@@ -1,6 +1,6 @@
 # 01 — Movimento do jogador
 
-**Status:** Implementada (falta esquiva) · **Marco:** 1 (esquiva no 7) · **Código:** `Scripts/Player/PlayerController.cs`
+**Status:** Implementada · **Marco:** 1 (esquiva no 7) · **Código:** `Scripts/Player/PlayerController.cs`
 
 ## Objetivo
 Dar ao Caio um movimento responsivo de sobrevivente comum: rápido o bastante para fugir, nunca rápido o bastante para fugir de tudo.
@@ -15,6 +15,7 @@ Dar ao Caio um movimento responsivo de sobrevivente comum: rápido o bastante pa
 - **R7** Expor `Mode` (`Parado`, `Andando`, `Correndo`, `Agachado`) para o ruído e a percepção.
 - **R8** *(Marco 7)* Esquiva com Alt: rolamento de 3 m em 0,4 s na direção do input, invulnerável a explosões nos primeiros 0,25 s, recarga de 0,8 s. Gera ruído médio.
 - **R9** *(Marco 9)* Escalada de bordas, definida na spec 13.
+- **R10** *(Marco 7)* Mirando uma arma: velocidade máxima de 2,2 m/s e sem corrida.
 
 ## Critérios de aceite
 - [ ] Andar, correr e agachar respondem sem atraso perceptível.

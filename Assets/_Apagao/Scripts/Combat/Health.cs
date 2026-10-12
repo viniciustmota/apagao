@@ -29,11 +29,18 @@ namespace Apagao.Combat
         public event Action Died;
         public event Action<float> Healed;
 
-        private void Awake() => Current = maxHealth;
+        private IDamageFilter filter;
+
+        private void Awake()
+        {
+            Current = maxHealth;
+            filter = GetComponent<IDamageFilter>();
+        }
 
         public void TakeDamage(in DamageInfo info)
         {
             if (IsDead) return;
+            if (filter != null && filter.Ignores(info)) return;
 
             float amount = info.Amount * multipliers.For(info.Type);
             if (backMultiplier != 1f && IsFromBehind(info.Direction)) amount *= backMultiplier;

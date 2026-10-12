@@ -30,6 +30,19 @@ namespace Apagao.Combat
         void TakeDamage(in DamageInfo info);
     }
 
+    /// <summary>Afetado pelo PEM (spec 11). A duração é sugerida; cada alvo aplica seu próprio multiplicador.</summary>
+    public interface IStunnable
+    {
+        bool IsStunned { get; }
+        void Stun(float seconds);
+    }
+
+    /// <summary>Permite ao dono da vida ignorar um golpe (ex.: esquiva contra explosões).</summary>
+    public interface IDamageFilter
+    {
+        bool Ignores(in DamageInfo info);
+    }
+
     /// <summary>Inimigo que pode ser finalizado pelo facão (spec 09).</summary>
     public interface ITakedownTarget
     {

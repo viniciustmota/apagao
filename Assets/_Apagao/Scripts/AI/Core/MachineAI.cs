@@ -14,7 +14,7 @@ namespace Apagao.AI
     /// vida, recuo, takedown, carcaça e indicador de alerta. O comportamento fica na subclasse e nos estados.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent), typeof(VisionSensor))]
-    public abstract class MachineAI : MonoBehaviour, IHiveAware, ITakedownTarget
+    public abstract class MachineAI : MonoBehaviour, IHiveAware, ITakedownTarget, IStunnable
     {
         [Header("Suspeita")]
         [Tooltip("Segundos para encher o medidor vendo o Caio com visibilidade máxima.")]
@@ -36,6 +36,12 @@ namespace Apagao.AI
         [Tooltip("O Caio precisa estar dentro deste cone atrás da máquina.")]
         [SerializeField] protected float takedownRearAngle = 120f;
 
+        [Header("PEM (spec 11)")]
+        [Tooltip("Multiplica a duração da paralisia (Brutamontes: 0,5).")]
+        [SerializeField] protected float stunDurationMultiplier = 1f;
+        [Tooltip("Depois de acordar, fica imune ao PEM por este tempo.")]
+        [SerializeField] protected float stunImmunity = 5f;
+
         [Header("Feedback e carcaça")]
         [SerializeField] protected Renderer alertIndicator;
         [Tooltip("Partes que caem como carcaça quando a máquina é destruída.")]
@@ -56,6 +62,7 @@ namespace Apagao.AI
         public bool HeightenedAlert { get; set; }
         public bool IsDead { get; private set; }
         public bool IsFrozen { get; private set; }
+        public bool IsStunned => Time.time < stunnedUntil;
 
         public bool ShouldEngageImmediately => CanSeePlayer && DistanceToPlayer <= instantDetectDistance;
         public bool ReachedDestination =>
@@ -74,6 +81,9 @@ namespace Apagao.AI
         protected abstract void HandleHiveSighting(Vector3 position, bool confirmed, bool converge);
         protected abstract void HandleHiveMemberMissing(Vector3 lastPosition, bool investigate);
         protected virtual void OnFrozen() { }
+        protected virtual void OnStunned() { }
+        /// <summary>Ao acordar da paralisia: por padrão a subclasse reinicia o estado atual.</summary>
+        protected virtual void ResumeAfterStun() { }
         protected virtual void UpdateExtraFeedback() { }
         /// <summary>Quanto o modo de movimento do Caio pesa na visibilidade.</summary>
         protected virtual float StanceMultiplier(MoveMode mode) => mode switch
@@ -87,6 +97,9 @@ namespace Apagao.AI
         protected HearingSensor hearing;
         protected HiveMember hive;
         private MaterialPropertyBlock indicatorBlock;
+        private float stunnedUntil = float.NegativeInfinity;
+        private float immuneUntil = float.NegativeInfinity;
+        private bool wasStunned;
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         protected virtual void Awake()
@@ -134,6 +147,20 @@ namespace Apagao.AI
         protected virtual void Update()
         {
             if (IsFrozen || IsDead) return;
+
+            if (IsStunned)
+            {
+                UpdateIndicator();
+                return;
+            }
+            if (wasStunned)
+            {
+                wasStunned = false;
+                immuneUntil = Time.time + stunImmunity;
+                HeightenedAlert = true;
+                ResumeAfterStun();
+            }
+
             Sense();
             ReportToHive();
             Think();
@@ -244,6 +271,20 @@ namespace Apagao.AI
             return false;
         }
 
+        // ---------- PEM (spec 11) ----------
+
+        /// <summary>Paralisa: para tudo, sai da rede e libera o takedown de qualquer ângulo.</summary>
+        public void Stun(float seconds)
+        {
+            if (IsDead || IsFrozen || Time.time < immuneUntil) return;
+            float duration = seconds * stunDurationMultiplier;
+            stunnedUntil = Mathf.Max(stunnedUntil, Time.time + duration);
+            wasStunned = true;
+            Stop();
+            if (hive != null) hive.GoOffline(duration);
+            OnStunned();
+        }
+
         // ---------- Dano ----------
 
         /// <summary>Levar dano revela o Caio: recuo e combate.</summary>
@@ -265,7 +306,9 @@ namespace Apagao.AI
 
         public virtual bool CanBeTakenDown(Transform attacker)
         {
-            if (IsDead || IsFrozen || Alert == AlertLevel.Combate) return false;
+            if (IsDead || IsFrozen) return false;
+            if (IsStunned) return true; // paralisado: takedown de qualquer ângulo, mesmo em combate
+            if (Alert == AlertLevel.Combate) return false;
             Vector3 toAttacker = attacker.position - transform.position;
             toAttacker.y = 0f;
             // Atrás = o atacante está a mais de (180 - metade do cone) graus da frente.
@@ -320,6 +363,16 @@ namespace Apagao.AI
             Color color;
             bool visible = true;
             float scale = 0.35f;
+            if (IsStunned)
+            {
+                alertIndicator.enabled = true;
+                alertIndicator.GetPropertyBlock(indicatorBlock);
+                indicatorBlock.SetColor(BaseColorId, new Color(0.3f, 0.8f, 1f));
+                alertIndicator.SetPropertyBlock(indicatorBlock);
+                alertIndicator.transform.localScale = Vector3.one * (0.3f + 0.05f * Mathf.Sin(Time.time * 30f));
+                return;
+            }
+
             switch (Alert)
             {
                 case AlertLevel.Combate: color = new Color(1f, 0.1f, 0.1f); break;
@@ -348,7 +401,7 @@ namespace Apagao.AI
         {
             if (!Application.isPlaying) return;
             UnityEditor.Handles.Label(transform.position + Vector3.up * 2.8f,
-                $"{StateName}  {Suspicion:P0}{(HeightenedAlert ? "  [ALERTA]" : "")}{(hive != null && !hive.Connected ? "  [OFFLINE]" : "")}");
+                $"{(IsStunned ? "PARALISADO" : StateName)}  {Suspicion:P0}{(HeightenedAlert ? "  [ALERTA]" : "")}{(hive != null && !hive.Connected ? "  [OFFLINE]" : "")}");
         }
 #endif
     }

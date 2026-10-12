@@ -16,6 +16,7 @@ namespace Apagao.UI
         private Health health;
         private Facao facao;
         private TakedownSystem takedown;
+        private WeaponHolder weapons;
         private PlayerDeath death;
         private Camera cam;
         private float damageFlash;
@@ -32,6 +33,7 @@ namespace Apagao.UI
                 health = player.GetComponent<Health>();
                 facao = player.GetComponent<Facao>();
                 takedown = player.GetComponent<TakedownSystem>();
+                weapons = player.GetComponent<WeaponHolder>();
                 death = player.GetComponent<PlayerDeath>();
             }
             if (health != null) health.Damaged += (_, _) => damageFlash = 1f;
@@ -47,7 +49,9 @@ namespace Apagao.UI
 
             DrawVignette();
             DrawHealthBar();
-            DrawFacao();
+            DrawWeapon();
+            DrawCrosshair();
+            DrawWeaponMessage();
             DrawTakedownPrompt();
             DrawAimMarker();
             DrawDeath();
@@ -76,11 +80,51 @@ namespace Apagao.UI
             GUI.color = Color.white;
         }
 
-        private void DrawFacao()
+        /// <summary>Arma em mãos e munição, no canto inferior esquerdo (spec 20 R6).</summary>
+        private void DrawWeapon()
         {
-            if (facao == null || health.IsDead) return;
-            string state = facao.IsBroken ? "<color=#ff6060>quebrado</color>" : $"{facao.DurabilityNormalized:P0}";
-            GUI.Label(new Rect(24, Screen.height - 32, 300, 22), $"Facão {state}", smallStyle);
+            if (health.IsDead) return;
+            string text;
+            var slot = weapons != null ? weapons.Current : WeaponSlot.Facao;
+
+            if (slot == WeaponSlot.Facao)
+            {
+                if (facao == null) return;
+                string state = facao.IsBroken ? "<color=#ff6060>quebrado</color>" : $"{facao.DurabilityNormalized:P0}";
+                text = $"[1] Facão {state}";
+            }
+            else if (slot == WeaponSlot.Pem)
+            {
+                var pem = weapons.Pem;
+                string bolts = new string('■', pem.Charges) + new string('□', pem.MaxCharges - pem.Charges);
+                text = $"[4] PEM <color=#60d0ff>{bolts}</color>";
+            }
+            else
+            {
+                weapons.TryGetAmmo(out int loaded, out int reserve);
+                string reload = weapons.IsReloading ? "  <color=#ffcc40>recarregando…</color>" : "";
+                text = $"[{(int)slot}] {weapons.CurrentData.DisplayName}  <b>{loaded}</b> / {reserve}{reload}";
+            }
+
+            GUI.Label(new Rect(24, Screen.height - 32, 500, 22), text, smallStyle);
+        }
+
+        private void DrawCrosshair()
+        {
+            if (weapons == null || !weapons.IsAiming || health.IsDead) return;
+            float cx = Screen.width * 0.5f, cy = Screen.height * 0.5f;
+            GUI.color = weapons.Current == WeaponSlot.Pem ? new Color(0.4f, 0.85f, 1f, 0.9f) : new Color(1f, 1f, 1f, 0.85f);
+            GUI.DrawTexture(new Rect(cx - 8, cy - 1, 6, 2), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(cx + 2, cy - 1, 6, 2), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(cx - 1, cy - 8, 2, 6), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(cx - 1, cy + 2, 2, 6), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
+        private void DrawWeaponMessage()
+        {
+            if (weapons == null || Time.time - weapons.LastMessageTime > 1.5f || health.IsDead) return;
+            GUI.Label(new Rect(Screen.width * 0.5f - 200, Screen.height * 0.5f + 40, 400, 24), weapons.LastMessage, promptStyle);
         }
 
         private void DrawTakedownPrompt()

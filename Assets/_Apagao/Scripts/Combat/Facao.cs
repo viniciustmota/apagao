@@ -83,11 +83,13 @@ namespace Apagao.Combat
         private float pressTime;
         private bool hitSomething;
         private ThirdPersonCamera cameraRig;
+        private WeaponHolder holder;
 
         private void Awake()
         {
             player = GetComponent<PlayerController>();
             controller = GetComponent<CharacterController>();
+            holder = GetComponent<WeaponHolder>();
             Durability = maxDurability;
             if (blade != null) bladeRest = blade.localRotation;
         }
@@ -103,6 +105,16 @@ namespace Apagao.Combat
 
         private void Update()
         {
+            // Com outra arma na mão, o facão fica guardado.
+            if (holder != null && holder.Current != WeaponSlot.Facao && !IsAttacking)
+            {
+                PreviewTarget = null;
+                if (charging) EndCharge();
+                if (blade != null) blade.gameObject.SetActive(false);
+                return;
+            }
+            if (blade != null && !blade.gameObject.activeSelf) blade.gameObject.SetActive(true);
+
             PreviewTarget = player.InputLocked || IsAttacking ? null : FindAimTarget(out _);
 
             var mouse = Mouse.current;

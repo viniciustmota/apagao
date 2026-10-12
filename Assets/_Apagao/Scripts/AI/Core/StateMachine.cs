@@ -46,6 +46,15 @@ namespace Apagao.AI
             Changed?.Invoke(Previous, Current);
         }
 
+        /// <summary>Sai e entra de novo no estado atual (ex.: retomar depois da paralisia).</summary>
+        public void Restart()
+        {
+            if (Current == null) return;
+            Current.Exit();
+            TimeInState = 0f;
+            Current.Enter();
+        }
+
         public void Tick()
         {
             if (Current == null) return;

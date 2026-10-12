@@ -4,7 +4,7 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 
 **Referências:** The Last of Us (escassez e tensão) + Ghost of Tsushima (telhados e takedowns) + Exterminador do Futuro (ambientação).
 
-> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 6 de 12.
+> Projeto pessoal de aprendizado, desenvolvido por Spec-Driven Development. Em desenvolvimento: MVP, marco 7 de 12.
 
 ## O que já existe
 
@@ -16,7 +16,8 @@ Jogo de sobrevivência furtiva em terceira pessoa, feito em Unity. Em 2026, uma 
 | Rede da VIGÍLIA: visão compartilhada, check-in de robôs e antena sabotável | Implementado |
 | Vida e dano, facão (leve, pesado, durabilidade) e takedown furtivo | Implementado |
 | Matilha: cães robô que farejam o rastro e caçam em grupo | Implementado |
-| Armas de fogo e PEM, crafting, escalada, drones, campanha | Planejado |
+| Revólver, espingarda de pesca, PEM (paralisa robôs) e esquiva | Implementado |
+| Crafting, escalada, drones, campanha | Planejado |
 
 O status detalhado de cada sistema fica em [`specs/README.md`](specs/README.md) e o plano em [`specs/roadmap.md`](specs/roadmap.md).
 
@@ -50,7 +51,11 @@ A cena de teste é **gerada por código**. Mudanças feitas à mão nela se perd
 | C ou Ctrl | Agachar |
 | Espaço | Pular |
 | Mouse | Câmera |
-| Clique esquerdo | Facão leve (segurar e soltar = pesado) |
+| Alt | Esquivar |
+| 1 / 2 / 3 / 4 | Facão / Revólver / Espingarda / PEM |
+| Botão direito | Mirar (armas e PEM) |
+| Clique esquerdo | Facão: leve (segurar e soltar = pesado) · mirando: disparar |
+| R | Recarregar |
 | E | Takedown (por trás) · segurar perto da antena = sabotar |
 | Esc | Soltar o mouse (clique para prender de novo) |
 

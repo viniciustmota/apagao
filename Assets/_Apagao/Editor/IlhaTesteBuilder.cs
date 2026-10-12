@@ -297,6 +297,31 @@ namespace Apagao.EditorTools
             SetRef(facao, "blade", mao);
             caio.AddComponent<TakedownSystem>();
 
+            // Armas (spec 10, 11): revólver, espingarda de pesca e PEM.
+            var cano = new GameObject("Cano").transform;
+            cano.SetParent(caio.transform, false);
+            cano.localPosition = new Vector3(0.38f, 1.4f, 0.5f);
+
+            var ondaGo = new GameObject("OndaPEM");
+            ondaGo.transform.SetParent(caio.transform, false);
+            var onda = ondaGo.AddComponent<LineRenderer>();
+            onda.useWorldSpace = true;
+            onda.startWidth = 0.08f;
+            onda.endWidth = 0.08f;
+            onda.sharedMaterial = UnlitMat("PEM_Onda", new Color(0.35f, 0.8f, 1f));
+            onda.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            onda.enabled = false;
+            var pem = caio.AddComponent<Pem>();
+            SetRef(pem, "wave", onda);
+
+            var holder = caio.AddComponent<WeaponHolder>();
+            var hso = new SerializedObject(holder);
+            hso.FindProperty("revolver").objectReferenceValue = Weapon("Revolver", "Revólver", 50f, 1, 60f, 0.5f, 0.35f, 6, 2.5f, 12, 6, 6, 40f);
+            hso.FindProperty("espingarda").objectReferenceValue = Weapon("Espingarda", "Espingarda de pesca", 12f, 8, 15f, 6f, 0.9f, 2, 3f, 6, 2, 4, 35f);
+            hso.FindProperty("muzzle").objectReferenceValue = cano;
+            hso.FindProperty("tracerMaterial").objectReferenceValue = UnlitMat("Tracer_Caio", new Color(1f, 0.9f, 0.5f));
+            hso.ApplyModifiedPropertiesWithoutUndo();
+
             new GameObject("HUD").AddComponent<GameHUD>();
 
             var camGo = new GameObject("Camera Principal") { tag = "MainCamera" };
@@ -321,6 +346,56 @@ namespace Apagao.EditorTools
             var p = new Vector3(x, 0f, z);
             p.y = t.SampleHeight(p) + t.transform.position.y;
             return p;
+        }
+
+        /// <summary>Cria ou atualiza o asset de dados de uma arma em Data/Armas (spec 10).</summary>
+        private static WeaponData Weapon(string file, string displayName, float damage, int pellets, float range, float spread,
+            float fireInterval, int magazine, float reloadTime, int maxReserve, int startLoaded, int startReserve, float noiseRadius)
+        {
+            string dir = Root + "/Data/Armas";
+            if (!AssetDatabase.IsValidFolder(dir)) AssetDatabase.CreateFolder(Root + "/Data", "Armas");
+            string path = $"{dir}/{file}.asset";
+
+            var data = AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+            if (data == null)
+            {
+                data = ScriptableObject.CreateInstance<WeaponData>();
+                AssetDatabase.CreateAsset(data, path);
+            }
+
+            var so = new SerializedObject(data);
+            so.FindProperty("displayName").stringValue = displayName;
+            so.FindProperty("damage").floatValue = damage;
+            so.FindProperty("pellets").intValue = pellets;
+            so.FindProperty("range").floatValue = range;
+            so.FindProperty("spread").floatValue = spread;
+            so.FindProperty("fireInterval").floatValue = fireInterval;
+            so.FindProperty("magazine").intValue = magazine;
+            so.FindProperty("reloadTime").floatValue = reloadTime;
+            so.FindProperty("maxReserve").intValue = maxReserve;
+            so.FindProperty("startLoaded").intValue = startLoaded;
+            so.FindProperty("startReserve").intValue = startReserve;
+            so.FindProperty("noiseRadius").floatValue = noiseRadius;
+            so.FindProperty("noiseIntensity").floatValue = 1f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(data);
+            return data;
+        }
+
+        private static Material UnlitMat(string name, Color color)
+        {
+            string path = $"{Root}/Materials/{name}.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m == null)
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
+                m = new Material(shader);
+                AssetDatabase.CreateAsset(m, path);
+            }
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", color);
+            if (m.HasProperty("_Color")) m.SetColor("_Color", color);
+            EditorUtility.SetDirty(m);
+            return m;
         }
 
         internal static Material Mat(string name, Color color, float smoothness = 0.15f)
