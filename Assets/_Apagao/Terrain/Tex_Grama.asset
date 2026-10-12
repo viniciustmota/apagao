@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!28 &2800000
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Tex_Grama
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 4
+  m_Width: 8
+  m_Height: 8
+  m_CompleteImageSize: 340
+  m_MipsStripped: 0
+  m_TextureFormat: 4
+  m_MipCount: 4
+  m_IsReadable: 1
+  m_IsPreProcessed: 0
+  m_IgnoreMipmapLimit: 1
+  m_MipmapLimitGroupName: 
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_VTOnly: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 1
+  m_PlatformBlob: 
+  image data: 340
+  _typelessdata: 497531f4497430f24b7832fa497531f34a7631f6487430f1497531f3497531f3487430f1487330ef4a7631f74a7631f6497531f3497531f5487330f04a7731f74b7832fa4a7631f64b7832fb497431f3497531f44b7732f9497531f347722fed497531f3487330f14b7832fa487430f1497430f24b7732f9497531f5497531f4497531f3497531f4497531f4497531f5497431f3497531f4497631f54a7731f74a7732f8497531f3487330f0497531f4487330f0497430f24b7832f9487330f0497430f24a7631f6497531f3497531f34a7631f6487430f24a7631f5497430f24a7631f5487330f04a7731f74a7631f64a7631f7487330f0497430f2487430f1487330f14a7631f6497530f3497530f3497530f5497631f64a7531f5487430f2497531f4487430f3487330f2497531f5497430f3497531f4497430f3487430f2497430f4497430f3487430f3487430f2487430f2
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 
