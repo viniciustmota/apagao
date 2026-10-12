@@ -29,11 +29,11 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 02 | [Câmera](sistemas/02-camera.md) | 1 | Implementada |
 | 03 | [Núcleo de IA (FSM)](sistemas/03-nucleo-ia.md) | 2 | Implementada |
 | 04 | [Percepção: visão](sistemas/04-visao.md) | 3 | Implementada |
-| 05 | [Sentinela](sistemas/05-sentinela.md) | 2–3 | Implementada (sem tiro) |
-| 06 | [Ruído e audição](sistemas/06-ruido.md) | 4 | Aprovada |
-| 07 | [Rede da VIGÍLIA (mente coletiva)](sistemas/07-rede-vigilia.md) | 4 | Aprovada |
-| 08 | [Vida e dano](sistemas/08-vida-dano.md) | 5 | Aprovada |
-| 09 | [Facão e takedowns](sistemas/09-facao-takedown.md) | 5 | Aprovada |
+| 05 | [Sentinela](sistemas/05-sentinela.md) | 2–5 | Implementada (sem saque) |
+| 06 | [Ruído e audição](sistemas/06-ruido.md) | 4 | Implementada |
+| 07 | [Rede da VIGÍLIA (mente coletiva)](sistemas/07-rede-vigilia.md) | 4 | Implementada (HUD provisório) |
+| 08 | [Vida e dano](sistemas/08-vida-dano.md) | 5 | Implementada (sem cura/checkpoint) |
+| 09 | [Facão e takedowns](sistemas/09-facao-takedown.md) | 5 | Implementada (sem afiar) |
 | 10 | [Armas de fogo](sistemas/10-armas-fogo.md) | 7 | Aprovada |
 | 11 | [PEM](sistemas/11-pem.md) | 7 | Aprovada |
 | 12 | [Recursos, inventário e crafting](sistemas/12-crafting.md) | 8 | Aprovada |
@@ -44,7 +44,7 @@ O GDD (visão de design, história e tom) fica no documento compartilhado. Estas
 | 17 | [Capataz (chefe final)](sistemas/17-capataz.md) | 12 | Rascunho |
 | 18 | [Campanha, objetivos e checkpoints](sistemas/18-campanha.md) | 11 | Rascunho |
 | 19 | [Rádio e narrativa](sistemas/19-radio-narrativa.md) | 11 | Rascunho |
-| 20 | [Interface (HUD)](sistemas/20-hud.md) | 5–11 | Rascunho |
+| 20 | [Interface (HUD)](sistemas/20-hud.md) | 5–11 | Parcial (IMGUI provisório) |
 | 21 | [Áudio](sistemas/21-audio.md) | 12 | Rascunho |
 | 22 | [Mapa e level design](sistemas/22-mapa.md) | 11 | Rascunho |
 

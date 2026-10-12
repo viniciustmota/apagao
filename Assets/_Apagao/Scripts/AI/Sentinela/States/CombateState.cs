@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Apagao.AI.Sentinela
 {
     /// <summary>
-    /// Persegue o Caio até a distância de tiro e mira (laser). Ainda não causa dano: armas e vida entram no marco 5.
+    /// Persegue o Caio até a distância de tiro, mira (laser) e atira em rajadas.
     /// Perde de vista por alguns segundos -> Procurando.
     /// </summary>
     public class CombateState : State<SentinelaAI>
@@ -21,6 +21,8 @@ namespace Apagao.AI.Sentinela
             Owner.HeightenedAlert = true; // uma vez visto, marcado
         }
 
+        public override void Exit() => Owner.ResetGun();
+
         public override void Tick()
         {
             if (Owner.CanSeePlayer)
@@ -32,9 +34,11 @@ namespace Apagao.AI.Sentinela
                     Owner.Stop();
 
                 Owner.FaceTowards(Owner.Player.position, 540f);
+                Owner.TickGun(true);
                 return;
             }
 
+            Owner.TickGun(false);
             lostTimer += Time.deltaTime;
             Owner.MoveTo(Owner.LastKnownPosition, Owner.ChaseSpeed);
             if (lostTimer >= Owner.LoseSightTime) Owner.Fsm.ChangeState(Owner.Procurando);

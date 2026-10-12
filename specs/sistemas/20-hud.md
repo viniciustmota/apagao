@@ -1,6 +1,6 @@
 # 20 — Interface (HUD)
 
-**Status:** Rascunho · **Marco:** 5 a 11
+**Status:** Parcial · **Marco:** 5 a 11 · **Código:** `UI/GameHUD.cs` (IMGUI provisório), `DebugTools/DebugHUD.cs`
 
 ## Objetivo
 HUD mínimo: o jogador lê o mundo, não a tela.

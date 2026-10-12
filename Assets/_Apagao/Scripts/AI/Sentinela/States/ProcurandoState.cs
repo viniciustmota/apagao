@@ -17,8 +17,11 @@ namespace Apagao.AI.Sentinela
         public override void Enter()
         {
             timer = 0f;
-            Owner.MoveTo(Owner.LastKnownPosition, Owner.InvestigateSpeed);
+            Retarget();
         }
+
+        /// <summary>Vai para o novo LastKnownPosition (ex.: ouviu um som durante a busca).</summary>
+        public void Retarget() => Owner.MoveTo(Owner.LastKnownPosition, Owner.InvestigateSpeed);
 
         public override void Tick()
         {

@@ -21,22 +21,29 @@ Legenda: `[x]` validada · `[~]` implementada, falta testar · `[ ]` a fazer
 - [~] Indicador de alerta, laser e label de debug
 - [ ] Ajustar tempos de detecção depois do teste
 
-## Marco 4 — Ruído e rede da VIGÍLIA
-- [ ] `NoiseSystem` + `NoiseEvent` + `INoiseListener` — spec 06
-- [ ] `HearingSensor` na Sentinela e reação ao som — spec 06
-- [ ] Passos do Caio emitem ruído por modo de movimento — spec 06
-- [ ] `HiveNetwork` + `HiveMember`: visão compartilhada — spec 07
-- [ ] Check-in periódico e investigação de membro desaparecido — spec 07
-- [ ] `HiveAntenna` sabotável — spec 07
-- [ ] Limpeza de estáticos para Fast Enter Play Mode
+## Marco 4 — Ruído e rede da VIGÍLIA (implementado, falta testar)
+- [~] `NoiseSystem` + `NoiseEvent` + `INoiseListener` — spec 06
+- [~] `HearingSensor` na Sentinela e reação ao som — spec 06
+- [~] Passos e quedas do Caio emitem ruído por modo de movimento — spec 06
+- [~] `HiveNetwork` + `HiveMember`: visão compartilhada e convergência — spec 07
+- [~] Check-in periódico e investigação de membro desaparecido — spec 07
+- [~] `HiveAntenna` sabotável (segurar E) — spec 07
+- [~] Limpeza de estáticos para Fast Enter Play Mode
+- [~] `DebugHUD` provisório: estado da rede, relógio de check-in e prompt da antena
+- [ ] Oclusão de som só pela layer Obstacle (hoje conta qualquer colisor) — spec 06
 
-## Marco 5 — Vida, facão e takedown
-- [ ] `Health`, `DamageInfo`, `IDamageable` — spec 08
-- [ ] Morte do Caio e reinício — spec 08
-- [ ] Sentinela atira (rajada) — spec 05 + 08
-- [ ] Facão: ataque leve e pesado, durabilidade — spec 09
-- [ ] Takedown furtivo por trás — spec 09
-- [ ] HUD mínimo: vida e prompt de interação — spec 20
+## Marco 5 — Vida, facão e takedown (implementado, falta testar)
+- [~] `Health`, `DamageInfo`, `IDamageable`, multiplicadores e ponto fraco nas costas — spec 08
+- [~] Morte do Caio e reinício (recarrega a cena até existir checkpoint) — spec 08
+- [~] Sentinela atira: mira de 0,5 s (laser engrossa) + rajada de 3 — spec 05 + 08
+- [~] Sentinela atingida entra em combate; destruída vira carcaça no chão — spec 05
+- [~] Facão: ataque leve e pesado, durabilidade — spec 09
+- [~] Ajuste pós-teste do facão: golpe na direção da câmera, assistência de mira, avanço e janela de acerto — spec 09 R2
+- [~] Retorno do acerto: hitstop, brilho, recuo, tremor de câmera e marcador de alvo — spec 09 R5a
+- [~] Takedown furtivo por trás (E) — spec 09
+- [~] HUD mínimo: vida, facão, prompt de takedown, vinheta de dano, tela de morte — spec 20
+- [ ] Cura com kit (depende do crafting, marco 8) — spec 08
+- [ ] Afiar facão (depende do crafting, marco 8) — spec 09
 
 ## Marco 6 — Matilha
 - [ ] Controlador da Matilha reaproveitando a FSM — spec 14

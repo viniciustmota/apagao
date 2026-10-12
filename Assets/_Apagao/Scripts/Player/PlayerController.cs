@@ -33,6 +33,12 @@ namespace Apagao.Player
         [Tooltip("Modelo visual, achatado ao agachar. Opcional.")]
         [SerializeField] private Transform visual;
 
+        /// <summary>Trava o input (takedown, morte, cutscene). A gravidade continua.</summary>
+        public bool InputLocked { get; set; }
+
+        /// <summary>Impede que o movimento gire o Caio (ex.: durante um golpe, quem decide a direção é o ataque).</summary>
+        public bool RotationLocked { get; set; }
+
         public MoveMode Mode { get; private set; }
         public bool IsCrouching { get; private set; }
         public bool IsGrounded => controller.isGrounded;
@@ -53,15 +59,16 @@ namespace Apagao.Player
         private void Update()
         {
             var kb = Keyboard.current;
-            if (kb == null) return;
+            if (kb == null || !controller.enabled) return;
+            bool locked = InputLocked;
 
-            Vector2 input = new Vector2(
+            Vector2 input = locked ? Vector2.zero : new Vector2(
                 (kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f),
                 (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f));
             input = Vector2.ClampMagnitude(input, 1f);
             bool moving = input.sqrMagnitude > 0.01f;
 
-            if (kb.cKey.wasPressedThisFrame || kb.leftCtrlKey.wasPressedThisFrame)
+            if (!locked && (kb.cKey.wasPressedThisFrame || kb.leftCtrlKey.wasPressedThisFrame))
                 ToggleCrouch();
 
             // Correr levanta o Caio, se houver espaço acima dele.
@@ -82,7 +89,7 @@ namespace Apagao.Player
             Vector3 desired = (forward * input.y + right * input.x) * targetSpeed;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desired, acceleration * Time.deltaTime);
 
-            if (moving && desired.sqrMagnitude > 0.0001f)
+            if (moving && !RotationLocked && desired.sqrMagnitude > 0.0001f)
             {
                 Quaternion look = Quaternion.LookRotation(desired, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * Time.deltaTime);
@@ -91,7 +98,7 @@ namespace Apagao.Player
             if (controller.isGrounded && verticalVelocity < 0f)
                 verticalVelocity = -2f; // mantém o Caio colado no chão em descidas
 
-            if (kb.spaceKey.wasPressedThisFrame && controller.isGrounded)
+            if (!locked && kb.spaceKey.wasPressedThisFrame && controller.isGrounded)
             {
                 if (IsCrouching) TryStand();
                 else verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -104,6 +111,14 @@ namespace Apagao.Player
                  : !moving ? MoveMode.Parado
                  : running ? MoveMode.Correndo
                  : MoveMode.Andando;
+        }
+
+        /// <summary>Vira o Caio na hora para uma direção no plano horizontal.</summary>
+        public void SnapFacing(Vector3 direction)
+        {
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 0.0001f)
+                transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         }
 
         private void ToggleCrouch()

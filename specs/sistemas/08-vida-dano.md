@@ -1,6 +1,6 @@
 # 08 — Vida e dano
 
-**Status:** Aprovada · **Marco:** 5
+**Status:** Implementada (sem cura e sem checkpoint) · **Marco:** 5 · **Código:** `Combat/Damage.cs`, `Combat/Health.cs`, `Player/PlayerDeath.cs`
 
 ## Objetivo
 Um modelo único de dano para o Caio, os robôs e os objetos destrutíveis.
@@ -11,8 +11,8 @@ Um modelo único de dano para o Caio, os robôs e os objetos destrutíveis.
 - **R3** Tipos: `Corte`, `Bala`, `Fogo`, `Explosao`, `Eletrico`.
 - **R4** Componente `Health` com vida máxima, eventos `Damaged` e `Died`, e multiplicadores por tipo.
 - **R5** **Caio:** 100 de vida, sem regeneração. Cura só com kit (+50, 2 s de uso, interrompido por dano).
-- **R6** Morte do Caio → tela escura de 2 s → recomeça no último checkpoint (spec 18).
-- **R7** Feedback de dano no Caio: vinheta vermelha, câmera treme, som abafado com vida < 30.
+- **R6** Morte do Caio → tela escura de 2 s → recomeça no último checkpoint (spec 18). *Até o marco 11, recomeça a cena.*
+- **R7** Feedback de dano no Caio: vinheta vermelha, câmera treme, som abafado com vida < 30. *Implementado: vinheta e pulso com vida < 30%.*
 - **R8** Robôs: ponto fraco por trás (×3) definido pelo ângulo entre a direção do golpe e o `forward` do robô (> 120°).
 - **R9** Robô destruído: desliga a FSM, faz o sinal de morte para a rede (spec 07), vira sucata com saque (spec 12).
 

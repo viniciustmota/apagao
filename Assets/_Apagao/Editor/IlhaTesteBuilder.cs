@@ -1,6 +1,8 @@
 using System.IO;
 using System.Linq;
+using Apagao.Combat;
 using Apagao.Player;
+using Apagao.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -275,6 +277,26 @@ namespace Apagao.EditorTools
             nariz.transform.localScale = new Vector3(0.4f, 0.15f, 0.3f);
 
             var controller = caio.AddComponent<PlayerController>();
+            caio.AddComponent<PlayerFootsteps>();
+            caio.AddComponent<Health>();
+            caio.AddComponent<PlayerDeath>();
+
+            // Facão na mão direita: o pivô gira no golpe.
+            var mao = new GameObject("MaoFacao").transform;
+            mao.SetParent(caio.transform, false);
+            mao.localPosition = new Vector3(0.38f, 1.1f, 0.15f);
+            var lamina = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            lamina.name = "Lamina";
+            Object.DestroyImmediate(lamina.GetComponent<Collider>());
+            lamina.transform.SetParent(mao, false);
+            lamina.transform.localPosition = new Vector3(0f, 0f, 0.3f);
+            lamina.transform.localScale = new Vector3(0.05f, 0.04f, 0.55f);
+            lamina.GetComponent<MeshRenderer>().sharedMaterial = Mat("Facao", new Color(0.6f, 0.62f, 0.64f), 0.7f);
+            var facao = caio.AddComponent<Facao>();
+            SetRef(facao, "blade", mao);
+            caio.AddComponent<TakedownSystem>();
+
+            new GameObject("HUD").AddComponent<GameHUD>();
 
             var camGo = new GameObject("Camera Principal") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();

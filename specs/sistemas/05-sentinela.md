@@ -1,6 +1,6 @@
 # 05 — Sentinela
 
-**Status:** Implementada (sem tiro) · **Marco:** 2–3 (tiro no 5) · **Código:** `Scripts/AI/Sentinela/`
+**Status:** Implementada (sem saque) · **Marco:** 2–5 · **Código:** `Scripts/AI/Sentinela/`
 
 ## Objetivo
 O inimigo base: humanoide que patrulha, desconfia, investiga, combate e procura. Silencioso; só se ouve o servo motor.
@@ -33,4 +33,5 @@ O inimigo base: humanoide que patrulha, desconfia, investiga, combate e procura.
 - Colisor `CapsuleCollider` só na raiz; partes visuais sem colisor.
 
 ## Questões abertas
-- O laser deve ficar visível para o jogador antes do tiro (aviso)? Proposta: sim, 0,5 s de mira antes de cada rajada.
+- ~~O laser deve avisar antes do tiro?~~ Decidido: o laser engrossa durante os 0,5 s de mira antes de cada rajada.
+- Levar dano coloca a Sentinela em Combate na hora, com a posição de quem atacou.

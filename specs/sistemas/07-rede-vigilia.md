@@ -1,6 +1,6 @@
 # 07 — Rede da VIGÍLIA (mente coletiva)
 
-**Status:** Aprovada · **Marco:** 4
+**Status:** Implementada · **Marco:** 4 · **Código:** `AI/Hive/`
 
 ## Objetivo
 As máquinas compartilham tudo o que veem. Apagar uma delas tem consequência. O jogador precisa pensar na ordem: antena primeiro, robôs depois.
@@ -18,7 +18,7 @@ As máquinas compartilham tudo o que veem. Apagar uma delas tem consequência. O
 ### Check-in
 - **R5** Cada membro faz check-in a cada 15 s (fase aleatória por membro).
 - **R6** Membro destruído **sem estar em alerta** não reporta nada. A rede só descobre no próximo check-in perdido.
-- **R7** Membro destruído **em Suspeito ou Combate** transmite um sinal de morte imediato com a posição.
+- **R7** Membro destruído **fora da Patrulha** (Suspeito, Investigando, Combate ou Procurando) transmite um sinal de morte imediato com a posição.
 - **R8** Check-in perdido → a rede manda os 2 membros mais próximos investigar a última posição do desaparecido e liga o alerta elevado de todos.
 
 ### Contra-jogadas
@@ -28,8 +28,8 @@ As máquinas compartilham tudo o que veem. Apagar uma delas tem consequência. O
 - **R12** A sabotagem da antena gera ruído de 8 m e muda o visual (luz vermelha apaga).
 
 ### Feedback
-- **R13** HUD mostra o relógio do próximo check-in só quando um membro está desaparecido (ver spec 20).
-- **R14** Debug: linhas entre a antena e os membros online no Scene view.
+- **R13** HUD mostra o relógio do próximo check-in só quando um membro está desaparecido (ver spec 20). *Hoje no `DebugHUD` provisório.*
+- **R14** Debug: caixa da área e linhas da rede até os membros no Scene view (selecionando a rede).
 
 ## Critérios de aceite
 - [ ] A Sentinela 1 te vê; a Sentinela 2, do outro lado da vila, vai até o ponto.
@@ -50,8 +50,9 @@ public class HiveNetwork : MonoBehaviour   // uma por área
 public class HiveMember : MonoBehaviour { HiveNetwork Network; bool Offline; float lastCheckIn; }
 public class HiveAntenna : MonoBehaviour, IInteractable, IStunnable { HiveNetwork network; }
 ```
-- Inimigos implementam `IHiveAware` com `OnSighting(Vector3)` e `OnMemberMissing(Vector3)` para decidir a transição de estado.
-- A área de cada rede é um `BoxCollider` trigger; o membro se registra na rede cuja área contém sua posição inicial.
+- Inimigos implementam `IHiveAware` (`IsAware`, `OnHiveSighting(pos, confirmed, converge)`, `OnHiveMemberMissing(pos, investigate)`) e decidem a transição de estado.
+- A rede calcula quem converge (raio de 40 m) e quem investiga um desaparecido (os 2 mais próximos).
+- A área de cada rede é uma caixa (`areaSize`, sem colisor); o membro se registra na rede cuja área contém sua posição inicial.
 
 ## Questões abertas
 - A rede deve ter um "relé" entre áreas (o Capataz ouve tudo)? Proposta: só no ato 4.

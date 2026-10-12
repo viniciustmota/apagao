@@ -1,6 +1,6 @@
 # 06 — Ruído e audição
 
-**Status:** Aprovada · **Marco:** 4
+**Status:** Implementada · **Marco:** 4 · **Código:** `Systems/NoiseSystem.cs`, `AI/Senses/HearingSensor.cs`, `Player/PlayerFootsteps.cs`
 
 ## Objetivo
 Todo som relevante vira um evento que as máquinas ouvem. Fazer barulho é a principal forma de se entregar e a principal forma de distrair.
@@ -49,7 +49,8 @@ public static class NoiseSystem { Register, Unregister, Emit }   // lista estát
 public class HearingSensor : MonoBehaviour, INoiseListener { float hearingMultiplier; event Action<NoiseEvent> Heard; }
 public class PlayerFootsteps : MonoBehaviour { lê PlayerController.Mode e a distância percorrida }
 ```
-- Oclusão por `RaycastNonAlloc` entre fonte e ouvinte, contando colisores da layer Obstacle.
+- Oclusão por `RaycastNonAlloc` entre fonte e ouvinte. **Hoje conta qualquer colisor** (exceto o emissor e o próprio ouvinte); passa a contar só a layer Obstacle quando as layers forem criadas.
+- Ruído leve deixa a Sentinela em Suspeito por no mínimo 2,5 s, encarando o ponto (`minSuspiciousTime`).
 
 ## Questões abertas
 - Robôs também emitem ruído que outros robôs ouvem? Proposta: não; a rede (spec 07) já cobre a comunicação entre eles.

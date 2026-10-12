@@ -28,6 +28,9 @@ namespace Apagao.Player
         [SerializeField] private float collisionRadius = 0.25f;
 
         private readonly RaycastHit[] hits = new RaycastHit[16];
+        private float shakeAmplitude;
+        private float shakeDuration;
+        private float shakeTimeLeft;
         private PlayerController player;
         private float yaw;
         private float pitch = 15f;
@@ -80,7 +83,23 @@ namespace Apagao.Player
                 if (hit.distance < dist) dist = hit.distance;
             }
 
-            transform.SetPositionAndRotation(shoulder + back * dist, rot);
+            Vector3 shake = Vector3.zero;
+            if (shakeTimeLeft > 0f)
+            {
+                shakeTimeLeft -= Time.unscaledDeltaTime;
+                shake = Random.insideUnitSphere * shakeAmplitude * Mathf.Clamp01(shakeTimeLeft / shakeDuration);
+            }
+
+            transform.SetPositionAndRotation(shoulder + back * dist + shake, rot);
+        }
+
+        /// <summary>Tremor curto da câmera (impactos, tiros recebidos).</summary>
+        public void Shake(float amplitude, float duration)
+        {
+            if (amplitude < shakeAmplitude * Mathf.Clamp01(shakeTimeLeft / Mathf.Max(shakeDuration, 0.0001f))) return;
+            shakeAmplitude = amplitude;
+            shakeDuration = duration;
+            shakeTimeLeft = duration;
         }
 
         private static void LockCursor(bool locked)

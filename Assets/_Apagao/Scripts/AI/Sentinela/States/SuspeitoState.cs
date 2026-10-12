@@ -1,8 +1,8 @@
 namespace Apagao.AI.Sentinela
 {
     /// <summary>
-    /// Para e encara o vulto. O medidor de suspeita sobe enquanto vê o Caio e desce quando perde.
-    /// Cheio -> Investigando. Vazio -> volta à Patrulha ("esquece").
+    /// Para e encara o ponto suspeito (vulto ou som). O medidor sobe enquanto vê o Caio e desce quando perde.
+    /// Cheio -> Investigando. Vazio (depois de um tempo mínimo encarando) -> Patrulha ("esquece").
     /// </summary>
     public class SuspeitoState : State<SentinelaAI>
     {
@@ -21,8 +21,10 @@ namespace Apagao.AI.Sentinela
 
             Owner.FaceTowards(Owner.LastKnownPosition, 180f);
 
-            if (Owner.Suspicion >= 1f) Owner.Fsm.ChangeState(Owner.Investigando);
-            else if (Owner.Suspicion <= 0f) Owner.Fsm.ChangeState(Owner.Patrulha);
+            if (Owner.Suspicion >= 1f)
+                Owner.InvestigatePoint(Owner.LastKnownPosition, fast: false);
+            else if (Owner.Suspicion <= 0f && Owner.Fsm.TimeInState >= Owner.MinSuspiciousTime)
+                Owner.Fsm.ChangeState(Owner.Patrulha);
         }
     }
 }
